@@ -69,16 +69,9 @@ export class ProductRepository {
             .orWhere('product.description ILIKE :keyword')
             .orWhere('product.barcode ILIKE :keyword')
             .orWhere('book.authors ILIKE :keyword')
-            .orWhere('book.publisher ILIKE :keyword')
-            .orWhere('book.genre ILIKE :keyword')
             .orWhere('cd.artists ILIKE :keyword')
-            .orWhere('cd.record_label ILIKE :keyword')
-            .orWhere('cd.genre ILIKE :keyword')
             .orWhere('cd_track.title ILIKE :keyword')
             .orWhere('dvd.director ILIKE :keyword')
-            .orWhere('dvd.studio ILIKE :keyword')
-            .orWhere('dvd.genre ILIKE :keyword')
-            .orWhere('newspaper.publisher ILIKE :keyword')
             .orWhere('newspaper.editor_in_chief ILIKE :keyword')
             .orWhere('newspaper.sections ILIKE :keyword');
         }),
