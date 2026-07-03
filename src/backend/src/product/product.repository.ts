@@ -48,7 +48,8 @@ export class ProductRepository {
       .leftJoin('cds', 'cd', 'cd.product_id = product.product_id')
       .leftJoin('cd_tracks', 'cd_track', 'cd_track.product_id = product.product_id')
       .leftJoin('dvds', 'dvd', 'dvd.product_id = product.product_id')
-      .leftJoin('newspapers', 'newspaper', 'newspaper.product_id = product.product_id');
+      .leftJoin('newspapers', 'newspaper', 'newspaper.product_id = product.product_id')
+      .leftJoin('media', 'media', 'media.product_id = product.product_id');
     
     if (status) {
       if (status.toUpperCase() !== 'ALL') {
@@ -73,7 +74,10 @@ export class ProductRepository {
             .orWhere('cd_track.title ILIKE :keyword')
             .orWhere('dvd.director ILIKE :keyword')
             .orWhere('newspaper.editor_in_chief ILIKE :keyword')
-            .orWhere('newspaper.sections ILIKE :keyword');
+            .orWhere('newspaper.sections ILIKE :keyword')
+            .orWhere('media.publisher ILIKE :keyword')
+            .orWhere('media.genre ILIKE :keyword')
+            .orWhere('media.language ILIKE :keyword');
         }),
         { keyword: `%${normalizedKeyword}%` },
       );
