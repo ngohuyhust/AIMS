@@ -1,0 +1,5 @@
+# Preserve every frontend byte even on platforms using automatic CRLF conversion.
+src/frontend/** -text
+src/backend/mvnw text eol=lf
+# Keep the official Windows launcher byte-for-byte, including CRLF.
+src/backend/mvnw.cmd -text whitespace=cr-at-eol

@@ -1,0 +1,338 @@
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, NgForm } from '@angular/forms';
+import { ActivatedRoute, RouterLink, Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Subscription } from 'rxjs';
+import { finalize } from 'rxjs/operators';
+import { CartItem, CartService } from '../../../services/cart.service';
+import { DeliveryInfo, OrderResponse, OrderService, StockIssue } from '../../../services/order.service';
+
+@Component({
+  selector: 'app-checkout',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink],
+  templateUrl: './checkout.component.html'
+})
+export class CheckoutComponent implements OnInit, OnDestroy {
+  readonly provinces = [
+    'Hà Nội',
+    'Huế',
+    'Hải Phòng',
+    'Đà Nẵng',
+    'TP. Hồ Chí Minh',
+    'Cần Thơ',
+    'Tuyên Quang',
+    'Lào Cai',
+    'Thái Nguyên',
+    'Phú Thọ',
+    'Bắc Ninh',
+    'Hưng Yên',
+    'Ninh Bình',
+    'Quảng Trị',
+    'Quảng Ngãi',
+    'Gia Lai',
+    'Khánh Hòa',
+    'Lâm Đồng',
+    'Đắk Lắk',
+    'Đồng Nai',
+    'Tây Ninh',
+    'Vĩnh Long',
+    'Đồng Tháp',
+    'Cà Mau',
+    'An Giang',
+    'Cao Bằng',
+    'Điện Biên',
+    'Hà Tĩnh',
+    'Lai Châu',
+    'Lạng Sơn',
+    'Nghệ An',
+    'Quảng Ninh',
+    'Thanh Hóa',
+    'Sơn La',
+  ];
+
+  cartItems: CartItem[] = [];
+  editOrderId: number | null = null;
+  shippingFee = 35000;
+  calculatingShipping = false;
+  submitting = false;
+  loadingOrder = false;
+  errorMessage = '';
+  shippingError = '';
+  stockIssues: StockIssue[] = [];
+  provinceSearch = '';
+  provinceOptionsOpen = false;
+
+  deliveryInfo: DeliveryInfo = {
+    receiverName: '',
+    email: '',
+    phoneNumber: '',
+    province: '',
+    address: '',
+    deliveryNotes: '',
+  };
+
+  private readonly cartSubscription: Subscription;
+  private activeShippingRequest: Subscription | null = null;
+  private readonly subscriptions = new Subscription();
+  private destroyed = false;
+
+  constructor(
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly cartService: CartService,
+    private readonly orderService: OrderService,
+    private readonly cdr: ChangeDetectorRef,
+  ) {
+    this.cartItems = this.cartService.getCartItems();
+    this.cartSubscription = this.cartService.items$.subscribe((items) => {
+      if (this.editOrderId) {
+        return;
+      }
+
+      this.cartItems = items;
+      this.calculateShippingFee();
+    });
+  }
+
+  ngOnInit(): void {
+    const orderId = Number(this.route.snapshot.queryParamMap.get('orderId'));
+    if (Number.isFinite(orderId) && orderId > 0) {
+      this.loadOrderForEditing(orderId);
+      return;
+    }
+
+    this.calculateShippingFee();
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed = true;
+    this.cartSubscription.unsubscribe();
+    this.activeShippingRequest?.unsubscribe();
+    this.subscriptions.unsubscribe();
+  }
+
+  get subtotal(): number {
+    return this.cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  }
+
+  get vat(): number {
+    return this.cartService.vat;
+  }
+
+  get total(): number {
+    return this.subtotal + this.vat + this.shippingFee;
+  }
+
+  get filteredProvinces(): string[] {
+    const normalizedSearch = this.normalizeProvince(this.provinceSearch);
+    if (!normalizedSearch) {
+      return this.provinces;
+    }
+
+    return this.provinces.filter((province) =>
+      this.normalizeProvince(province).includes(normalizedSearch),
+    );
+  }
+
+  get provinceValid(): boolean {
+    return this.provinces.includes(this.deliveryInfo.province);
+  }
+
+  onProvinceSearchChange(value: string): void {
+    this.provinceSearch = value;
+    const matchingProvince = this.findProvince(value);
+    this.deliveryInfo.province = matchingProvince ?? '';
+
+    if (matchingProvince) {
+      this.calculateShippingFee();
+    } else {
+      this.activeShippingRequest?.unsubscribe();
+      this.calculatingShipping = false;
+      this.shippingError = '';
+    }
+  }
+
+  openProvinceOptions(): void {
+    this.provinceOptionsOpen = true;
+  }
+
+  closeProvinceOptions(): void {
+    setTimeout(() => {
+      this.provinceOptionsOpen = false;
+      this.refreshView();
+    }, 120);
+  }
+
+  selectProvince(province: string): void {
+    this.provinceSearch = province;
+    this.deliveryInfo.province = province;
+    this.provinceOptionsOpen = false;
+    this.calculateShippingFee();
+  }
+
+  calculateShippingFee(): void {
+    this.activeShippingRequest?.unsubscribe();
+    this.shippingError = '';
+
+    if (this.cartItems.length === 0 || !this.deliveryInfo.province.trim()) {
+      this.calculatingShipping = false;
+      return;
+    }
+
+    this.calculatingShipping = true;
+    this.refreshView();
+    this.activeShippingRequest = this.orderService
+      .calculateShippingFee(this.cartItems, this.deliveryInfo.province)
+      .pipe(
+        finalize(() => {
+          this.calculatingShipping = false;
+          this.refreshView();
+        }),
+      )
+      .subscribe({
+        next: (result) => {
+          this.shippingFee = Number(result.shippingFee);
+        },
+        error: () => {
+          this.shippingError = 'Unable to calculate shipping fee. Please try again.';
+        },
+      });
+  }
+
+  continueToPayment(form: NgForm): void {
+    if (form.invalid || !this.provinceValid) {
+      form.control.markAllAsTouched();
+      return;
+    }
+
+    if (this.cartItems.length === 0) {
+      this.router.navigate(['/cart']);
+      return;
+    }
+
+    this.submitting = true;
+    this.errorMessage = '';
+    this.stockIssues = [];
+
+    const request$ = this.editOrderId
+      ? this.orderService.updateDeliveryInfo(this.editOrderId, this.deliveryInfo)
+      : this.orderService.placeOrder(this.cartItems, this.deliveryInfo);
+
+    request$.subscribe({
+      next: (order) => {
+        if (!this.editOrderId) {
+          this.cartService.clearCart();
+        }
+        this.submitting = false;
+        this.router.navigate(['/invoice'], {
+          queryParams: {
+            orderId: order.orderID,
+          },
+        });
+      },
+      error: (error: HttpErrorResponse) => {
+        this.submitting = false;
+        const response = error.error as { message?: string | string[]; issues?: StockIssue[] } | undefined;
+        if (error.status === 400) {
+          if (Array.isArray(response?.issues) && response.issues.length > 0) {
+            this.errorMessage = 'Some items are out of stock. Please return to cart to update quantities.';
+            this.stockIssues = response.issues;
+          } else if (response?.message) {
+            const msg = Array.isArray(response.message) ? response.message.join(', ') : response.message;
+            this.errorMessage = `Invalid order information: ${msg}`;
+            this.stockIssues = [];
+          } else {
+            this.errorMessage = 'Invalid request. Please check your information and try again.';
+            this.stockIssues = [];
+          }
+        } else {
+          this.errorMessage = 'Unable to place order. Please try again later.';
+          this.stockIssues = [];
+        }
+      },
+    });
+  }
+
+  itemTotal(item: CartItem): number {
+    return item.price * item.quantity;
+  }
+
+  stockIssueTitle(issue: StockIssue): string {
+    return this.cartItems.find((item) => item.id === issue.productId)?.title ?? `Product #${issue.productId}`;
+  }
+
+  private extractStockIssues(error: HttpErrorResponse): StockIssue[] {
+    const response = error.error as { issues?: StockIssue[] } | undefined;
+    return Array.isArray(response?.issues) ? response.issues : [];
+  }
+
+  private loadOrderForEditing(orderId: number): void {
+    this.editOrderId = orderId;
+    this.loadingOrder = true;
+    this.errorMessage = '';
+
+    this.subscriptions.add(
+      this.orderService.getOrderDetail(orderId).subscribe({
+        next: (order) => {
+          this.applyOrderForEditing(order);
+          this.loadingOrder = false;
+          this.calculateShippingFee();
+          this.refreshView();
+        },
+        error: () => {
+          this.loadingOrder = false;
+          this.errorMessage = 'Unable to load order details for editing.';
+          this.refreshView();
+        },
+      }),
+    );
+  }
+
+  private applyOrderForEditing(order: OrderResponse): void {
+    this.deliveryInfo = {
+      receiverName: order.deliveryInfo?.receiverName ?? '',
+      email: order.deliveryInfo?.email ?? '',
+      phoneNumber: order.deliveryInfo?.phoneNumber ?? '',
+      province: order.deliveryInfo?.province ?? '',
+      address: order.deliveryInfo?.address ?? '',
+      deliveryNotes: order.deliveryInfo?.deliveryNotes ?? '',
+    };
+    this.provinceSearch = this.deliveryInfo.province;
+    this.shippingFee = Number(order.invoice?.shippingFee ?? order.shippingFee ?? 0);
+    this.cartItems = (order.orderItems ?? []).map((item) => ({
+      id: item.product?.productID ?? 0,
+      title: item.product?.title ?? 'Product',
+      price: Number(item.unitPrice),
+      imageUrl: item.product?.imageUrl || 'https://placehold.co/300x400/e2e8f0/475569?text=AIMS',
+      quantity: item.quantity,
+      mediaType: item.product?.productType ?? 'PRODUCT',
+      quantityInStock: item.product?.quantityInStock ?? item.quantity,
+    }));
+  }
+
+  private findProvince(value: string): string | undefined {
+    const normalizedValue = this.normalizeProvince(value);
+    return this.provinces.find(
+      (province) => this.normalizeProvince(province) === normalizedValue,
+    );
+  }
+
+  private normalizeProvince(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'D')
+      .toLowerCase()
+      .replace(/[.\s]+/g, ' ')
+      .trim();
+  }
+
+  private refreshView(): void {
+    if (!this.destroyed) {
+      this.cdr.detectChanges();
+    }
+  }
+}

@@ -1,0 +1,22 @@
+name: aims-local
+
+services:
+  postgres:
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_DB: aims_local
+      POSTGRES_USER: aims_local
+      POSTGRES_PASSWORD: ${AIMS_LOCAL_DB_PASSWORD:?Run python3 tools/init-local-env.py first}
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - aims-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aims_local -d aims_local"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+volumes:
+  aims-postgres-data:
