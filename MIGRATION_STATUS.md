@@ -3,7 +3,7 @@
 ## Current checkpoint
 
 - Authorized scope: **PHASE 0 — Repository and foundation only**.
-- Status: tests, build and local smoke test PASSED; awaiting commit/push verification.
+- Status: **PHASE 0 implementation validated, pushed and verified; awaiting user confirmation**.
 - Next checkpoint: **MODULE 1 — Public Product Catalog**, not authorized yet.
 - Required next message: `TIẾP TỤC MODULE 1`.
 - Business implementation: none (Product/User/Auth/Order/Payment/Notification are not implemented).
@@ -18,7 +18,14 @@
 - Origin: `https://github.com/ngohuyhust/AIMS.git`.
 - Remote was nonempty (README only), main commit `b6e4edfbfa53a6e47aa81664cc9d48f6fca8a0e7`.
 - Work branch: `migration/spring-boot`; existing main history retained.
-- Implementation commit hashes and verified push are recorded after validation below.
+- Implementation commit: `57b30586c8dbea063eafe4359f94e78178caf91c`
+  (`chore: initialize Spring Boot migration workspace`).
+- Push: successful to `origin/migration/spring-boot`; `git ls-remote` confirmed that exact hash.
+- Remote main remains `b6e4edfbfa53a6e47aa81664cc9d48f6fca8a0e7`.
+- Working tree was clean after the implementation push and before this status-only update.
+- This final status record is a separate documentation commit, pushed on the same branch.
+  Its own hash and final clean-tree/remote equality are reported in the user checkpoint, because
+  a commit cannot store its own hash. A final push failure must still be reported as incomplete.
 
 ## Scope delivered for validation
 
@@ -39,7 +46,8 @@ Executed module test, full suite and Maven verify: each passed 5 tests, 0 failur
 Packaged JAR returned HTTP200 `{"status":"UP"}` at localhost:3000 with local Compose PostgreSQL.
 Flyway V1 applied and repeat migration executed0; no business tables. Frontend SHA-256 and source
 preservation checks passed. See [phase-0-validation.md](docs/phase-0-validation.md) for commands,
-toolchain checksums and evidence. Commit/push hashes will be recorded after remote verification.
+toolchain checksums and evidence. No Java or frontend content changed after passing these checks;
+the final commit only records the verified checkpoint state.
 
 ## Remaining sequence (all require separate authorization)
 
