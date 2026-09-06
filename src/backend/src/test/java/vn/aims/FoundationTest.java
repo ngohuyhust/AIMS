@@ -50,21 +50,21 @@ class FoundationTest {
 
     @Test
     void unimplementedEndpointsAndActuatorInternalsAreNotExposed() throws Exception {
-        for (String path : new String[]{"/api/products", "/api/users", "/actuator/env", "/actuator"}) {
+        for (String path : new String[]{"/api/products/audit-logs", "/api/users", "/actuator/env", "/actuator"}) {
             mvc.perform(get(path)).andExpect(status().isForbidden());
         }
     }
 
     @Test
-    void flywayRunsOnPostgresqlAndCanBeRepeatedWithoutBusinessTables() {
+    void flywayRunsOnPostgresqlAndCanBeRepeatedWithOnlyAuthorizedTables() {
         assertThat(jdbc.queryForObject("select version()", String.class)).startsWith("PostgreSQL 17.");
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("1");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("2");
         assertThat(flyway.validateWithResult().validationSuccessful).isTrue();
         assertThat(flyway.migrate().migrationsExecuted).isZero();
         assertThat(jdbc.queryForList("""
                 select table_name from information_schema.tables
                 where table_schema = 'public' order by table_name
-                """, String.class)).containsExactly("flyway_schema_history");
+                """, String.class)).containsExactly("books", "cd_tracks", "cds", "dvds", "flyway_schema_history", "media", "newspapers", "products");
     }
 
     @Test

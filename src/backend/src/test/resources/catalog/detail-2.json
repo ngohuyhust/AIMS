@@ -1,0 +1,42 @@
+{
+  "productID": 2,
+  "productType": "CD",
+  "title": "Beta Album",
+  "category": "Music",
+  "description": null,
+  "barcode": "CD-2",
+  "length": null,
+  "width": null,
+  "height": null,
+  "weight": 0.2,
+  "originalPrice": "100000.00",
+  "currentPrice": "150000.00",
+  "quantityInStock": 0,
+  "status": "ACTIVE",
+  "imageUrl": null,
+  "createdAt": "2026-01-02T03:04:05.000Z",
+  "updatedAt": "2026-01-02T03:04:05.000Z",
+  "cd": {
+    "productID": 2,
+    "artists": "Artist Needle",
+    "tracks": [
+      {
+        "id": 21,
+        "title": "Track Needle One",
+        "lengthSeconds": 123
+      },
+      {
+        "id": 22,
+        "title": "Track Needle Two",
+        "lengthSeconds": 234
+      }
+    ],
+    "publisher": "Record Label",
+    "releaseDate": null,
+    "language": null,
+    "genre": "Jazz",
+    "publicationDate": null,
+    "recordLabel": "Record Label",
+    "studio": "Record Label"
+  }
+}

@@ -1,7 +1,7 @@
 # AIMS
 
 Migration có kiểm soát từ NestJS sang Java Spring Boot, giữ nguyên Angular frontend.
-PHASE 0 chỉ có nền tảng, PostgreSQL local và health endpoint; các API nghiệp vụ chưa được chuyển.
+MODULE 1 đã chuyển public product catalog; các module nghiệp vụ khác chưa được chuyển.
 Tiến độ và điều kiện tiếp tục nằm trong [MIGRATION_STATUS.md](MIGRATION_STATUS.md).
 
 ## Cấu trúc
@@ -69,9 +69,20 @@ vẫn dùng JDK 21 và biến môi trường local đã export.
 | spring.flyway.clean-disabled | true |
 | spring.flyway.baseline-on-migrate | false |
 
-Không có production profile hay cấu hình gateway ở checkpoint này. JWT/CORS sẽ được chuyển ở
-module 3, gateway/email ở module 9/10/12, image backend/CI/deployment ở module 13.
-Spring Security hiện chỉ mở health; đường dẫn còn lại bị từ chối 403.
+Không có production profile hay cấu hình gateway ở checkpoint này. JWT và CORS cho các feature
+khác sẽ được chuyển ở module 3, gateway/email ở module 9/10/12, image backend/CI/deployment ở module 13.
+Spring Security mở health và public catalog GET/HEAD; API quản trị chưa được mở.
+
+Public catalog giữ nguyên query/JSON của Angular:
+
+```sh
+curl 'http://localhost:3000/api/products?keyword=book&mediaTypes=BOOK,CD&minPrice=0'
+curl http://localhost:3000/api/products/random
+curl http://localhost:3000/api/products/1
+```
+
+Database local ban đầu không có sản phẩm: search/random trả `[]`, detail chưa tồn tại trả404.
+Catalog có CORS tương thích localhost/Vercel/ALLOWED_ORIGINS và Cache-Control no-store.
 
 ## Kiểm thử
 
@@ -81,13 +92,15 @@ Docker phải chạy. Tests dùng PostgreSQL Testcontainer mới, tách khỏi d
 ```sh
 cd src/backend
 ./mvnw -B -Dtest=FoundationTest test
+./mvnw -B -Dtest=CatalogIntegrationTest,ProductServiceTest test
 ./mvnw -B test
 ./mvnw -B verify
 ```
 
 Suite kiểm tra application context, HTTP thật, MockMvc health, phạm vi endpoint được mở,
-Flyway apply/validate/re-run và cấu hình không phá hủy schema. V1 chỉ chạy SELECT 1 và tạo lịch sử
-Flyway; không tạo bảng nghiệp vụ hay baseline database cũ. V2 dành cho MODULE 1 sau khi được phép.
+Flyway apply/validate/re-run và cấu hình không phá hủy schema. V1 chỉ tạo lịch sử Flyway;
+V2 tạo 7 bảng catalog, giữ constraint/index của TypeORM. Test MODULE 1 đối chiếu JSON với mẫu
+chạy từ TypeScript gốc và so sánh metadata schema trên PostgreSQL.
 
 Từ root, xác minh frontend với source read-only:
 
@@ -97,7 +110,7 @@ python3 tools/verify-frontend.py
 
 Có thể dùng `--source /path/to/ISD.20252-25`. Công cụ kiểm tra tập file và từng SHA-256 so với cả
 source lẫn manifest đã commit. Không format/cài dependency/chạy build trong project nguồn.
-Frontend build đầy đủ nằm ở MODULE 13. Trong PHASE 0, UI nghiệp vụ chưa dùng được với Java backend.
+Frontend build đầy đủ nằm ở MODULE 13. Hiện chỉ catalog được chuyển; checkout/auth/payment chưa có.
 Frontend vẫn giữ nguyên API_BASE_URL: localhost/127.0.0.1 dùng port 3000, host khác gọi Render cũ.
 
 ## Tài liệu và checkpoint
@@ -109,4 +122,4 @@ Frontend vẫn giữ nguyên API_BASE_URL: localhost/127.0.0.1 dùng port 3000, 
 - [Maven Wrapper chính thức](https://maven.apache.org/tools/wrapper/index.html).
 
 Source gốc `../ISD.20252-25` là read-only. Không thay đổi frontend để thích ứng với Java.
-Chỉ tiếp tục MODULE 1 khi người dùng gửi `TIẾP TỤC MODULE 1`.
+Chỉ tiếp tục MODULE 2 khi người dùng gửi `TIẾP TỤC MODULE 2`.

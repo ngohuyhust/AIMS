@@ -2,13 +2,33 @@
 
 ## Current checkpoint
 
-- Authorized scope: **PHASE 0 — Repository and foundation only**.
-- Status: **PHASE 0 implementation validated, pushed and verified; awaiting user confirmation**.
-- Next checkpoint: **MODULE 1 — Public Product Catalog**, not authorized yet.
-- Required next message: `TIẾP TỤC MODULE 1`.
-- Business implementation: none (Product/User/Auth/Order/Payment/Notification are not implemented).
+- Authorized scope: **MODULE 1 — Public Product Catalog**, authorized by `Tiếp module 1`.
+- Status: **Implementation and validation passed; commit/push verification pending**.
+- Next checkpoint: **MODULE 2 — User Domain and Roles**, not authorized yet.
+- Required next message: `TIẾP TỤC MODULE 2`.
+- Business implementation: public catalog only. No product administration, user/auth, order,
+  payment or notification business logic has been added.
 
-## Provenance and Git
+## MODULE 1 result
+
+- Seven JPA entities and Flyway V2 for products/media/books/cds/cd_tracks/dvds/newspapers.
+- Public GET search/random/detail; parameterized PostgreSQL queries, source-compatible JSON,
+  scoped CORS/no-store and Nest error responses. Other module routes remain closed.
+- Actual source TypeORM fixtures captured in a disposable isolated PostgreSQL database; source
+  AppModule/main/user bootstrap and source .env were never executed/loaded.
+- Module tests25/25; full suite30/30; Maven verify30/30. No failures/errors/skips.
+- Existing local Compose volume upgraded V1→V2; packaged HTTP smoke checks passed at port3000.
+- Frontend70/70 SHA-256 unchanged; source backend/frontend unchanged.
+- [Detailed validation](docs/module-1/validation.md), [contract](docs/api-contract.md),
+  [risk updates](docs/migration-risks.md).
+- Commit and push evidence will be recorded after remote verification.
+
+## PHASE 0 history
+
+Completed at `98ce109ca726804e5849c492457070326d59ac28`; its foundation implementation and
+validation are retained below as historical evidence.
+
+## PHASE 0 provenance and Git
 
 - Read-only source: `/Users/abc/Documents/Study/ITSS/ISD.20252-25`.
 - Source commit: `c7c022e33f100937cd0f072c3666fd0e26754d8e`.
@@ -27,7 +47,7 @@
   Its own hash and final clean-tree/remote equality are reported in the user checkpoint, because
   a commit cannot store its own hash. A final push failure must still be reported as incomplete.
 
-## Scope delivered for validation
+## PHASE 0 foundation scope
 
 - 70 tracked Angular source/config/asset files copied byte-for-byte; SHA-256 manifest and verifier.
 - Java 21 Maven project, Spring Boot 3.5.16, Wrapper 3.3.4 / Maven 3.9.16.
@@ -40,7 +60,7 @@
 - Five foundation integration tests; no Docker-unavailable skip or external provider calls.
 - AGENTS.md, README, 44-route API inventory, risk register and frontend manifest.
 
-## Validation and checkpoint commits
+## PHASE 0 validation and checkpoint commits
 
 Executed module test, full suite and Maven verify: each passed 5 tests, 0 failures/errors/skips.
 Packaged JAR returned HTTP200 `{"status":"UP"}` at localhost:3000 with local Compose PostgreSQL.
@@ -53,7 +73,7 @@ the final commit only records the verified checkpoint state.
 
 | Checkpoint | Scope | Status |
 | --- | --- | --- |
-| MODULE 1 | Public product base/subtypes, Flyway V2+, search/random/detail, repository/service/MockMvc tests | Not started |
+| MODULE 1 | Public product base/subtypes, Flyway V2, search/random/detail, repository/service/MockMvc tests | Validated; push pending |
 | MODULE 2 | User/role/join/audit domain, safe role seeds | Not started |
 | MODULE 3 | Login/JWT/password change/role security/CORS | Not started |
 | MODULE 4 | User administration and audit APIs | Not started |
@@ -74,4 +94,4 @@ metadata; public order data/access tokens and delivery edits; unguarded payment/
 VietQR amount/signature checks; race conditions; manager header attribution; user hash disclosure;
 hardcoded frontend production API host. None has been silently implemented or changed in Phase 0.
 
-STOP after the Phase 0 checkpoint report. Do not edit further until the user's explicit confirmation.
+STOP after the MODULE 1 checkpoint report. Do not edit further until the user's explicit confirmation.

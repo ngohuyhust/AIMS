@@ -1,0 +1,20 @@
+{
+  "productID": 5,
+  "productType": "BOOK",
+  "title": "Inactive Book",
+  "category": "BOOK",
+  "description": null,
+  "barcode": "BOOK-5",
+  "length": null,
+  "width": null,
+  "height": null,
+  "weight": 1,
+  "originalPrice": "100000.00",
+  "currentPrice": "100000.00",
+  "quantityInStock": 2,
+  "status": "DEACTIVATED",
+  "imageUrl": null,
+  "createdAt": "2026-01-02T03:04:05.000Z",
+  "updatedAt": "2026-01-02T03:04:05.000Z",
+  "book": null
+}

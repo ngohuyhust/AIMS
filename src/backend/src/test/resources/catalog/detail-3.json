@@ -1,0 +1,33 @@
+{
+  "productID": 3,
+  "productType": "DVD",
+  "title": "Gamma Film",
+  "category": "Cinema",
+  "description": null,
+  "barcode": "DVD-3",
+  "length": null,
+  "width": null,
+  "height": null,
+  "weight": 0.3,
+  "originalPrice": "100000.00",
+  "currentPrice": "50000.00",
+  "quantityInStock": 7,
+  "status": "ACTIVE",
+  "imageUrl": null,
+  "createdAt": "2026-01-02T03:04:05.000Z",
+  "updatedAt": "2026-01-02T03:04:05.000Z",
+  "dvd": {
+    "productID": 3,
+    "discType": "Blu-ray",
+    "director": "Director Needle",
+    "runtimeMinutes": 90,
+    "subtitles": "Vietnamese",
+    "publisher": "Film Studio",
+    "releaseDate": "2023-01-01",
+    "language": "English",
+    "genre": "Drama",
+    "publicationDate": "2023-01-01",
+    "recordLabel": "Film Studio",
+    "studio": "Film Studio"
+  }
+}

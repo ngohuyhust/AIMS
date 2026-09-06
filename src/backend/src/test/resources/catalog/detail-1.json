@@ -1,0 +1,32 @@
+{
+  "productID": 1,
+  "productType": "BOOK",
+  "title": "Alpha Book",
+  "category": "Literature",
+  "description": "A story",
+  "barcode": "BOOK-1",
+  "length": null,
+  "width": null,
+  "height": null,
+  "weight": 1.25,
+  "originalPrice": "100000.00",
+  "currentPrice": "30000.00",
+  "quantityInStock": 5,
+  "status": "ACTIVE",
+  "imageUrl": null,
+  "createdAt": "2026-01-02T03:04:05.000Z",
+  "updatedAt": "2026-01-02T03:04:05.123Z",
+  "book": {
+    "productID": 1,
+    "authors": "Author Needle",
+    "coverType": "PAPERBACK",
+    "numPages": 123,
+    "publisher": "Publisher One",
+    "releaseDate": "2024-02-29",
+    "language": "Vietnamese",
+    "genre": "Fiction",
+    "publicationDate": "2024-02-29",
+    "recordLabel": "Publisher One",
+    "studio": "Publisher One"
+  }
+}

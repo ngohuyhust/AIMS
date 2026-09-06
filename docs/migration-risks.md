@@ -1,5 +1,22 @@
 # Migration risks and decisions
 
+## MODULE 1 update
+
+- R01 is narrowed: seven catalog tables now have locally verified TypeORM metadata, including
+  exact PK/FK/UQ/check names and indexes. A PostgreSQL test compares Flyway V2 against the original
+  DDL. The deployed database may still have drift; it was never contacted.
+- Numeric/date JSON and flattened subtype aliases (R12) are now checked against actual original
+  TypeORM responses on an isolated fixture database. Other domains remain source-derived only.
+- Catalog-only CORS/no-store is implemented for Angular connectivity. This supersedes the Phase 0
+  health-only limitation (R15) for public products; auth/admin/other domains remain unimplemented.
+- Explicit `status=DELETED` searches, inactive detail visibility, wildcard ILIKE, nullable CD-track
+  FK and unspecified CD-track ordering are retained rather than silently tightened.
+- V2 creates only absent catalog tables, with no IF NOT EXISTS or baseline adoption. It deliberately
+  fails on unmanaged existing tables; importing an existing external database needs its own review.
+- Test data is synthetic, isolated and rolled back; no product seeds are installed in local runtime
+  or committed as production migrations. Oracle code cannot connect anywhere except localhost:55433
+  database aims_oracle and does not start source application bootstrap.
+
 Evidence: read-only NestJS/Angular source commit `c7c022e33f100937cd0f072c3666fd0e26754d8e`.
 These are static code findings, not claims that a live deployment was tested or exploited.
 No production database, payment gateway or email service was contacted.

@@ -6,6 +6,30 @@ recorded before any Java business module. It is NOT a claim of parity with the P
 No source application was started: its startup synchronizes schema and resets seeded users.
 Runtime snapshots against an isolated legacy database must be added in the relevant checkpoints.
 
+## MODULE 1 implementation evidence
+
+The three public catalog GET routes are now migrated. Source TypeScript catalog entities/repository/
+service ran against a disposable local PostgreSQL database, without importing AppModule/main or
+loading source `.env`. Real TypeORM JSON snapshots are checked in under
+`src/backend/src/test/resources/catalog`; MockMvc compares the entire response, including nulls,
+money strings, millisecond UTC timestamps, date-only values, subtype aliases and CD tracks.
+The captured schema is in [module-1/typeorm-schema.sql](module-1/typeorm-schema.sql); tests compare
+column definitions/defaults/nullability/precision, named constraints and indexes against Flyway V2.
+This proves source-derived local schema parity, not the state of an external deployed database.
+
+Catalog HTTP includes source-compatible CORS and `Cache-Control: no-store`, no ETag, public GET/HEAD,
+and 400/404/500 Nest error envelopes. CORS is scoped to `/api/products` so Angular catalog works now;
+JWT and other features' security/CORS remain for MODULE 3. Admin methods/audit routes remain denied
+until their own modules. The original five foundation tests were retained: their expected migration
+version/table set and closed-route example were updated to reflect the newly authorized catalog.
+No API contract expectation was weakened to conceal a failure.
+
+Additional edge cases preserved: whitespace-only numeric bounds mean0, empty bounds are absent,
+hex/binary/octal numeric strings are accepted as JavaScript Number does, nonfinite/malformed bounds
+are400, integer IDs outside PostgreSQL's int32 range are500, unknown productType detail is400.
+The source allows explicit `status=DELETED` search although detail excludes deleted products; this
+is retained. CD tracks have no promised sort order in the source, so no new sort is introduced.
+
 ## Evidence map
 
 All paths below are relative to the source repository; file contents are pinned by the source commit.
