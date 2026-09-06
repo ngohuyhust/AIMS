@@ -3,7 +3,7 @@
 ## Current checkpoint
 
 - Authorized scope: **MODULE 1 — Public Product Catalog**, authorized by `Tiếp module 1`.
-- Status: **Implementation and validation passed; commit/push verification pending**.
+- Status: **MODULE 1 implementation validated, pushed and verified; awaiting user confirmation**.
 - Next checkpoint: **MODULE 2 — User Domain and Roles**, not authorized yet.
 - Required next message: `TIẾP TỤC MODULE 2`.
 - Business implementation: public catalog only. No product administration, user/auth, order,
@@ -21,7 +21,16 @@
 - Frontend70/70 SHA-256 unchanged; source backend/frontend unchanged.
 - [Detailed validation](docs/module-1/validation.md), [contract](docs/api-contract.md),
   [risk updates](docs/migration-risks.md).
-- Commit and push evidence will be recorded after remote verification.
+- Implementation commit: `a7927ef83a2d55160f5ec4eee382ba51f5f9beef`
+  (`feat(product): migrate public catalog with API compatibility tests`).
+- Push succeeded to `origin/migration/spring-boot`; git ls-remote confirmed that exact hash and
+  working tree was clean. This status-only completion record is pushed separately; its own hash
+  and final remote/clean-tree checks are reported in the user checkpoint.
+- Remote main was observed at `493f1c03c1ea745094ef2bbc9646f2b9c3ee1d33`, an external merge of
+  Phase0 PR#1. No merge/rebase/main push was performed in this checkpoint. The migration branch
+  retains Phase0 ancestry and contains only the authorized MODULE1 additions.
+- Initial push review was rejected; original explicit per-module push authorization and destination
+  were rechecked, and the same push was approved on review and succeeded. No workaround was used.
 
 ## PHASE 0 history
 
@@ -73,7 +82,7 @@ the final commit only records the verified checkpoint state.
 
 | Checkpoint | Scope | Status |
 | --- | --- | --- |
-| MODULE 1 | Public product base/subtypes, Flyway V2, search/random/detail, repository/service/MockMvc tests | Validated; push pending |
+| MODULE 1 | Public product base/subtypes, Flyway V2, search/random/detail, repository/service/MockMvc tests | Complete; awaiting user confirmation |
 | MODULE 2 | User/role/join/audit domain, safe role seeds | Not started |
 | MODULE 3 | Login/JWT/password change/role security/CORS | Not started |
 | MODULE 4 | User administration and audit APIs | Not started |
