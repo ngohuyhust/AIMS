@@ -1,0 +1,9 @@
+# Isolated local database only. Legacy DB_HOST/DB_DATABASE are intentionally unused.
+server:
+  address: 127.0.0.1
+
+spring:
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:55432/aims_local
+    username: aims_local
+    password: ${AIMS_LOCAL_DB_PASSWORD:}

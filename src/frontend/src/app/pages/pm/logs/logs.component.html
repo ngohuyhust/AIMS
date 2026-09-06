@@ -1,0 +1,316 @@
+<div class="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
+  
+  <!-- Header Banner -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+    <div class="space-y-1">
+      <div class="flex items-center text-primary font-bold text-xs uppercase tracking-wider mb-1">
+        <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+        SECURITY & AUDIT
+      </div>
+      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Inventory Logs</h1>
+      <p class="text-sm text-gray-500">An immutable record of every catalog change, price update, and stock adjustment.</p>
+    </div>
+    
+    <div class="flex gap-2 w-full md:w-auto">
+      <button
+        (click)="fetchLogs()"
+        class="flex-1 md:flex-none bg-white border border-gray-250/60 text-gray-700 px-5 py-3 rounded-2xl font-extrabold text-sm hover:bg-gray-50 shadow-sm transition-all focus:outline-none flex items-center justify-center cursor-pointer"
+      >
+        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+        </svg>
+        Reload logs
+      </button>
+    </div>
+  </div>
+
+  <!-- Dashboard Metrics Panel -->
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <!-- Card 1: Total records -->
+    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center space-x-4 hover:shadow-md hover:border-gray-200 transition-all duration-200">
+      <div class="p-3.5 bg-blue-50 text-primary rounded-2xl">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest leading-none mb-1.5">TOTAL LOGS</p>
+        <p class="text-2xl font-extrabold text-gray-900 leading-none">{{ totalLogsCount }}</p>
+      </div>
+    </div>
+
+    <!-- Card 2: New creations -->
+    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center space-x-4 hover:shadow-md hover:border-gray-200 transition-all duration-200">
+      <div class="p-3.5 bg-emerald-50 text-emerald-600 rounded-2xl">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest leading-none mb-1.5">NEW PRODUCTS</p>
+        <p class="text-2xl font-extrabold text-gray-900 leading-none">{{ createLogsCount }}</p>
+      </div>
+    </div>
+
+    <!-- Card 3: Stock adjustments -->
+    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center space-x-4 hover:shadow-md hover:border-gray-200 transition-all duration-200">
+      <div class="p-3.5 bg-amber-50 text-amber-600 rounded-2xl">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest leading-none mb-1.5">STOCK CHANGES</p>
+        <p class="text-2xl font-extrabold text-gray-900 leading-none">{{ stockLogsCount }}</p>
+      </div>
+    </div>
+
+    <!-- Card 4: Deletions / Deactivations -->
+    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center space-x-4 hover:shadow-md hover:border-gray-200 transition-all duration-200">
+      <div class="p-3.5 bg-rose-50 text-rose-600 rounded-2xl">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest leading-none mb-1.5">DEACTIVATED / DELETED</p>
+        <p class="text-2xl font-extrabold text-gray-900 leading-none">{{ deleteLogsCount }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Grid Workspace -->
+  <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+    <!-- Toolbar -->
+    <div class="p-6 border-b border-gray-100 bg-gray-50/40 flex flex-col lg:flex-row lg:items-center gap-4">
+      <div class="flex items-center space-x-3 w-full lg:w-auto flex-shrink-0">
+        <select
+          [(ngModel)]="timeFilter"
+          (ngModelChange)="applyFilter()"
+          class="block py-3 pl-3 pr-9 text-xs font-bold border border-gray-200 bg-white rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm text-gray-700 tracking-wide cursor-pointer transition-all animate-in fade-in"
+        >
+          <option value="ALL">ALL TIME</option>
+          <option value="24H">Last 24 hours</option>
+          <option value="7D">Last 7 days</option>
+        </select>
+        
+        <select
+          [(ngModel)]="actionFilter"
+          (ngModelChange)="applyFilter()"
+          class="block py-3 pl-3 pr-9 text-xs font-bold border border-gray-200 bg-white rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm text-gray-700 tracking-wide cursor-pointer transition-all animate-in fade-in"
+        >
+          <option value="">ALL ACTIONS</option>
+          <option value="CREATE">Created (CREATE)</option>
+          <option value="UPDATE">Updated (UPDATE)</option>
+          <option value="DEACTIVATE">Deactivated (DEACTIVATE)</option>
+          <option value="DELETE">Hard deleted (DELETE)</option>
+          <option value="STOCK_ADJUST">Stock adjusted (STOCK_ADJUST)</option>
+        </select>
+      </div>
+
+      <div class="flex-1 relative w-full">
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+          <svg class="h-4.5 w-4.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="applyFilter()"
+          class="block w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm placeholder-gray-400 font-medium transition-all"
+          placeholder="Search by product name, barcode, or performer..."
+        />
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-gray-50/70 border-b border-gray-200 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">
+            <th class="p-5 pl-8 w-44">TIMESTAMP</th>
+            <th class="p-5 w-32">BARCODE</th>
+            <th class="p-5">AFFECTED PRODUCT</th>
+            <th class="p-5 w-36">ACTION</th>
+            <th class="p-5 w-44">PERFORMED BY</th>
+            <th class="p-5 w-56">REASON</th>
+            <th class="p-5 pr-8 text-center w-28">DETAILS</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          @if (isLoading) {
+            <tr>
+              <td colspan="7" class="p-16 text-center text-gray-400 font-semibold">
+                <div class="flex flex-col items-center justify-center space-y-3">
+                  <svg class="animate-spin h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span class="text-sm">Loading inventory logs from the system...</span>
+                </div>
+              </td>
+            </tr>
+          } @else if (filteredLogs.length === 0) {
+            <tr>
+              <td colspan="7" class="p-16 text-center text-gray-400 font-semibold">
+                <div class="flex flex-col items-center justify-center space-y-2">
+                  <svg class="w-10 h-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span class="text-sm">No matching log records found.</span>
+                </div>
+              </td>
+            </tr>
+          } @else {
+            @for (log of filteredLogs; track log.logID) {
+              <tr class="hover:bg-gray-50/40 transition-colors group">
+                <td class="p-5 pl-8 whitespace-nowrap">
+                  <span class="text-xs font-mono font-bold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-xl border border-gray-200/50 shadow-inner">{{ log.createdAt | date:'yyyy-MM-dd HH:mm:ss' }}</span>
+                </td>
+                <td class="p-5 whitespace-nowrap">
+                  @if (log.product) {
+                    <span class="text-xs font-mono font-bold text-gray-900 bg-gray-100 px-2.5 py-1 rounded-xl border border-gray-200/50 shadow-inner">{{ log.product.barcode }}</span>
+                  } @else {
+                    <span class="text-xs font-mono text-gray-400 bg-gray-50 px-2.5 py-1 rounded-xl border border-gray-200/30">---</span>
+                  }
+                </td>
+                <td class="p-5">
+                  <div class="flex-1 min-w-0">
+                    @if (log.product) {
+                      <p class="text-sm font-extrabold text-gray-900 line-clamp-3 group-hover:text-primary transition-colors leading-snug">{{ log.product.title }}</p>
+                      <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">{{ log.product.productType }}</p>
+                    } @else {
+                      <p class="text-sm font-bold text-gray-400 italic">Product has been hard deleted</p>
+                    }
+                  </div>
+                </td>
+                <td class="p-5 whitespace-nowrap">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide border shadow-sm"
+                    [ngClass]="{
+                      'bg-green-50 text-success border-green-200': log.actionType === 'CREATE',
+                      'bg-blue-50 text-primary border-blue-200': log.actionType === 'UPDATE',
+                      'bg-orange-50 text-orange-600 border-orange-200': log.actionType === 'STOCK_ADJUST',
+                      'bg-amber-50 text-amber-700 border-amber-200': log.actionType === 'DEACTIVATE',
+                      'bg-red-50 text-danger border-red-200': log.actionType === 'DELETE'
+                    }">
+                    {{ log.actionType }}
+                  </span>
+                </td>
+                <td class="p-5 whitespace-nowrap">
+                  <span class="text-xs font-bold text-gray-700">{{ log.performedBy }}</span>
+                </td>
+                <td class="p-5">
+                  <p class="text-xs text-gray-600 font-semibold line-clamp-3 leading-relaxed">{{ log.reason || '---' }}</p>
+                </td>
+                <td class="p-5 pr-8 text-center" (click)="$event.stopPropagation()">
+                  <button
+                    (click)="openDiffModal(log)"
+                    class="px-3 py-1.5 bg-blue-50 hover:bg-primary hover:text-white border border-blue-100 hover:border-primary rounded-xl text-xs font-bold text-primary transition-all focus:outline-none shadow-sm cursor-pointer"
+                  >
+                    Compare
+                  </button>
+                </td>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- JSON Diff Viewer Modal -->
+  @if (isDiffModalOpen && selectedLogForDiff) {
+    <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-4xl w-full border border-gray-100 shadow-2xl overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[85vh]">
+        <!-- Header -->
+        <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-gray-900">Change Comparison Details (JSON Audit Trail)</h3>
+            <p class="text-xs text-gray-500 font-medium">Log record #{{ selectedLogForDiff.logID }} | Performed by: {{ selectedLogForDiff.performedBy }}</p>
+          </div>
+          <button (click)="closeDiffModal()" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-6 overflow-y-auto space-y-6 bg-gray-50/50 flex-1">
+          <!-- Action & Reason Block -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
+              <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Action Type</div>
+              <div class="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-bold bg-blue-50 text-primary border border-blue-100 uppercase">
+                {{ selectedLogForDiff.actionType }}
+              </div>
+            </div>
+            
+            <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
+              <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Recorded Reason</div>
+              <div class="text-xs text-gray-700 font-semibold">{{ selectedLogForDiff.reason || 'No specific reason recorded.' }}</div>
+            </div>
+          </div>
+
+          <!-- Comparison Grid -->
+          <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+              <!-- Before state (if exists) -->
+              <div class="p-6 space-y-4">
+                <h4 class="text-xs font-extrabold text-danger bg-red-50 px-3 py-1.5 rounded-full border border-red-100 inline-block uppercase tracking-wider">
+                  State Before Update (BEFORE)
+                </h4>
+                
+                @if (parsedBeforeFields) {
+                  <div class="space-y-2 max-h-96 overflow-y-auto pr-2">
+                    @for (item of getObjectKeysAndValues(parsedBeforeFields); track item.key) {
+                      <div class="flex justify-between items-start text-xs border-b border-gray-100 pb-2">
+                        <span class="font-mono text-gray-400">{{ item.key }}</span>
+                        <span class="font-bold text-gray-700 text-right max-w-xs break-all">{{ item.value }}</span>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <p class="text-xs text-gray-400 font-medium italic p-4 text-center">No prior state record (newly created product).</p>
+                }
+              </div>
+
+              <!-- After state -->
+              <div class="p-6 space-y-4">
+                <h4 class="text-xs font-extrabold text-success bg-green-50 px-3 py-1.5 rounded-full border border-green-100 inline-block uppercase tracking-wider">
+                  State After Update (AFTER)
+                </h4>
+
+                @if (parsedAfterFields) {
+                  <div class="space-y-2 max-h-96 overflow-y-auto pr-2">
+                    @for (item of getObjectKeysAndValues(parsedAfterFields); track item.key) {
+                      <div class="flex justify-between items-start text-xs border-b border-gray-100 pb-2">
+                        <span class="font-mono text-gray-400">{{ item.key }}</span>
+                        <span class="font-bold text-gray-900 text-right max-w-xs break-all">{{ item.value }}</span>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <p class="text-xs text-gray-400 font-medium italic p-4 text-center">No post-change state record (product was hard deleted).</p>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="p-6 border-t border-gray-100 bg-gray-50 flex items-center justify-end">
+          <button
+            (click)="closeDiffModal()"
+            class="w-full py-3 bg-primary hover:bg-primary-hover text-white font-bold text-sm rounded-xl shadow-md transition-all transform hover:-translate-y-0.5 text-center focus:outline-none"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

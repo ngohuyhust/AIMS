@@ -1,0 +1,14 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+.local/
+node_modules/
+dist/
+.angular/
+target/
+.idea/
+*.iml
+*.log
+*.tmp
+__pycache__/
