@@ -3,7 +3,7 @@
 ## Current checkpoint
 
 - Authorized scope: **MODULE 2 — User Domain and Roles**, authorized by `tiếp module 2`.
-- Status: **MODULE 2 validated; commit/push in progress**.
+- Status: **MODULE 2 validated, pushed and verified; awaiting user confirmation**.
 - Next checkpoint: **MODULE 3 — Authentication and Security**, not authorized yet.
 - Required next message: `TIẾP TỤC MODULE 3`.
 - Business implementation: public catalog and internal user/role/audit domain only.
@@ -23,6 +23,11 @@
 - [Detailed validation](docs/module-2/validation.md), [contract](docs/api-contract.md),
   [risks](docs/migration-risks.md).
 - Source remains read-only at `c7c022e33f100937cd0f072c3666fd0e26754d8e`.
+- Implementation commit: `12b3e2523ebb24b8fa906ffc2a536437efc84a74`
+  (`feat(user): migrate user and role domain with safe role seeds`).
+- Pushed to `origin/main`; git ls-remote verified the exact implementation hash. Working tree was
+  clean before this completion record. This status-only record is committed/pushed separately;
+  its own hash and final remote verification are reported in the user checkpoint.
 
 ## Git consolidation history
 
@@ -104,7 +109,7 @@ the final commit only records the verified checkpoint state.
 | Checkpoint | Scope | Status |
 | --- | --- | --- |
 | MODULE 1 | Public product base/subtypes, Flyway V2, search/random/detail, repository/service/MockMvc tests | Complete |
-| MODULE 2 | User/role/join/audit domain, safe role seeds | Validated; commit/push in progress |
+| MODULE 2 | User/role/join/audit domain, safe role seeds | Complete; awaiting user confirmation |
 | MODULE 3 | Login/JWT/password change/role security/CORS | Not started |
 | MODULE 4 | User administration and audit APIs | Not started |
 | MODULE 5 | Product administration/audit/manager quota | Not started |
