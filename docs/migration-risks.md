@@ -1,5 +1,20 @@
 # Migration risks and decisions
 
+## MODULE 3 update
+
+- R02 resolved: mandatory environment JWT_SECRET, minimum32 UTF-8 bytes, HS256 only, no fallback.
+  Local initializer adds a random key once without changing existing settings. Tests generate keys.
+- Login/change-password and global CORS implemented; R15 remains only for unimplemented routes.
+- Original stateless token lifetime is retained: password/status/role changes do not revoke tokens.
+  Role enforcement uses exact token authorities, any requested role suffices; no ADMIN inheritance.
+- BCrypt retains cost10 and the legacy 72-byte UTF-8 truncation, including long Unicode inputs.
+  Future changes to password policy/token revocation require explicit compatibility decisions.
+- Invalid nonstring/missing credential inputs now have controlled401/400; malformed claim sets,
+  missing expiry and non-HS256 tokens are rejected instead of reproducing permissive legacy behavior.
+- R10 and admin reset-password remain for MODULE4. No privileged account is bootstrapped.
+- Transactional password/audit behavior is tested with actual rollback on the source varchar(50)
+  audit-attribution limit; passwords remain unchanged when the audit insert fails.
+
 ## MODULE 2 update
 
 - R01: all four user-domain tables now have source-metadata DDL and PostgreSQL schema parity tests,

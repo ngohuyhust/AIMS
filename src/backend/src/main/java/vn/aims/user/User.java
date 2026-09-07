@@ -44,6 +44,7 @@ public class User {
     public Integer getUserID() { return userID; }
     public String getEmail() { return email; }
     @JsonIgnore public String getPasswordHash() { return passwordHash; }
+    public void replacePasswordHash(String encodedHash) { passwordHash = java.util.Objects.requireNonNull(encodedHash); }
     public String getFullName() { return fullName; }
     public String getPhoneNumber() { return phoneNumber; }
     public String getStatus() { return status; }

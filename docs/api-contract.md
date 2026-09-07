@@ -30,6 +30,36 @@ are400, integer IDs outside PostgreSQL's int32 range are500, unknown productType
 The source allows explicit `status=DELETED` search although detail excludes deleted products; this
 is retained. CD tracks have no promised sort order in the source, so no new sort is introduced.
 
+## MODULE 3 authentication
+
+Implemented POST `/api/auth/login` (public, `{email,password}`) and POST
+`/api/auth/change-password` (Bearer JWT, `{oldPassword,newPassword}`); success status201 as in Nest.
+Login returns `{token,user:{userID,email,fullName,roles:string[]}}`. HS256 token has the same user
+claims plus iat/exp with24h lifetime. UTF-8 signing secret comes exclusively from JWT_SECRET
+(minimum32 bytes). Missing/short secret prevents startup; local setup generates a random ignored key.
+Nimbus is supplied through Spring Security's managed oauth2-jose dependency; no custom JWT crypto.
+
+Login errors retain the source401 messages for incorrect credentials and deactivated accounts.
+Change-password validates trimmed UTF-16 length>=6, hashes the original untrimmed value with BCrypt
+cost10, and commits the credential and CHANGE_PASSWORD audit in one transaction. Returns
+`{success:true,message:"Đổi mật khẩu thành công"}`; short new password/wrong old password return400,
+absent user404. Existing source bcryptjs hashes and UTF-8 72-byte truncation remain supported.
+JWT errors distinguish missing/wrong-case Bearer prefix from invalid/expired token with source401
+envelopes. Exact role authorities support hasAnyAuthority; ADMIN does not imply PRODUCT_MANAGER.
+Role-protected business endpoints and reset-password routes remain closed until MODULE4/5.
+
+CORS now applies globally with the original localhost/Vercel/ALLOWED_ORIGINS allow rules,
+OPTIONS204 and reflected requested headers, without allow-credentials. API responses have no-store.
+Public catalog/login ignore stale Bearer tokens. CSRF is excluded only on these stateless auth POST
+routes; session/cookie login is not introduced. Unknown/unimplemented routes remain denied.
+
+Deliberate input hardening: absent/nonstring credentials produce controlled401/400 rather than
+legacy incidental bcrypt/TypeError500. JWT verification requires HS256, expiry, positive integer
+userID and a string role array; malformed claims and unsupported algorithms are rejected. These
+checks preserve tokens issued by source login, not arbitrary JWTs accepted by its permissive guard.
+No token revocation is added: existing tokens remain usable after password/status/role changes until
+expiry, matching the original guard. Admin authorization/mutation behavior remains a later decision.
+
 ## MODULE 2 domain boundary
 
 Flyway V3 adds `users`, `roles`, `users_roles`, `user_audit_logs`. Original TypeORM metadata

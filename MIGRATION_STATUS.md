@@ -2,12 +2,21 @@
 
 ## Current checkpoint
 
-- Authorized scope: **MODULE 2 — User Domain and Roles**, authorized by `tiếp module 2`.
-- Status: **MODULE 2 validated, pushed and verified; awaiting user confirmation**.
-- Next checkpoint: **MODULE 3 — Authentication and Security**, not authorized yet.
-- Required next message: `TIẾP TỤC MODULE 3`.
-- Business implementation: public catalog and internal user/role/audit domain only.
+- Authorized scope: **MODULE 3 — Authentication and Security**, authorized by `tiếp module 3`.
+- Status: **MODULE 3 validated; commit/push in progress**.
+- Next checkpoint: **MODULE 4 — User Administration**, not authorized yet.
+- Required next message: `TIẾP TỤC MODULE 4`.
+- Business implementation: public catalog, user domain and login/JWT/change-password security.
 - Current branch: `main`, following the user's explicit history consolidation and branch deletion.
+
+## MODULE 3 result
+
+- Login/change-password POST201 and source-compatible successful payloads/error messages.
+- HS25624h JWT; mandatory environment key, exact-role method security, BCrypt cost10 compatibility.
+- Password update and audit are atomic; global source CORS/no-store, no frontend edits.
+- Module13/13; full suite53/53; Maven verify53/53; zero final failures/errors/skips.
+- Flyway V1–V3 unchanged; no new schema or default accounts. Admin reset-password deferred MODULE4.
+- Frontend70/70 unchanged; source read-only. [Validation](docs/module-3-validation.md).
 
 ## MODULE 2 result
 
@@ -109,8 +118,8 @@ the final commit only records the verified checkpoint state.
 | Checkpoint | Scope | Status |
 | --- | --- | --- |
 | MODULE 1 | Public product base/subtypes, Flyway V2, search/random/detail, repository/service/MockMvc tests | Complete |
-| MODULE 2 | User/role/join/audit domain, safe role seeds | Complete; awaiting user confirmation |
-| MODULE 3 | Login/JWT/password change/role security/CORS | Not started |
+| MODULE 2 | User/role/join/audit domain, safe role seeds | Complete |
+| MODULE 3 | Login/JWT/password change/role security/CORS | Validated; commit/push in progress |
 | MODULE 4 | User administration and audit APIs | Not started |
 | MODULE 5 | Product administration/audit/manager quota | Not started |
 | MODULE 6 | Cart/duplicate merging/shipping/VAT boundaries | Not started |
@@ -129,4 +138,4 @@ metadata; public order data/access tokens and delivery edits; unguarded payment/
 VietQR amount/signature checks; race conditions; manager header attribution; user hash disclosure;
 hardcoded frontend production API host. None has been silently implemented or changed in Phase 0.
 
-STOP after the MODULE 2 checkpoint report. Do not start MODULE3 until the user's explicit confirmation.
+STOP after the MODULE 3 checkpoint report. Do not start MODULE4 until the user's explicit confirmation.

@@ -1,4 +1,4 @@
-package vn.aims.product;
+package vn.aims.common.config;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,24 +14,23 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-/** Only catalog HTTP compatibility; authentication/CORS for other features belongs to module 3. */
+/** Global legacy CORS; no-store applies to API routes. */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class CatalogHttpFilter extends OncePerRequestFilter {
+public class LegacyHttpFilter extends OncePerRequestFilter {
     private final Set<String> configuredOrigins;
-    public CatalogHttpFilter(@Value("${ALLOWED_ORIGINS:}") String origins) {
-        configuredOrigins=Arrays.stream(origins.split(",")).map(ProductSearch::trim)
+    public LegacyHttpFilter(@Value("${ALLOWED_ORIGINS:}") String origins) {
+        configuredOrigins=Arrays.stream(origins.split(",")).map(s -> s.replaceAll("^[\\s\\p{Z}\\uFEFF]+|[\\s\\p{Z}\\uFEFF]+$", ""))
                 .filter(s -> !s.isEmpty()).collect(Collectors.toUnmodifiableSet());
     }
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path=request.getRequestURI();
-        return !(path.equals("/api/products") || path.startsWith("/api/products/"));
+        return false;
     }
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        response.setHeader("Cache-Control","no-store");
+        if (request.getRequestURI().equals("/api") || request.getRequestURI().startsWith("/api/")) response.setHeader("Cache-Control","no-store");
         String origin=request.getHeader("Origin");
         boolean allowed=origin == null || origin.matches("^http://(localhost|127\\.0\\.0\\.1|0\\.0\\.0\\.0):[0-9]+$")
                 || origin.matches("^https://.*\\.vercel\\.app$") || configuredOrigins.contains(origin);
