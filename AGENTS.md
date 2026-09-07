@@ -15,6 +15,9 @@
 - Destination is this AIMS repository; origin must be `https://github.com/ngohuyhust/AIMS.git`.
 - Preserve Angular byte-for-byte, including source, UI, routing, headers, authentication, URLs,
   methods, query parameters, request payloads and expected responses. No frontend fixes.
+  MODULE7 explicit user exception: protect order ownership and minimally adapt token storage/headers.
+  Exact approved file hashes are in docs/frontend-approved-changes.json (including related tests);
+  keep docs/frontend-manifest.json and the ISD source unchanged. Do not expand that exception silently.
 - Run `python3 tools/verify-frontend.py` at every checkpoint. The manifest records the source commit.
 
 ## Implementation

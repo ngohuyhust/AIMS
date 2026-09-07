@@ -11,6 +11,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--source", type=Path, default=root.parent / "ISD.20252-25")
 args = parser.parse_args()
 manifest = json.loads((root / "docs/frontend-manifest.json").read_text())
+approval_path = root / "docs/frontend-approved-changes.json"
+approved = json.loads(approval_path.read_text())["files"] if approval_path.exists() else {}
 excluded = {"node_modules", "dist", ".angular", "target", ".DS_Store", "__pycache__"}
 
 
@@ -29,13 +31,21 @@ actual_paths = {
     if p.is_file() and included(p.relative_to(root / "src/frontend"))
 }
 errors = []
-if source_paths != set(expected) or actual_paths != set(expected):
+if source_paths != set(expected) or actual_paths != set(expected) | set(approved):
     errors.append("Frontend file sets differ from the recorded source manifest")
 for relative, digest in expected.items():
     for label, base in (("source", args.source), ("target", root)):
         path = base / "src/frontend" / relative
-        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+        required = approved.get(relative, digest) if label == "target" else digest
+        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != required:
             errors.append(f"Content mismatch: {label}/src/frontend/{relative}")
+for relative, digest in approved.items():
+    path = root / "src/frontend" / relative
+    if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+        errors.append(f"Approved content mismatch: target/src/frontend/{relative}")
 if errors:
     raise SystemExit("\n".join(errors))
-print(f"PASS: {len(expected)} frontend files match source and baseline SHA-256; no added source files.")
+if approved:
+    print(f"PASS: source {len(expected)}/{len(expected)} matches original baseline; target {len(set(expected)-set(approved))} unchanged, {len(set(expected)&set(approved))} approved edits, {len(set(approved)-set(expected))} approved additions; all SHA-256 verified.")
+else:
+    print(f"PASS: {len(expected)} frontend files match source and baseline SHA-256; no added source files.")

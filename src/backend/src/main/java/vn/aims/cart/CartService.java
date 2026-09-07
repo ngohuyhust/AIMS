@@ -38,7 +38,7 @@ public class CartService {
         subtotal=subtotal.setScale(2,RoundingMode.HALF_UP);
         return totals(subtotal,shipping.fee(province,weight,subtotal,null));
     }
-    static Quote totals(BigDecimal subtotal,BigDecimal fee) {
+    public static Quote totals(BigDecimal subtotal,BigDecimal fee) {
         var tax=subtotal.multiply(new BigDecimal("0.1")).setScale(2,RoundingMode.HALF_UP);
         return new Quote(subtotal,tax,fee,subtotal.add(tax).add(fee).setScale(2,RoundingMode.HALF_UP));
     }

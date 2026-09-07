@@ -1,6 +1,14 @@
 server:
   port: ${PORT:3000}
 
+# Order capabilities and delivery data must not be emitted by framework payload/bind tracing.
+logging:
+  level:
+    org.springframework.web: INFO
+    org.hibernate.orm.jdbc.bind: OFF
+    org.hibernate.orm.jdbc.extract: OFF
+    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: OFF
+
 spring:
   application:
     name: aims-backend

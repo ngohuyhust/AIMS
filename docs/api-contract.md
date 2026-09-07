@@ -30,6 +30,67 @@ are400, integer IDs outside PostgreSQL's int32 range are500, unknown productType
 The source allows explicit `status=DELETED` search although detail excludes deleted products; this
 is retained. CD tracks have no promised sort order in the source, so no new sort is introduced.
 
+## MODULE 7 order placement and ownership
+
+User explicitly approved **token protection + minimal frontend changes**, superseding public
+order access and byte-for-byte frontend preservation for the specific recorded files only.
+
+| Method/path | Access/body | Success |
+| --- | --- | --- |
+| POST `/api/orders` | Public JSON `{cartItems:[{productId,quantity}],deliveryInfo}` | 201 full persisted order graph including new customerAccessToken |
+| GET/HEAD `/api/orders/:orderId` | `x-order-token` for that order, or verified PRODUCT_MANAGER JWT for read only | 200 graph plus paymentMethod; manager response omits customerAccessToken |
+| PATCH `/api/orders/:orderId/delivery-info` | `x-order-token` required, complete DeliveryInfo DTO | 200 updated graph; JWT alone cannot authorize edits |
+| GET/HEAD `/api/customer/orders/:orderId` | Existing `?token=` capability | 200 graph plus paymentMethod |
+
+Trailing slashes, JSON spellings and Nest envelopes retained. CORS reflects x-order-token in
+preflight; all responses/errors have no-store. No cookies/session authentication. Invalid/stale JWT
+cannot bypass ownership; a valid order capability works despite an unrelated stale JWT. ADMIN is
+not PRODUCT_MANAGER. Missing header token401; wrong/cross-order token404 with the same response
+whether or not the order exists. Customer route keeps source missing-query-token400 and wrong-token404.
+Noninteger path400; PostgreSQL int32 overflow500. Unexpected failures are sanitized500.
+Future pending/refund/list/approve/reject/cancel/payment routes remain403 in this checkpoint.
+
+DeliveryInfo: receiverName/address strings <=255 Unicode code points, province <=100,
+email <=255 with email validation, phoneNumber <=20 matching the original Vietnamese expression,
+optional nullable string deliveryNotes. Empty names/address/province remain allowed. The original
+phone character class permits literal `|`; this source DTO quirk is preserved. Unknown fields are
+ignored, including prices/status/token submitted by the client. Original54 offline DTO fixtures
+verify whitelist, error ordering, nested messages, numeric/null values, lengths, phone/email cases.
+Missing deliveryInfo passes the source DTO but fails500 inside placement; stock is rolled back.
+Pathological nested arrays and rare international/quoted email differences between validators are
+not claimed fully compatible. Malformed JSON uses stable400 prose instead of Express parser text.
+
+Placement merges duplicates in first-seen order, acquires PostgreSQL product row locks in ascending
+ID order, then checks ACTIVE/stock under those locks. Failure400 contains `{message,issues,statusCode}`
+with source StockIssue fields. Validated quantities decrement stock and update product timestamps;
+order/items/delivery/invoice insert atomically. Any insert/precision/constraint failure rolls back
+all changes. PENDING reserves stock immediately; no notification/provider call. No idempotency key
+exists in the original contract: repeated successful POSTs create distinct orders/reservations.
+Stock release/cancellation and payment expiry remain later modules.
+
+SecureRandom generates32 bytes encoded as64 lowercase hex; existing nullable unique token schema
+is preserved. Full response includes orderID/subTotal/tax/shippingFee/totalPayment/status/token/
+createdAt/updatedAt, orderItems with orderItemID/quantity/unitPrice and base product fields,
+deliveryInfo with deliveryID and nullable notes, invoice with invoiceID/totals/createdAt.
+Persisted decimal fields are two-decimal JSON strings; dates are millisecond UTC ISO strings.
+Relations omit back-references. Detail adds paymentMethod:null before MODULE8; if its real table
+exists, query the latest SUCCESS normally and propagate failures rather than hiding them.
+
+Delivery edits lock the order row and accept PENDING/PENDING_PROCESSING as source; fee uses current
+product weights and the order's saved subtotal/tax. They do not reprice items or change stock.
+Order, delivery and invoice remain atomic; absent optional delivery/invoice rows can be recreated.
+Omitted notes preserve stored notes; explicit null clears them. Other statuses400 with source text.
+BigDecimal/HALF_UP follows the user's MODULE6 decision, including0.35 -> VAT0.04.
+
+Frontend changes: two services store the creation capability and attach x-order-token only on
+order detail/delivery requests; the new helper uses sessionStorage plus memory fallback. Successful
+customer-link lookup remembers the supplied token for subsequent editing in that tab. Closing the
+tab/clearing storage requires the original token link; there is no orderId-only recovery. URLs,
+UI, payload shapes and provider methods stay unchanged. One obsolete Hello-title boilerplate test
+now verifies router navigation. The original70-file source manifest is untouched; an explicit
+approved-hash overlay checks67 unchanged originals,3 edited originals and2 additions.
+Production API host remains the legacy configured host; this checkpoint is not a deployment.
+
 ## MODULE 6 cart and shipping
 
 Both routes are public JSON POSTs (no role, custom header or query required), return201,

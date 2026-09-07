@@ -109,16 +109,15 @@ class ProductAdminIntegrationTest {
                 .content("{\"ids\":[1,1]}" )).andExpect(status().isBadRequest()).andExpect(jsonPath("$.message").value("ids must be unique"));
         mvc.perform(get("/api/products/"+zero)).andExpect(status().isNotFound());
     }
-    @Test void orderedProductIsDeactivatedAndSchemaIsNotCreatedByRuntime() throws Exception {
+    @Test void orderedProductIsDeactivatedAgainstRealModule7Schema() throws Exception {
         int id=create("BOOK",0).get("productID").asInt();
-        assertThat(jdbc.queryForObject("SELECT to_regclass('public.order_items') IS NULL",Boolean.class)).isTrue();
-        // Fixture only: emulate Module7's product reference; never a migration or runtime stub.
-        jdbc.execute("CREATE TABLE order_items (product_id integer)");
+        assertThat(jdbc.queryForObject("SELECT to_regclass('public.order_items') IS NOT NULL",Boolean.class)).isTrue();
+        // MODULE7 now supplies the real table and its constraints.
         try {
-            jdbc.update("INSERT INTO order_items VALUES (?)",id);
+            jdbc.update("INSERT INTO order_items(product_id,quantity,unit_price) VALUES (?,1,100)",id);
             mvc.perform(post("/api/products/batch-delete").header("Authorization",manager).header("x-manager-id","x").contentType(MediaType.APPLICATION_JSON)
                     .content("{\"ids\":["+id+"]}" )).andExpect(status().isCreated()).andExpect(jsonPath("$.results[0].status").value("DEACTIVATED_ORDERED"));
-        } finally { jdbc.execute("DROP TABLE order_items"); }
+        } finally { jdbc.update("DELETE FROM order_items WHERE product_id=?",id); }
     }
     @Test void quotaCannotBeBypassedByHeaderOrConcurrentRequests() throws Exception {
         int id=create("BOOK",2).get("productID").asInt();

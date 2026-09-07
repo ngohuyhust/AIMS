@@ -1,5 +1,32 @@
 # Migration risks and decisions
 
+## MODULE 7 update
+
+- R04 resolved for implemented detail/delivery routes by explicit user decision: token protection
+  and minimal frontend edits allowed. Require per-order capability; PRODUCT_MANAGER JWT permits
+  read only and its response omits the capability. Missing/wrong/cross-order cases tested.
+- Original source70-file SHA-256 baseline remains authoritative for ISD. A separate approved overlay
+  covers only the two frontend services, capability helper/test and obsolete shell-test correction.
+  No UI/route/provider changes. Guest tokens stay per-tab (sessionStorage/memory), never on all HTTP
+  requests; reload works, closing storage requires the original token link. XSS protection and token
+  revocation/expiry are not newly implemented; source capability has no expiry.
+- Framework web payload/bind/extraction and SQL exception-detail logging are disabled by default
+  to avoid capability/PII disclosure. Customer-link query tokens still require care in external
+  proxy/access logs; no application access logger or provider is added here.
+- Sorted product locks remove source input-order deadlock risk; all ACTIVE/stock decisions occur
+  under lock. Order/items/delivery/invoice and stock reserve are atomic. Delivery edits also lock
+  their order, so concurrent edits cannot mix invoice and order totals. Tests cover last-unit
+  contention, opposite cart orders, forced failures and monetary overflow rollback.
+- V5 exactly matches original four order tables; V1–V4 remain untouched. Upgrade test preserves
+  existing V4 product data. Product administration now checks real order_items constraints.
+- PENDING_PROCESSING delivery edits still reprice shipping as source. Before payment transitions
+  are enabled, MODULE8 must resolve whether edits after successful payment are prohibited or
+  reconciled; payment locking/idempotency is not silently implemented in MODULE7.
+- Detail returns paymentMethod:null while payment_transactions is absent; once it exists, query
+  SUCCESS normally. No payment table/service stub. MODULE8 must retest this against its real schema.
+- Placement is public, reserves stock, and has no idempotency key/abandoned-order expiry in source.
+  These lifecycle limits persist until later authorized modules; stock-check is not a reservation.
+
 ## MODULE 6 update
 
 - User approved **BigDecimal + HALF_UP** after seeing the source binary-rounding discrepancy:

@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, Inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
+import { OrderAccessService } from './order-access.service';
 import { CartItem } from './cart.service';
 import { API_BASE_URL } from '../app.config';
 
@@ -28,6 +29,7 @@ export interface StockCheckResponse {
 
 export interface OrderResponse {
   orderID: number;
+  customerAccessToken?: string;
   totalPayment: number | string;
   subTotal: number | string;
   tax: number | string;
@@ -75,6 +77,7 @@ export interface OrderListFilters {
 export class OrderService {
   constructor(
     private http: HttpClient,
+    private orderAccess: OrderAccessService,
     @Inject(API_BASE_URL) private readonly baseUrl: string
   ) {}
 
@@ -94,11 +97,11 @@ export class OrderService {
         quantity: item.quantity,
       })),
       deliveryInfo,
-    });
+    }).pipe(tap(order => this.orderAccess.remember(order.orderID, order.customerAccessToken)));
   }
 
   updateDeliveryInfo(orderId: number, deliveryInfo: DeliveryInfo): Observable<OrderResponse> {
-    return this.http.patch<OrderResponse>(`${this.baseUrl}/api/orders/${orderId}/delivery-info`, deliveryInfo);
+    return this.http.patch<OrderResponse>(`${this.baseUrl}/api/orders/${orderId}/delivery-info`, deliveryInfo, { headers: this.orderAccess.headers(orderId) });
   }
 
   calculateShippingFee(cartItems: CartItem[], province: string): Observable<ShippingFeeResponse> {
@@ -112,7 +115,7 @@ export class OrderService {
   }
 
   getOrderDetail(orderId: number): Observable<OrderResponse> {
-    return this.http.get<OrderResponse>(`${this.baseUrl}/api/orders/${orderId}`);
+    return this.http.get<OrderResponse>(`${this.baseUrl}/api/orders/${orderId}`, { headers: this.orderAccess.headers(orderId) });
   }
 
   getPendingOrders(page: number, limit: number, filters: OrderListFilters = {}): Observable<any> {

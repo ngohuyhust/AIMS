@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
+import { OrderAccessService } from './order-access.service';
 import { API_BASE_URL } from '../app.config';
 
 @Injectable({
@@ -9,6 +10,7 @@ import { API_BASE_URL } from '../app.config';
 export class PaymentService {
   constructor(
     private readonly http: HttpClient,
+    private readonly orderAccess: OrderAccessService,
     @Inject(API_BASE_URL) private readonly baseUrl: string
   ) { }
 
@@ -25,11 +27,13 @@ export class PaymentService {
     });
   }
   getOrderDetail(orderId: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/api/orders/${orderId}`);
+    return this.http.get(`${this.baseUrl}/api/orders/${orderId}`, { headers: this.orderAccess.headers(orderId) });
   }
 
   getCustomerOrderDetail(orderId: number, token: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}/api/customer/orders/${orderId}?token=${encodeURIComponent(token)}`);
+    return this.http.get(`${this.baseUrl}/api/customer/orders/${orderId}?token=${encodeURIComponent(token)}`).pipe(
+      tap(() => this.orderAccess.remember(orderId, token))
+    );
   }
 
   refundOrder(orderId: number): Observable<any> {

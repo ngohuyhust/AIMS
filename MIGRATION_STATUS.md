@@ -2,12 +2,25 @@
 
 ## Current checkpoint
 
-- Authorized scope: **MODULE 6 — Cart and Shipping**, authorized by `tiếp tục làm nốt module 5 nếu chưa xong, và sang module 6 luôn`.
-- Status: **MODULE 6 validated, pushed and verified; awaiting user confirmation**.
-- Next checkpoint: **MODULE 7 — Order Placement**, not authorized yet.
-- Required next message: `TIẾP TỤC MODULE 7`.
-- Business implementation: catalog, user/auth/admin, product administration/audit, stateless cart and shipping.
+- Authorized scope: **MODULE 7 — Order Placement**, authorized by `tiếp module 7`.
+- Status: **MODULE 7 validated; commit/push verification in progress**.
+- Next checkpoint: **MODULE 8 — Payment Core**, not authorized yet.
+- Required next message: `TIẾP TỤC MODULE 8`.
+- Business implementation: catalog, user/auth/admin, product administration/audit, stateless cart/shipping and transactional order placement/ownership/delivery.
 - Current branch: `main`, following the user's explicit history consolidation and branch deletion.
+
+## MODULE 7 result
+
+- V5 orders/order_items/delivery_info/invoices, full persisted response graph; no payment schema.
+- Sorted pessimistic stock locks; atomic reservation/placement/invoice; order locks for delivery edits.
+- Explicit user approval: token ownership protection plus minimal frontend edits. PM read-only JWT
+  access retains manager UI; no capability disclosure in manager response. No public delivery edits.
+- Shared BigDecimal/HALF_UP; source state/fee/DTO behavior documented with security changes.
+- Module14/14 tests including54 DTO fixtures; full suite574/574; frontend5/5 and production build pass.
+- Source70/70 untouched; frontend67 original files unchanged,3 edited originals and2 added files
+  checked against explicit approved hashes. Original source baseline unchanged.
+- Maven verify574/574 and executable JAR build pass, zero failures/errors/skips. Git completion record pending.
+- [Validation](docs/module-7-validation.md).
 
 ## MODULE 6 result
 
@@ -165,8 +178,8 @@ the final commit only records the verified checkpoint state.
 | MODULE 3 | Login/JWT/password change/role security/CORS | Complete |
 | MODULE 4 | User administration and audit APIs | Complete |
 | MODULE 5 | Product administration/audit/manager quota | Complete |
-| MODULE 6 | Cart/duplicate merging/shipping/VAT boundaries | Complete; awaiting user confirmation |
-| MODULE 7 | Transactional placement/stock locks/customer token/delivery/detail | Not started |
+| MODULE 6 | Cart/duplicate merging/shipping/VAT boundaries | Complete |
+| MODULE 7 | Transactional placement/stock locks/customer token/delivery/detail | Validated; push pending |
 | MODULE 8 | Payment domain/abstractions/states/idempotency/events | Not started |
 | MODULE 9 | PayPal OAuth/create/capture/refund/redirect/currency/mock HTTP | Not started |
 | MODULE 10 | VietQR QR/expiry/callback/auth/idempotency/sandbox/JSONB | Not started |
@@ -177,8 +190,8 @@ the final commit only records the verified checkpoint state.
 ## Risks awaiting later checkpoint decisions
 
 See [migration-risks.md](docs/migration-risks.md). Key unresolved items: actual deployed schema
-metadata; public order data/access tokens and delivery edits; unguarded payment/refund routes;
+metadata; delivery repricing after payment; unguarded payment/refund routes;
 VietQR amount/signature checks; order/payment race conditions;
-hardcoded frontend production API host. Manager identity/quota and user hash disclosure were addressed in MODULE5/MODULE4 respectively.
+hardcoded frontend production API host. Manager identity/quota, user hash disclosure and order ownership were addressed in MODULE5/MODULE4/MODULE7 respectively.
 
-STOP after the MODULE 6 checkpoint report. Do not start MODULE7 until the user's explicit confirmation.
+STOP after the MODULE 7 checkpoint report. Do not start MODULE8 until the user's explicit confirmation.

@@ -1,0 +1,42 @@
+package vn.aims.order;
+
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.util.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class OrderRepository {
+    record Stock(int id,String status,int quantity,BigDecimal price,double weight) {}
+    private final EntityManager em;
+    private final JdbcTemplate jdbc;
+    public OrderRepository(EntityManager em,JdbcTemplate jdbc) { this.em=em;this.jdbc=jdbc; }
+    Map<Integer,Stock> lockProducts(Collection<Integer> ids) {
+        var result=new HashMap<Integer,Stock>();
+        // Same ascending product lock order as ProductAdminService, independent of cart line order.
+        for(int id:new TreeSet<>(ids)) jdbc.query("SELECT product_id,status,quantity_in_stock,current_price,weight FROM products WHERE product_id=? FOR UPDATE",
+            (org.springframework.jdbc.core.RowCallbackHandler) row->result.put(id,new Stock(id,row.getString("status"),row.getInt("quantity_in_stock"),row.getBigDecimal("current_price"),row.getDouble("weight"))),id);
+        return result;
+    }
+    void reserve(int id,int quantity) { jdbc.update("UPDATE products SET quantity_in_stock=quantity_in_stock-?,updated_at=now() WHERE product_id=?",quantity,id); }
+    vn.aims.product.Product product(int id) { return em.getReference(vn.aims.product.Product.class,id); }
+    Order save(Order order) {
+        if(order.orderID==null) em.persist(order);
+        em.flush();int id=order.orderID;em.clear();return em.find(Order.class,id);
+    }
+    Order find(int id,boolean lock) {
+        if(lock) {
+            // Lock just the order row, not nullable outer joins in its full relation graph.
+            jdbc.query("SELECT order_id FROM orders WHERE order_id=? FOR UPDATE",(org.springframework.jdbc.core.RowCallbackHandler) row->{},id);
+        }
+        return em.find(Order.class,id);
+    }
+    void persist(Object value) { em.persist(value); }
+    String paymentMethod(int id) {
+        // No payment schema/stub before MODULE8. An existing table is always queried normally.
+        if(Boolean.TRUE.equals(jdbc.queryForObject("SELECT to_regclass('public.payment_transactions') IS NULL",Boolean.class))) return null;
+        var rows=jdbc.queryForList("SELECT method FROM payment_transactions WHERE order_id=? AND status='SUCCESS' ORDER BY created_at DESC LIMIT 1",String.class,id);
+        return rows.isEmpty()?null:rows.getFirst();
+    }
+}

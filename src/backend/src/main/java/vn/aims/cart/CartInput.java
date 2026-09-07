@@ -7,12 +7,12 @@ import java.math.BigInteger;
 import java.util.*;
 
 /** Preserve the original whitelist and class-validator message order, without string coercion. */
-final class CartInput {
-    static final class Invalid extends RuntimeException {
-        final List<String> messages;
+public final class CartInput {
+    public static final class Invalid extends RuntimeException {
+        public final List<String> messages;
         Invalid(List<String> messages) { this.messages=List.copyOf(new LinkedHashSet<>(messages)); }
     }
-    static ObjectNode parse(JsonNode body,boolean shipping) {
+    public static ObjectNode parse(JsonNode body,boolean shipping) {
         var errors=new ArrayList<String>();
         var clean=JsonNodeFactory.instance.objectNode();
         if(shipping) {
@@ -58,7 +58,7 @@ final class CartInput {
         }
         return clean;
     }
-    static LinkedHashMap<Integer,BigInteger> items(JsonNode body) {
+    public static LinkedHashMap<Integer,BigInteger> items(JsonNode body) {
         var result=new LinkedHashMap<Integer,BigInteger>();
         if(!body.path("cartItems").isArray()) throw new IllegalArgumentException("Cart is not iterable");
         for(var item:body.get("cartItems")) {

@@ -102,17 +102,17 @@ class CartIntegrationTest {
         }
         mvc.perform(post("/api/orders/shipping-fee").contentType(MediaType.APPLICATION_JSON).content("{" )).andExpect(status().isBadRequest());
     }
-    @Test void publicCorsWorksAndOtherOrderRoutesRemainClosed() throws Exception {
+    @Test void publicCorsWorksAndFutureRoutesRemainClosed() throws Exception {
         mvc.perform(post("/api/orders/cart/check-stock").header("Origin","http://localhost:4200")
             .contentType(MediaType.APPLICATION_JSON).content("{\"cartItems\":[{\"productId\":1,\"quantity\":1}]}"))
             .andExpect(status().isCreated()).andExpect(header().string("Access-Control-Allow-Origin","http://localhost:4200"));
         mvc.perform(options("/api/orders/shipping-fee").header("Origin","http://localhost:4200")
             .header("Access-Control-Request-Method","POST").header("Access-Control-Request-Headers","content-type"))
             .andExpect(status().isNoContent());
-        mvc.perform(post("/api/orders").contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isForbidden());
-        mvc.perform(get("/api/orders/1")).andExpect(status().isForbidden());
-        mvc.perform(patch("/api/orders/1/delivery-info")).andExpect(status().isForbidden());
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM flyway_schema_history WHERE success",Integer.class)).isEqualTo(4);
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('carts','orders','order_items','invoices','delivery_info')",Integer.class)).isZero();
+        mvc.perform(post("/api/orders/1/approve").contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isForbidden());
+        mvc.perform(get("/api/orders/pending")).andExpect(status().isForbidden());
+        mvc.perform(patch("/api/orders/1/status")).andExpect(status().isForbidden());
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM flyway_schema_history WHERE success",Integer.class)).isEqualTo(5);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('carts','payment_transactions')",Integer.class)).isZero();
     }
 }
