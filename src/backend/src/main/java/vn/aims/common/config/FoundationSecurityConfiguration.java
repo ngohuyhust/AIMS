@@ -21,7 +21,7 @@ public class FoundationSecurityConfiguration {
     SecurityFilterChain foundationSecurity(HttpSecurity http, vn.aims.auth.JwtTokens tokens,
             com.fasterxml.jackson.databind.ObjectMapper json) throws Exception {
         return http
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/auth/login", "/api/auth/login/", "/api/auth/change-password", "/api/auth/change-password/", "/api/users", "/api/users/**", "/api/auth/reset-password/**"))
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/auth/login", "/api/auth/login/", "/api/auth/change-password", "/api/auth/change-password/", "/api/users", "/api/users/**", "/api/auth/reset-password/**", "/api/products", "/api/products/**"))
                 .addFilterBefore(new vn.aims.auth.JwtAuthenticationFilter(tokens,json), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(HttpMethod.GET,"/api/users","/api/users/","/api/users/logs","/api/users/logs/").hasAuthority("ADMIN")
@@ -31,7 +31,10 @@ public class FoundationSecurityConfiguration {
                         .requestMatchers(HttpMethod.POST,"/api/auth/login", "/api/auth/login/").permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/auth/change-password", "/api/auth/change-password/").authenticated()
                         .requestMatchers("/actuator/health").permitAll()
-                        .requestMatchers("/api/products/audit-logs", "/api/products/audit-logs/").denyAll()
+                        .requestMatchers(HttpMethod.GET,"/api/products/audit-logs", "/api/products/audit-logs/").hasAuthority("PRODUCT_MANAGER")
+                        .requestMatchers(HttpMethod.HEAD,"/api/products/audit-logs", "/api/products/audit-logs/").hasAuthority("PRODUCT_MANAGER")
+                        .requestMatchers(HttpMethod.POST,"/api/products","/api/products/","/api/products/batch-delete","/api/products/batch-delete/","/api/products/batch-deactivate","/api/products/batch-deactivate/").hasAuthority("PRODUCT_MANAGER")
+                        .requestMatchers(HttpMethod.PATCH,"/api/products/*","/api/products/*/","/api/products/*/stock","/api/products/*/stock/").hasAuthority("PRODUCT_MANAGER")
                         .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/", "/api/products/*", "/api/products/*/").permitAll()
                         .requestMatchers(HttpMethod.HEAD, "/api/products", "/api/products/", "/api/products/*", "/api/products/*/").permitAll()
                         .anyRequest().denyAll())

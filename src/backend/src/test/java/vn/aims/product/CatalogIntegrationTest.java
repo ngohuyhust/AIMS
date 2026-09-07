@@ -107,12 +107,12 @@ class CatalogIntegrationTest {
     }
 
     @Test
-    void adminAndMutationRoutesRemainClosed() throws Exception {
-        mvc.perform(get("/api/products/audit-logs")).andExpect(status().isForbidden());
+    void adminAndMutationRoutesRequireAuthentication() throws Exception {
+        mvc.perform(get("/api/products/audit-logs")).andExpect(status().isUnauthorized());
         mvc.perform(post("/api/products").contentType("application/json").content("{}"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
         mvc.perform(patch("/api/products/1").contentType("application/json").content("{}"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

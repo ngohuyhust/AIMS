@@ -157,7 +157,7 @@ class UserDomainIntegrationTest {
         var oldVersion = Flyway.configure().dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
                 .schemas(schema).defaultSchema(schema).target("2").load();
         var newVersion = Flyway.configure().dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
-                .schemas(schema).defaultSchema(schema).load();
+                .schemas(schema).defaultSchema(schema).target("3").load();
         try {
             oldVersion.migrate();
             try (var connection = java.sql.DriverManager.getConnection(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());

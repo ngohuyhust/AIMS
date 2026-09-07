@@ -30,6 +30,48 @@ are400, integer IDs outside PostgreSQL's int32 range are500, unknown productType
 The source allows explicit `status=DELETED` search although detail excludes deleted products; this
 is retained. CD tracks have no promised sort order in the source, so no new sort is introduced.
 
+## MODULE 5 product administration
+
+Six routes now require JWT PRODUCT_MANAGER: POST `/api/products`, PATCH `/api/products/:id`,
+PATCH `/api/products/:id/stock`, POST `/api/products/batch-delete`, POST
+`/api/products/batch-deactivate`, GET `/api/products/audit-logs`. POST201, PATCH/GET200; trailing
+slashes supported. ADMIN alone is insufficient. Public search/random/detail still ignore stale JWT.
+The x-manager-id header remains required/nonblank with the original400 message. **User-approved
+change:** the signed JWT email identifies audit/quota; submitted header text cannot change identity.
+
+Create/update whitelist common fields and nested BOOK/CD/DVD/NEWSPAPER DTOs; 11 original Nest
+ValidationPipe fixtures verify missing fields, numeric strings, minima, date/nested errors, null
+optionals and unknown-field stripping. Product type uppercases; originalPrice/type cannot change.
+Prices use BigDecimal with inclusive30%–150% bounds; stock must stay a nonnegative integer.
+Subtype media aliases, nulls, two-decimal numeric strings and date JSON reuse the verified public
+catalog serializer. Partial nested updates preserve omitted fields. Supplied CD tracks replace all
+tracks (empty array clears; absent tracks preserves). SQL lengths/unique/FKs still reject invalid
+persistence with the generic500 envelope. Mutations and audit are transactional.
+
+Batch IDs must be unique, 1–10 integers. Results retain request order and NOT_FOUND entries.
+Delete with positive stock→DEACTIVATED; zero stock with order reference→DEACTIVATED_ORDERED;
+otherwise soft DELETED. Deactivation always uses DEACTIVATED. DELETE/DEACTIVATE each consume one
+quota unit per found product, including repeated deactivation; maximum20 per manager/day using
+server-local day boundaries. PostgreSQL advisory locks serialize the signed manager's quota checks;
+sorted product row locks protect overlapping batches. Stock deltas use a row lock too.
+Audit created_at is explicitly stamped after locking with clock_timestamp(), avoiding charging an
+operation to a prior day solely because its transaction started before a midnight lock wait.
+
+`order_items` is read only if public.order_items exists; absent table at this pre-MODULE7 checkpoint
+means there can be no persisted order references. No future-domain table or business stub is created.
+A test-only table fixture verifies ordered-product behavior. MODULE7 must retest against its full DDL.
+Audit GET returns all logs newest-first with JSONB changes, nullable reason/product, source-shaped
+base product response and millisecond UTC createdAt. Physical deletion keeps audit via SET NULL.
+
+Source behavior retained: supplied DELETED status can commit a create/update then return404 from
+the post-transaction detail lookup; stock adjustment also locates soft-deleted products before that
+lookup. General status strings remain unconstrained. No extra undelete/activation business rule.
+Compatibility limits: malformed nested arrays/null required subtype become controlled400 rather
+than source incidental errors; Java ISO date parsing is strict, so permissive validator.js date
+edge cases outside the captured fixtures are not certified. Duplicate-ID validation runs before
+the controller's manager-header check; both failures are400 but error precedence differs if both
+are invalid. All ordinary Angular requests retain their paths/methods/headers/payload/response.
+
 ## MODULE 4 user administration
 
 JWT + exact ADMIN now protects GET/POST `/api/users`, GET `/api/users/logs`, PATCH

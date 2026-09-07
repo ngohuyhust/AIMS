@@ -2,12 +2,22 @@
 
 ## Current checkpoint
 
-- Authorized scope: **MODULE 4 — User Administration**, authorized by `tiếp module 4`.
-- Status: **MODULE 4 validated and pushed; final remote verification in progress**.
-- Next checkpoint: **MODULE 5 — Product Administration and Audit**, not authorized yet.
-- Required next message: `TIẾP TỤC MODULE 5`.
-- Business implementation: public catalog, user/auth domain and ADMIN user administration.
+- Authorized scope: **MODULE 5 — Product Administration and Audit**, authorized by `tiếp module 5`.
+- Status: **MODULE 5 validated; commit/push in progress**.
+- Next checkpoint: **MODULE 6 — Cart and Shipping**, not authorized yet.
+- Required next message: `TIẾP TỤC MODULE 6`.
+- Business implementation: catalog, user/auth/admin and product administration/audit.
 - Current branch: `main`, following the user's explicit history consolidation and branch deletion.
+
+## MODULE 5 result
+
+- Six PRODUCT_MANAGER routes; four subtype writes; stock locking; batch deactivate/delete; audit.
+- Explicitly approved JWT-email quota identity and transaction locking; x-manager-id still required.
+- V4 product_logs matches original TypeORM metadata. Existing V1–V3 unchanged; no order tables/stubs.
+- Fourteen module tests include 11 source DTO fixtures, PostgreSQL schema parity and concurrent
+  stock/quota tests. Full suite78/78; frontend70/70 unchanged; source read-only.
+- Maven verify78/78 and executable JAR build passed; zero failures/errors/skips in final runs.
+- [Detailed validation](docs/module-5-validation.md); compatibility limits in contract/risks.
 
 ## MODULE 4 result
 
@@ -134,8 +144,8 @@ the final commit only records the verified checkpoint state.
 | MODULE 1 | Public product base/subtypes, Flyway V2, search/random/detail, repository/service/MockMvc tests | Complete |
 | MODULE 2 | User/role/join/audit domain, safe role seeds | Complete |
 | MODULE 3 | Login/JWT/password change/role security/CORS | Complete |
-| MODULE 4 | User administration and audit APIs | Validated and pushed; awaiting checkpoint report |
-| MODULE 5 | Product administration/audit/manager quota | Not started |
+| MODULE 4 | User administration and audit APIs | Complete |
+| MODULE 5 | Product administration/audit/manager quota | Validated; commit/push in progress |
 | MODULE 6 | Cart/duplicate merging/shipping/VAT boundaries | Not started |
 | MODULE 7 | Transactional placement/stock locks/customer token/delivery/detail | Not started |
 | MODULE 8 | Payment domain/abstractions/states/idempotency/events | Not started |
@@ -152,4 +162,4 @@ metadata; public order data/access tokens and delivery edits; unguarded payment/
 VietQR amount/signature checks; race conditions; manager header attribution; user hash disclosure;
 hardcoded frontend production API host. None has been silently implemented or changed in Phase 0.
 
-STOP after the MODULE 4 checkpoint report. Do not start MODULE5 until the user's explicit confirmation.
+STOP after the MODULE 5 checkpoint report. Do not start MODULE6 until the user's explicit confirmation.

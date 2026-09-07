@@ -1,0 +1,192 @@
+[
+  {
+    "name": "empty-create",
+    "update": false,
+    "input": {},
+    "errors": [
+      "productType must be a string",
+      "title must be a string",
+      "category must be a string",
+      "barcode must be a string",
+      "weight must be a number conforming to the specified constraints",
+      "originalPrice must be a number conforming to the specified constraints",
+      "currentPrice must be a number conforming to the specified constraints",
+      "quantityInStock must not be less than 0",
+      "quantityInStock must be an integer number"
+    ]
+  },
+  {
+    "name": "empty-update",
+    "update": true,
+    "input": {},
+    "expected": {}
+  },
+  {
+    "name": "numeric-strings",
+    "update": false,
+    "input": {
+      "productType": "BOOK",
+      "title": "Book",
+      "category": "Book",
+      "barcode": "fixture",
+      "weight": "1",
+      "originalPrice": 100,
+      "currentPrice": 100,
+      "quantityInStock": "2",
+      "book": {
+        "authors": "Author",
+        "coverType": "Hard",
+        "publisher": "Pub",
+        "publicationDate": "2025-02-01"
+      }
+    },
+    "errors": [
+      "weight must be a number conforming to the specified constraints",
+      "quantityInStock must not be less than 0",
+      "quantityInStock must be an integer number"
+    ]
+  },
+  {
+    "name": "negative-integer",
+    "update": true,
+    "input": {
+      "quantityInStock": -1
+    },
+    "errors": [
+      "quantityInStock must not be less than 0"
+    ]
+  },
+  {
+    "name": "fractional-integer",
+    "update": true,
+    "input": {
+      "quantityInStock": 1.5
+    },
+    "errors": [
+      "quantityInStock must be an integer number"
+    ]
+  },
+  {
+    "name": "null-optionals",
+    "update": true,
+    "input": {
+      "description": null,
+      "book": {
+        "numPages": null
+      }
+    },
+    "expected": {
+      "description": null,
+      "book": {
+        "numPages": null
+      }
+    }
+  },
+  {
+    "name": "missing-book-fields",
+    "update": false,
+    "input": {
+      "productType": "BOOK",
+      "title": "Book",
+      "category": "Book",
+      "barcode": "fixture",
+      "weight": 1,
+      "originalPrice": 100,
+      "currentPrice": 100,
+      "quantityInStock": 0,
+      "book": {}
+    },
+    "errors": [
+      "book.authors must be a string",
+      "book.coverType must be a string",
+      "book.publisher must be a string",
+      "book.publicationDate must be a valid ISO 8601 date string"
+    ]
+  },
+  {
+    "name": "nested-track-error",
+    "update": true,
+    "input": {
+      "cd": {
+        "tracks": [
+          {
+            "title": 7,
+            "lengthSeconds": 0
+          }
+        ]
+      }
+    },
+    "errors": [
+      "cd.tracks.0.title must be a string",
+      "cd.tracks.0.lengthSeconds must not be less than 1"
+    ]
+  },
+  {
+    "name": "invalid-date",
+    "update": true,
+    "input": {
+      "dvd": {
+        "releaseDate": "invalid"
+      }
+    },
+    "errors": [
+      "dvd.releaseDate must be a valid ISO 8601 date string"
+    ]
+  },
+  {
+    "name": "whitelist",
+    "update": false,
+    "input": {
+      "productType": "BOOK",
+      "title": "Book",
+      "category": "Book",
+      "barcode": "fixture",
+      "weight": 1,
+      "originalPrice": 100,
+      "currentPrice": 100,
+      "quantityInStock": 0,
+      "book": {
+        "authors": "Author",
+        "coverType": "Hard",
+        "publisher": "Pub",
+        "publicationDate": "2025-02-01",
+        "unknown": true
+      },
+      "unknown": true
+    },
+    "expected": {
+      "productType": "BOOK",
+      "title": "Book",
+      "category": "Book",
+      "barcode": "fixture",
+      "weight": 1,
+      "originalPrice": 100,
+      "currentPrice": 100,
+      "quantityInStock": 0,
+      "book": {
+        "authors": "Author",
+        "coverType": "Hard",
+        "publisher": "Pub",
+        "publicationDate": "2025-02-01"
+      }
+    }
+  },
+  {
+    "name": "valid-dvd",
+    "update": true,
+    "input": {
+      "dvd": {
+        "runtimeMinutes": 90,
+        "studio": "Studio",
+        "releaseDate": "2025-03-01T00:00:00Z"
+      }
+    },
+    "expected": {
+      "dvd": {
+        "runtimeMinutes": 90,
+        "studio": "Studio",
+        "releaseDate": "2025-03-01T00:00:00Z"
+      }
+    }
+  }
+]

@@ -1,5 +1,25 @@
 # Migration risks and decisions
 
+## MODULE 5 update
+
+- R08 resolved by explicit user choice: "Email JWT + khóa quota (khuyến nghị)". Still require
+  x-manager-id, but audit/quota use signed email. PostgreSQL per-manager advisory transaction lock
+  prevents concurrent quota bypass; product locks are taken in sorted order. Header spoofing and
+  racing requests at19/20 are tested (only one request succeeds). ADMIN does not imply manager.
+- Audit INSERT uses clock_timestamp after locks so a transaction waiting across midnight is not
+  logged at its pre-lock start time. Daily range follows the server timezone, as the source does.
+- V4 introduces only product_logs, exactly matching original TypeORM columns/PK/FK/defaults/indexes;
+  JSONB and nullable SET NULL product reference verified on PostgreSQL. V1–V3 unchanged.
+- The source batch-delete reads order_items, scheduled MODULE7. Before that migration, missing
+  public.order_items means no stored order references; when present it is queried normally.
+  SQL errors on an existing table fail/roll back rather than treating reference checks as false.
+  No orders schema/stubs introduced; MODULE7 needs full-schema integration retesting.
+- Subtype/audit failures roll back all product writes. Price calculations use BigDecimal; stock
+  decrement concurrency proves no negative quantity or duplicate successful decrement.
+- Existing stock-edit-on-DELETED/post-commit404 and repeated-deactivation quota behavior remain.
+  Broad lifecycle/status changes are not silently introduced. Strict date/null-subtype and
+  compound-invalid-input precedence limits are recorded in the contract.
+
 ## MODULE 4 update
 
 - R10: admin create/list/update/log responses deliberately omit credential hashes. The existing

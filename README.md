@@ -4,6 +4,9 @@ Migration có kiểm soát từ NestJS sang Java Spring Boot, giữ nguyên Angu
 MODULE 1 đã chuyển public product catalog; MODULE 2 bổ sung user/role/audit domain và seed role an toàn.
 MODULE 3 bổ sung login/JWT, đổi mật khẩu, phân quyền và CORS; MODULE 4 bổ sung API quản trị user/audit và reset mật khẩu (ADMIN).
 Hiện làm việc trên nhánh `main`.
+
+MODULE 5 bổ sung quản trị sản phẩm/stock/audit, batch deactivate/delete và quota20 sản phẩm/ngày.
+Các route này yêu cầu PRODUCT_MANAGER và header `x-manager-id`; quota/audit dùng email JWT đã xác thực.
 Tiến độ và điều kiện tiếp tục nằm trong [MIGRATION_STATUS.md](MIGRATION_STATUS.md).
 
 ## Cấu trúc
