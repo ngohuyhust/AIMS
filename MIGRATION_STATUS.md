@@ -3,7 +3,7 @@
 ## Current checkpoint
 
 - Authorized scope: **MODULE 6 — Cart and Shipping**, authorized by `tiếp tục làm nốt module 5 nếu chưa xong, và sang module 6 luôn`.
-- Status: **MODULE 6 validated; commit/push verification in progress**.
+- Status: **MODULE 6 validated, pushed and verified; awaiting user confirmation**.
 - Next checkpoint: **MODULE 7 — Order Placement**, not authorized yet.
 - Required next message: `TIẾP TỤC MODULE 7`.
 - Business implementation: catalog, user/auth/admin, product administration/audit, stateless cart and shipping.
@@ -18,7 +18,10 @@
 - No Flyway change or order/cart schema; no frontend edits, authentication, session or stock writes.
 - 482 module tests passed, including472 original shipping cases and44 DTO fixtures.
 - Full suite560/560 and Maven verify560/560 passed; zero failures/errors/skips; executable JAR built.
-- Frontend70/70 unchanged; source HEAD/status preserved. Git completion record pending.
+- Frontend70/70 unchanged; source HEAD/status preserved.
+- Implementation `c8353fb37f873908282ae11904405a18e26cc5b0` pushed to origin/main;
+  git ls-remote verified the exact hash. Completion record is a separate documentation commit;
+  its final hash and remote/clean-tree verification are reported in the checkpoint response.
 - [Validation](docs/module-6-validation.md).
 
 ## MODULE 5 result
@@ -162,7 +165,7 @@ the final commit only records the verified checkpoint state.
 | MODULE 3 | Login/JWT/password change/role security/CORS | Complete |
 | MODULE 4 | User administration and audit APIs | Complete |
 | MODULE 5 | Product administration/audit/manager quota | Complete |
-| MODULE 6 | Cart/duplicate merging/shipping/VAT boundaries | Validated; push pending |
+| MODULE 6 | Cart/duplicate merging/shipping/VAT boundaries | Complete; awaiting user confirmation |
 | MODULE 7 | Transactional placement/stock locks/customer token/delivery/detail | Not started |
 | MODULE 8 | Payment domain/abstractions/states/idempotency/events | Not started |
 | MODULE 9 | PayPal OAuth/create/capture/refund/redirect/currency/mock HTTP | Not started |
