@@ -3,7 +3,7 @@
 ## Current checkpoint
 
 - Authorized scope: **MODULE 8 — Payment Core**, authorized by `hoàn thành nốt module 7 và sang module 8 luôn`.
-- Status: **MODULE 8 validated; commit/push verification in progress**.
+- Status: **MODULE 8 validated, pushed and verified; awaiting user confirmation**.
 - Next checkpoint: **MODULE 9 — PayPal**, not authorized yet.
 - Required next message: `TIẾP TỤC MODULE 9`.
 - Business implementation: catalog, user/auth/admin, product administration/audit, stateless cart/shipping and transactional order placement/ownership/delivery and shared payment core.
@@ -17,7 +17,10 @@
 - Explicit user choice: freeze delivery when pending/paid; validate whole-VND order amount.
 - Module17/17 tests cover idempotency, concurrent callbacks/create/expiry/delivery, rollback,
   schema parity and V5→V6 upgrade. Full suite591/591 and Maven verify591/591 passed;
-  zero failures/errors/skips, executable JAR built. Git completion record pending.
+  zero failures/errors/skips, executable JAR built.
+- Implementation `9fdf90fcb60494ad7c2191b66697dcf346b6cea8` pushed to origin/main;
+  git ls-remote verified the exact hash. Completion record is a separate documentation commit;
+  its final hash and remote/clean-tree verification are reported in the checkpoint response.
 - Frontend unchanged from MODULE7 approved hashes; original ISD baseline unchanged.
 - [Validation](docs/module-8-validation.md); later provider/event-delivery limits documented.
 
@@ -196,7 +199,7 @@ the final commit only records the verified checkpoint state.
 | MODULE 5 | Product administration/audit/manager quota | Complete |
 | MODULE 6 | Cart/duplicate merging/shipping/VAT boundaries | Complete |
 | MODULE 7 | Transactional placement/stock locks/customer token/delivery/detail | Complete |
-| MODULE 8 | Payment domain/abstractions/states/idempotency/events | Validated; push pending |
+| MODULE 8 | Payment domain/abstractions/states/idempotency/events | Complete; awaiting user confirmation |
 | MODULE 9 | PayPal OAuth/create/capture/refund/redirect/currency/mock HTTP | Not started |
 | MODULE 10 | VietQR QR/expiry/callback/auth/idempotency/sandbox/JSONB | Not started |
 | MODULE 11 | Order management/states/refunds/concurrency | Not started |
