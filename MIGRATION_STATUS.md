@@ -3,7 +3,7 @@
 ## Current checkpoint
 
 - Authorized scope: **MODULE 3 — Authentication and Security**, authorized by `tiếp module 3`.
-- Status: **MODULE 3 validated; commit/push in progress**.
+- Status: **MODULE 3 validated, pushed and verified; awaiting user confirmation**.
 - Next checkpoint: **MODULE 4 — User Administration**, not authorized yet.
 - Required next message: `TIẾP TỤC MODULE 4`.
 - Business implementation: public catalog, user domain and login/JWT/change-password security.
@@ -17,6 +17,9 @@
 - Module13/13; full suite53/53; Maven verify53/53; zero final failures/errors/skips.
 - Flyway V1–V3 unchanged; no new schema or default accounts. Admin reset-password deferred MODULE4.
 - Frontend70/70 unchanged; source read-only. [Validation](docs/module-3-validation.md).
+- Implementation `23b871d1dcd0508929f09f381326c1d9234db21a` pushed to origin/main;
+  git ls-remote verified the exact hash. Completion record is a separate documentation commit;
+  its final hash and remote check are reported in the checkpoint response.
 
 ## MODULE 2 result
 
@@ -119,7 +122,7 @@ the final commit only records the verified checkpoint state.
 | --- | --- | --- |
 | MODULE 1 | Public product base/subtypes, Flyway V2, search/random/detail, repository/service/MockMvc tests | Complete |
 | MODULE 2 | User/role/join/audit domain, safe role seeds | Complete |
-| MODULE 3 | Login/JWT/password change/role security/CORS | Validated; commit/push in progress |
+| MODULE 3 | Login/JWT/password change/role security/CORS | Complete; awaiting user confirmation |
 | MODULE 4 | User administration and audit APIs | Not started |
 | MODULE 5 | Product administration/audit/manager quota | Not started |
 | MODULE 6 | Cart/duplicate merging/shipping/VAT boundaries | Not started |
