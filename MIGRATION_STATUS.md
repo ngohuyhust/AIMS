@@ -3,7 +3,7 @@
 ## Current checkpoint
 
 - Authorized scope: **MODULE 7 — Order Placement**, authorized by `tiếp module 7`.
-- Status: **MODULE 7 validated; commit/push verification in progress**.
+- Status: **MODULE 7 validated, pushed and verified; awaiting user confirmation**.
 - Next checkpoint: **MODULE 8 — Payment Core**, not authorized yet.
 - Required next message: `TIẾP TỤC MODULE 8`.
 - Business implementation: catalog, user/auth/admin, product administration/audit, stateless cart/shipping and transactional order placement/ownership/delivery.
@@ -19,7 +19,10 @@
 - Module14/14 tests including54 DTO fixtures; full suite574/574; frontend5/5 and production build pass.
 - Source70/70 untouched; frontend67 original files unchanged,3 edited originals and2 added files
   checked against explicit approved hashes. Original source baseline unchanged.
-- Maven verify574/574 and executable JAR build pass, zero failures/errors/skips. Git completion record pending.
+- Maven verify574/574 and executable JAR build pass, zero failures/errors/skips.
+- Implementation `76251119040b528d3f98ed3b2efca58cd341b977` pushed to origin/main;
+  git ls-remote verified the exact hash. Completion record is a separate documentation commit;
+  its final hash and remote/clean-tree verification are reported in the checkpoint response.
 - [Validation](docs/module-7-validation.md).
 
 ## MODULE 6 result
@@ -179,7 +182,7 @@ the final commit only records the verified checkpoint state.
 | MODULE 4 | User administration and audit APIs | Complete |
 | MODULE 5 | Product administration/audit/manager quota | Complete |
 | MODULE 6 | Cart/duplicate merging/shipping/VAT boundaries | Complete |
-| MODULE 7 | Transactional placement/stock locks/customer token/delivery/detail | Validated; push pending |
+| MODULE 7 | Transactional placement/stock locks/customer token/delivery/detail | Complete; awaiting user confirmation |
 | MODULE 8 | Payment domain/abstractions/states/idempotency/events | Not started |
 | MODULE 9 | PayPal OAuth/create/capture/refund/redirect/currency/mock HTTP | Not started |
 | MODULE 10 | VietQR QR/expiry/callback/auth/idempotency/sandbox/JSONB | Not started |
