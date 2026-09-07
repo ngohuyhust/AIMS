@@ -30,6 +30,61 @@ are400, integer IDs outside PostgreSQL's int32 range are500, unknown productType
 The source allows explicit `status=DELETED` search although detail excludes deleted products; this
 is retained. CD tracks have no promised sort order in the source, so no new sort is introduced.
 
+## MODULE 8 payment core
+
+No payment/controller endpoint is added. PayPal/VietQR/provider callbacks remain denied403 until
+MODULE9/MODULE10. PaymentTransaction and V6 add only shared payment_transactions; no provider rows,
+credentials, SDKs, adapters, email listeners or external calls. CreditCardGateway and QrCodeGateway
+retain separate active-capture/refund versus passive-callback responsibilities; their implementations
+and HTTP response mappings are deliberately deferred. Typed GatewayRequest carries stable shared
+transactionId, orderId and validated whole-VND amount; future adapters must verify provider identity,
+order linkage, currency and amount before supplying PaymentConfirmation to the core.
+
+Internal PaymentService boundary (not public HTTP):
+
+| Operation | Conditions / result |
+| --- | --- |
+| begin(orderId,method,amount,content) | Lock order; require PENDING and amount equal to HALF_UP whole-VND order.totalPayment. Reuse the sole matching PENDING attempt; reject another active method/amount or SUCCESS. Persist PENDING otherwise. |
+| confirm(proof) | Lock order then transaction; require matching order/method/amount. PENDING->SUCCESS plus order PENDING->PENDING_PROCESSING atomically; publish ORDER_PAYMENT_SUCCEEDED after commit. |
+| fail(transactionId) | Only PENDING->FAILED; duplicate/terminal failure updates return false. Used by later creation-failure/expiry orchestration. |
+| markRefunded(proof) | Only matching SUCCESS->REFUNDED; duplicate false. Records an already-verified result; never executes a refund or modifies order lifecycle here. |
+| find/latest | Shared data only; transactionID, nullable orderId, method, decimal-string amount, nullable transactionContent, status and millisecond UTC createdAt. No order capability/PII. |
+
+Method is an uppercase identifier up to45 characters, supporting future modalities without an enum
+schema change. Order existence404; mismatched amount/proof400; incompatible state/active attempt409.
+These domain statuses are for future controller mapping, not a new HTTP contract. Rounding is source
+whole positive VND using approved BigDecimal/HALF_UP; e.g.132000.50 ->132001. Provider-specific currency
+conversion is MODULE9. Source shared-table amount>0, nullable FK, named check/PK/FK/default/precision
+and CASCADE delete remain exact. SUCCESS/REFUNDED duplicate confirmation returns false without
+resetting order status or republishing. FAILED never revives via a late confirmation.
+
+User approved **freeze delivery while pending/paid and compare payment against order amount**.
+PATCH delivery now requires order PENDING; PENDING_PROCESSING and other states return source-style
+400 status-transition errors. A PENDING order with shared PENDING/SUCCESS transaction returns409
+`Delivery information cannot change while payment is pending or successful`. After a FAILED attempt,
+delivery may change and the next attempt must use the newly calculated total. Creation, confirmation,
+failure and delivery share the order-row lock; transaction locks always come after the order lock.
+The original order detail now queries the real latest SUCCESS method; no absent-table fallback.
+
+Deliberate safety corrections to source: transaction/order confirmation is atomic; only a changed
+payment emits the event; duplicates cannot revive cancelled/approved/refunded orders; proofs cannot
+cross orders or override amounts; pending attempt reuse prevents duplicate local creation and
+conflicting-method attempts. Later adapters must reuse the stable ID for provider idempotency and
+resolve/expire an existing attempt before switching methods. These checks alone cannot reconcile
+an actual external charge that arrives after a terminal failure; that is a provider integration concern.
+
+PaymentConfirmed carries only orderId/paymentTransactionId and type ORDER_PAYMENT_SUCCEEDED. It is
+an in-process event emitted after a successful database commit, not a durable queue or exactly-once
+email guarantee. A crash between commit and publish, or failing consumer, requires future delivery/
+reconciliation design in MODULE12. Outer transaction rollback emits nothing; provider-specific row
+updates must join the same transaction, with order/shared/gateway row lock order. Even a provider
+repeat must consult core idempotency rather than skipping core solely because its own row is paid.
+
+Frontend is unchanged from the explicit MODULE7 hash overlay. Core source evidence is the original
+PaymentService/PaymentRepository/interfaces/entity/events and tests, with PostgreSQL tests verifying
+the intentional state/ownership/concurrency fixes. No live deployment or provider interoperability
+is claimed at this checkpoint.
+
 ## MODULE 7 order placement and ownership
 
 User explicitly approved **token protection + minimal frontend changes**, superseding public

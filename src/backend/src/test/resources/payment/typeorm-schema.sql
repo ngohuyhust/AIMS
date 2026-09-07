@@ -1,0 +1,3 @@
+-- Original TypeORM metadata, generated offline.
+CREATE TABLE "payment_transactions" ("transaction_id" SERIAL NOT NULL, "method" character varying(45) NOT NULL, "amount" numeric(12,2) NOT NULL, "transaction_content" text, "status" character varying(50) NOT NULL DEFAULT 'PENDING', "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "order_id" integer, CONSTRAINT "CHK_9034279edbd28e9d2c8e3b7a13" CHECK (amount > 0), CONSTRAINT "PK_b3b7ab417ec54003f231dc75b75" PRIMARY KEY ("transaction_id"));
+ALTER TABLE "payment_transactions" ADD CONSTRAINT "FK_0f581511ac19ecb02dab437cd41" FOREIGN KEY ("order_id") REFERENCES "orders"("order_id") ON DELETE CASCADE ON UPDATE NO ACTION;

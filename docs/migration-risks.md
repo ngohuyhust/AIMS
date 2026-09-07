@@ -1,5 +1,27 @@
 # Migration risks and decisions
 
+## MODULE 8 update
+
+- User chose to freeze delivery while pending/paid and validate whole-VND amount against order.
+  A shared order-row lock serializes delivery edits, begin, fail and confirm. Tests prove that an
+  edit and creation using the old amount cannot both succeed; failed attempts allow repricing.
+- Shared transaction and order confirmation are now one transaction; association/method/amount
+  checks precede mutation. SUCCESS/REFUNDED repeats do not touch orders or emit another event.
+  FAILED remains terminal; late external charges need provider reconciliation, not silent revival.
+- Coalesce matching pending attempts under the order lock and reject conflicting active attempts.
+  This is local idempotency, not external exactly-once charging. MODULE9/10 must apply the stable
+  shared transaction ID to provider idempotency and define safe method switching/expiry behavior.
+- ORDER_PAYMENT_SUCCEEDED is published after commit only. In-process event delivery is not durable;
+  process crashes/consumer failures can lose notification delivery. MODULE12 must resolve reliable
+  notification/reconciliation needs. Do not claim exactly-once email from this core implementation.
+- Core markRefunded only records a verified full-refund result, conditioned on SUCCESS. It neither
+  contacts a provider nor restores stock/changes order status; eligibility and orchestration remain
+  MODULE9/MODULE11. No unsafe latest-transaction unconditional refund implementation was copied.
+- Real payment_transactions now backs protected order-detail paymentMethod. V6 preserves exact
+  metadata/defaults/nullability/decimal/check/FK; no PayPal/VietQR tables or inverse entity stubs.
+- R05/R06 remain open for gateway modules: callbacks must authenticate provider proof and verify
+  provider/order/currency/amount linkage. No payment HTTP endpoint is exposed in MODULE8.
+
 ## MODULE 7 update
 
 - R04 resolved for implemented detail/delivery routes by explicit user decision: token protection

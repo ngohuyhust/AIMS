@@ -58,8 +58,9 @@ public class OrderService {
     @Transactional
     public Map<String,Object> update(int id,String token,JsonNode delivery) {
         var order=orders.find(id,true);access.require(order,id,token,false);
-        if(!Set.of("PENDING","PENDING_PROCESSING").contains(order.status))
+        if(!order.status.equals("PENDING"))
             throw new OrderError(400,"Order "+id+" cannot update delivery info from status "+order.status);
+        if(orders.hasActivePayment(id)) throw new OrderError(409,"Delivery information cannot change while payment is pending or successful");
         double weight=order.orderItems.stream().mapToDouble(item->item.product==null?0:ProductResponse.from(item.product).weight()*item.quantity).sum();
         order.shippingFee=shipping.fee(delivery.get("province").asText(),weight,order.subTotal,null);
         order.totalPayment=order.subTotal.add(order.tax).add(order.shippingFee).setScale(2,RoundingMode.HALF_UP);

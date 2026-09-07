@@ -2,15 +2,28 @@
 
 ## Current checkpoint
 
-- Authorized scope: **MODULE 7 — Order Placement**, authorized by `tiếp module 7`.
-- Status: **MODULE 7 validated, pushed and verified; awaiting user confirmation**.
-- Next checkpoint: **MODULE 8 — Payment Core**, not authorized yet.
-- Required next message: `TIẾP TỤC MODULE 8`.
-- Business implementation: catalog, user/auth/admin, product administration/audit, stateless cart/shipping and transactional order placement/ownership/delivery.
+- Authorized scope: **MODULE 8 — Payment Core**, authorized by `hoàn thành nốt module 7 và sang module 8 luôn`.
+- Status: **MODULE 8 validated; commit/push verification in progress**.
+- Next checkpoint: **MODULE 9 — PayPal**, not authorized yet.
+- Required next message: `TIẾP TỤC MODULE 9`.
+- Business implementation: catalog, user/auth/admin, product administration/audit, stateless cart/shipping and transactional order placement/ownership/delivery and shared payment core.
 - Current branch: `main`, following the user's explicit history consolidation and branch deletion.
+
+## MODULE 8 result
+
+- V6 shared PaymentTransaction only; exact source metadata, no PayPal/VietQR schema or endpoints.
+- Separate gateway modality interfaces; pending attempt reuse, conditional state transitions,
+  atomic order/payment confirmation and after-commit application event.
+- Explicit user choice: freeze delivery when pending/paid; validate whole-VND order amount.
+- Module17/17 tests cover idempotency, concurrent callbacks/create/expiry/delivery, rollback,
+  schema parity and V5→V6 upgrade. Full suite591/591 and Maven verify591/591 passed;
+  zero failures/errors/skips, executable JAR built. Git completion record pending.
+- Frontend unchanged from MODULE7 approved hashes; original ISD baseline unchanged.
+- [Validation](docs/module-8-validation.md); later provider/event-delivery limits documented.
 
 ## MODULE 7 result
 
+- Completion `0a92754143af94407ecfa0544e23d9ccbc8cddba` verified on origin/main before MODULE8.
 - V5 orders/order_items/delivery_info/invoices, full persisted response graph; no payment schema.
 - Sorted pessimistic stock locks; atomic reservation/placement/invoice; order locks for delivery edits.
 - Explicit user approval: token ownership protection plus minimal frontend edits. PM read-only JWT
@@ -182,8 +195,8 @@ the final commit only records the verified checkpoint state.
 | MODULE 4 | User administration and audit APIs | Complete |
 | MODULE 5 | Product administration/audit/manager quota | Complete |
 | MODULE 6 | Cart/duplicate merging/shipping/VAT boundaries | Complete |
-| MODULE 7 | Transactional placement/stock locks/customer token/delivery/detail | Complete; awaiting user confirmation |
-| MODULE 8 | Payment domain/abstractions/states/idempotency/events | Not started |
+| MODULE 7 | Transactional placement/stock locks/customer token/delivery/detail | Complete |
+| MODULE 8 | Payment domain/abstractions/states/idempotency/events | Validated; push pending |
 | MODULE 9 | PayPal OAuth/create/capture/refund/redirect/currency/mock HTTP | Not started |
 | MODULE 10 | VietQR QR/expiry/callback/auth/idempotency/sandbox/JSONB | Not started |
 | MODULE 11 | Order management/states/refunds/concurrency | Not started |
@@ -193,8 +206,8 @@ the final commit only records the verified checkpoint state.
 ## Risks awaiting later checkpoint decisions
 
 See [migration-risks.md](docs/migration-risks.md). Key unresolved items: actual deployed schema
-metadata; delivery repricing after payment; unguarded payment/refund routes;
+metadata; durable event delivery; unguarded payment/refund routes;
 VietQR amount/signature checks; order/payment race conditions;
-hardcoded frontend production API host. Manager identity/quota, user hash disclosure and order ownership were addressed in MODULE5/MODULE4/MODULE7 respectively.
+hardcoded frontend production API host. Manager identity/quota, user hash disclosure and order ownership were addressed in MODULE5/MODULE4/MODULE7 respectively. MODULE8 resolved delivery freezing and core confirmation idempotency.
 
-STOP after the MODULE 7 checkpoint report. Do not start MODULE8 until the user's explicit confirmation.
+STOP after the MODULE 8 checkpoint report. Do not start MODULE9 until the user's explicit confirmation.

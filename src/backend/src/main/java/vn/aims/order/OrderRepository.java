@@ -33,10 +33,11 @@ public class OrderRepository {
         return em.find(Order.class,id);
     }
     void persist(Object value) { em.persist(value); }
+    boolean hasActivePayment(int id) {
+        return Boolean.TRUE.equals(jdbc.queryForObject("SELECT EXISTS (SELECT 1 FROM payment_transactions WHERE order_id=? AND status IN ('PENDING','SUCCESS'))",Boolean.class,id));
+    }
     String paymentMethod(int id) {
-        // No payment schema/stub before MODULE8. An existing table is always queried normally.
-        if(Boolean.TRUE.equals(jdbc.queryForObject("SELECT to_regclass('public.payment_transactions') IS NULL",Boolean.class))) return null;
-        var rows=jdbc.queryForList("SELECT method FROM payment_transactions WHERE order_id=? AND status='SUCCESS' ORDER BY created_at DESC LIMIT 1",String.class,id);
+        var rows=jdbc.queryForList("SELECT method FROM payment_transactions WHERE order_id=? AND status='SUCCESS' ORDER BY created_at DESC,transaction_id DESC LIMIT 1",String.class,id);
         return rows.isEmpty()?null:rows.getFirst();
     }
 }

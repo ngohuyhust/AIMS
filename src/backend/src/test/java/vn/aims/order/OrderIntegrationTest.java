@@ -148,7 +148,7 @@ class OrderIntegrationTest {
             .andExpect(status().isBadRequest()).andExpect(jsonPath("$.message[0]").value("cartItems must contain at least 1 elements"));
         for(String path:List.of("/api/orders/pending","/api/orders/vietqr-refunds","/api/payments")) mvc.perform(get(path)).andExpect(status().isForbidden());
         for(String path:List.of("/api/orders/1/cancel","/api/orders/1/approve","/api/customer/orders/1/cancel")) mvc.perform(post(path)).andExpect(status().isForbidden());
-        assertThat(jdbc.queryForObject("SELECT to_regclass('public.payment_transactions') IS NULL",Boolean.class)).isTrue();
+        assertThat(jdbc.queryForObject("SELECT to_regclass('public.paypal_transactions') IS NULL",Boolean.class)).isTrue();
         mvc.perform(options("/api/orders/1/delivery-info").header("Origin","http://localhost:4200").header("Access-Control-Request-Method","PATCH")
             .header("Access-Control-Request-Headers","x-order-token,content-type")).andExpect(status().isNoContent())
             .andExpect(header().string("Access-Control-Allow-Headers","x-order-token,content-type"));
@@ -166,7 +166,6 @@ class OrderIntegrationTest {
     }
     @Test void concurrentDeliveryUpdatesKeepInvoiceAndOrderConsistent() throws Exception {
         var order=place("[{\"productId\":1,\"quantity\":1}]");int id=order.path("orderID").asInt();String token=order.path("customerAccessToken").asText();
-        jdbc.update("UPDATE orders SET status='PENDING_PROCESSING' WHERE order_id=?",id);
         var start=new CountDownLatch(1);
         try(var pool=Executors.newFixedThreadPool(2)) {
             var futures=new ArrayList<Future<Integer>>();
@@ -185,7 +184,7 @@ class OrderIntegrationTest {
         old.migrate();
         jdbc.update("INSERT INTO upgrade_orders.products(product_type,title,category,barcode,weight,original_value,current_price,quantity_in_stock) VALUES ('BOOK','Preserved','Book','upgrade',1,100,100,2)");
         var current=org.flywaydb.core.Flyway.configure().dataSource(DB.getJdbcUrl(),DB.getUsername(),DB.getPassword())
-            .schemas("upgrade_orders").defaultSchema("upgrade_orders").load();
+            .schemas("upgrade_orders").defaultSchema("upgrade_orders").target("5").load();
         assertThat(current.migrate().migrationsExecuted).isEqualTo(1);
         assertThat(current.migrate().migrationsExecuted).isZero();
         assertThat(jdbc.queryForObject("SELECT title FROM upgrade_orders.products",String.class)).isEqualTo("Preserved");

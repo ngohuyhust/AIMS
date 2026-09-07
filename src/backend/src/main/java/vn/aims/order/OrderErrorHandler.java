@@ -10,7 +10,7 @@ public class OrderErrorHandler {
     ResponseEntity<?> error(OrderError error) {
         var body=new LinkedHashMap<String,Object>();body.put("message",error.message);
         if(error.issues!=null) body.put("issues",error.issues);
-        else if(error.status!=500) body.put("error",switch(error.status) {case 401->"Unauthorized";case 404->"Not Found";default->"Bad Request";});
+        else if(error.status!=500) body.put("error",switch(error.status) {case 401->"Unauthorized";case 404->"Not Found";case 409->"Conflict";default->"Bad Request";});
         body.put("statusCode",error.status);return ResponseEntity.status(error.status).body(body);
     }
     @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
