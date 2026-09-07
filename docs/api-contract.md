@@ -30,6 +30,47 @@ are400, integer IDs outside PostgreSQL's int32 range are500, unknown productType
 The source allows explicit `status=DELETED` search although detail excludes deleted products; this
 is retained. CD tracks have no promised sort order in the source, so no new sort is introduced.
 
+## MODULE 6 cart and shipping
+
+Both routes are public JSON POSTs (no role, custom header or query required), return201,
+accept trailing slashes, ignore stale Authorization headers, and retain global CORS/no-store.
+Only these two order paths are opened; placement/detail/delivery stay closed until MODULE7.
+
+| Path | Body | Response |
+| --- | --- | --- |
+| `/api/orders/cart/check-stock` | `{cartItems:[{productId,quantity}]}` | `{available,issues:[{productId,requestedQuantity,availableQuantity,shortageQuantity,reason}]}` |
+| `/api/orders/shipping-fee` | `{province,cartItems:[{productId,quantity}]}` | `{subtotal,tax,shippingFee,totalPayment}`; monetary values are JSON numbers |
+
+IDs/quantities are positive integers with no string coercion; cartItems has at least one element.
+Province is a string of at most100 Unicode code points; empty/unknown province is allowed.
+Root/nested unknown fields are stripped. Validation400 has Nest `{statusCode,message:[...],error}`;
+44 original ValidationPipe fixtures check exact message order, null/type/min/max/Unicode behavior.
+Malformed JSON returns400 with a stable sanitized message; exact Express parser prose is not copied.
+Source permits some nested-array shapes through validation that fail in its service; arbitrary
+malformed nested shapes are not a claim of complete error-precedence parity.
+
+Duplicate IDs merge in first-occurrence order, including stock issues; sums use BigInteger to
+avoid int32 overflow. Product IDs outside PostgreSQL int32 produce sanitized500. Beyond JavaScript's
+safe-integer range, exact BigInteger/BigDecimal arithmetic is intentional, not IEEE754 emulation.
+Stock check requires ACTIVE, treats missing/deleted/inactive as unavailable with availableQuantity0,
+and reports insufficient stock separately. It never reserves or writes stock. A later placement
+must recheck under row locks, because a successful check is only a snapshot.
+
+Quotes intentionally query all existing statuses and do not reject insufficient stock, matching
+source OrderService.calculateShippingFee. Missing IDs produce400 `Some products are not available`.
+Only database current_price and weight are used; client prices/dimensions are ignored. Subtotal
+sums merged quantities, rounds to2 decimals, VAT is10% rounded to2, total adds rounded VAT and fee.
+User explicitly approved **BigDecimal + HALF_UP**: subtotal0.35 gives tax0.04 (legacy JS0.03).
+This decimal correction also avoids binary floating point errors at large monetary totals.
+
+Weight-only is the active strategy. Alternative volumetric strategy uses max(actual,L*W*H/6000),
+with missing dimensions zero; it is tested but not activated. Calculator clamps negative weights
+and normalizes NFD accents, case, dots and JS whitespace. HN/HCM aliases use22000 through3kg;
+others30000 through0.5kg; every started extra0.5kg adds2500. Subtotal strictly above100000
+subtracts25000, with fee clamped to zero. Exactly100000 has no discount. The472 offline original
+shipping fixtures cover aliases, threshold neighbors, half-kilo boundaries and both strategies.
+No new database schema, cart persistence, order stubs, notifications or provider calls.
+
 ## MODULE 5 product administration
 
 Six routes now require JWT PRODUCT_MANAGER: POST `/api/products`, PATCH `/api/products/:id`,

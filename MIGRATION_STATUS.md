@@ -2,15 +2,28 @@
 
 ## Current checkpoint
 
-- Authorized scope: **MODULE 5 — Product Administration and Audit**, authorized by `tiếp module 5`.
-- Status: **MODULE 5 validated, pushed and verified; awaiting user confirmation**.
-- Next checkpoint: **MODULE 6 — Cart and Shipping**, not authorized yet.
-- Required next message: `TIẾP TỤC MODULE 6`.
-- Business implementation: catalog, user/auth/admin and product administration/audit.
+- Authorized scope: **MODULE 6 — Cart and Shipping**, authorized by `tiếp tục làm nốt module 5 nếu chưa xong, và sang module 6 luôn`.
+- Status: **MODULE 6 validated; commit/push verification in progress**.
+- Next checkpoint: **MODULE 7 — Order Placement**, not authorized yet.
+- Required next message: `TIẾP TỤC MODULE 7`.
+- Business implementation: catalog, user/auth/admin, product administration/audit, stateless cart and shipping.
 - Current branch: `main`, following the user's explicit history consolidation and branch deletion.
+
+## MODULE 6 result
+
+- Two public POST201 routes: cart/check-stock and shipping-fee under /api/orders.
+- First-seen duplicate merging, stock issues, weight-only/default and volumetric/alternative,
+  normalized province tariffs, strict discount threshold, decimal subtotal/VAT/total.
+- User explicitly approved BigDecimal + HALF_UP (0.35 subtotal -> 0.04 VAT, fixing source0.03).
+- No Flyway change or order/cart schema; no frontend edits, authentication, session or stock writes.
+- 482 module tests passed, including472 original shipping cases and44 DTO fixtures.
+- Full suite560/560 and Maven verify560/560 passed; zero failures/errors/skips; executable JAR built.
+- Frontend70/70 unchanged; source HEAD/status preserved. Git completion record pending.
+- [Validation](docs/module-6-validation.md).
 
 ## MODULE 5 result
 
+- Completion commit `5dff092e25b79348a5b2cb0d38d79ad75a87fdf7` verified on origin/main before starting MODULE6.
 - Six PRODUCT_MANAGER routes; four subtype writes; stock locking; batch deactivate/delete; audit.
 - Explicitly approved JWT-email quota identity and transaction locking; x-manager-id still required.
 - V4 product_logs matches original TypeORM metadata. Existing V1–V3 unchanged; no order tables/stubs.
@@ -148,8 +161,8 @@ the final commit only records the verified checkpoint state.
 | MODULE 2 | User/role/join/audit domain, safe role seeds | Complete |
 | MODULE 3 | Login/JWT/password change/role security/CORS | Complete |
 | MODULE 4 | User administration and audit APIs | Complete |
-| MODULE 5 | Product administration/audit/manager quota | Complete; awaiting user confirmation |
-| MODULE 6 | Cart/duplicate merging/shipping/VAT boundaries | Not started |
+| MODULE 5 | Product administration/audit/manager quota | Complete |
+| MODULE 6 | Cart/duplicate merging/shipping/VAT boundaries | Validated; push pending |
 | MODULE 7 | Transactional placement/stock locks/customer token/delivery/detail | Not started |
 | MODULE 8 | Payment domain/abstractions/states/idempotency/events | Not started |
 | MODULE 9 | PayPal OAuth/create/capture/refund/redirect/currency/mock HTTP | Not started |
@@ -162,7 +175,7 @@ the final commit only records the verified checkpoint state.
 
 See [migration-risks.md](docs/migration-risks.md). Key unresolved items: actual deployed schema
 metadata; public order data/access tokens and delivery edits; unguarded payment/refund routes;
-VietQR amount/signature checks; race conditions; manager header attribution; user hash disclosure;
-hardcoded frontend production API host. None has been silently implemented or changed in Phase 0.
+VietQR amount/signature checks; order/payment race conditions;
+hardcoded frontend production API host. Manager identity/quota and user hash disclosure were addressed in MODULE5/MODULE4 respectively.
 
-STOP after the MODULE 5 checkpoint report. Do not start MODULE6 until the user's explicit confirmation.
+STOP after the MODULE 6 checkpoint report. Do not start MODULE7 until the user's explicit confirmation.

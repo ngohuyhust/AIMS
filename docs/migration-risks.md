@@ -1,5 +1,20 @@
 # Migration risks and decisions
 
+## MODULE 6 update
+
+- User approved **BigDecimal + HALF_UP** after seeing the source binary-rounding discrepancy:
+  subtotal0.35 produces VAT0.03 in NestJS but0.04 in Java. Monetary values remain JSON numbers;
+  exact decimal calculation and non-overflowing quantity sums are deliberate corrections.
+- Shipping quotes preserve source inclusion of DELETED/inactive/out-of-stock products. A quote
+  grants no purchase eligibility. Stock checking is stateless and cannot guarantee later stock;
+  MODULE7 must validate ACTIVE and quantity again inside its placement transaction/locks.
+- Weight-only remains active. Volumetric is an available tested alternative, not a pricing switch.
+- R04 stays unresolved for MODULE7: only public stock/quote endpoints are enabled now. No customer
+  PII, order details, access tokens, payment actions or delivery edits are exposed by MODULE6.
+- Fresh PostgreSQL integration confirms Flyway still atV4; no order/cart tables or migrations.
+- Invalid JSON uses sanitized400 instead of Express-specific parser text. Pathological nested
+  DTO shapes and numbers beyond JS safe precision are not claimed byte-for-byte compatible.
+
 ## MODULE 5 update
 
 - R08 resolved by explicit user choice: "Email JWT + khóa quota (khuyến nghị)". Still require

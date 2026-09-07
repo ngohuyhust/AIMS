@@ -21,13 +21,14 @@ public class FoundationSecurityConfiguration {
     SecurityFilterChain foundationSecurity(HttpSecurity http, vn.aims.auth.JwtTokens tokens,
             com.fasterxml.jackson.databind.ObjectMapper json) throws Exception {
         return http
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/auth/login", "/api/auth/login/", "/api/auth/change-password", "/api/auth/change-password/", "/api/users", "/api/users/**", "/api/auth/reset-password/**", "/api/products", "/api/products/**"))
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/orders/cart/check-stock", "/api/orders/cart/check-stock/", "/api/orders/shipping-fee", "/api/orders/shipping-fee/", "/api/auth/login", "/api/auth/login/", "/api/auth/change-password", "/api/auth/change-password/", "/api/users", "/api/users/**", "/api/auth/reset-password/**", "/api/products", "/api/products/**"))
                 .addFilterBefore(new vn.aims.auth.JwtAuthenticationFilter(tokens,json), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(HttpMethod.GET,"/api/users","/api/users/","/api/users/logs","/api/users/logs/").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.HEAD,"/api/users","/api/users/","/api/users/logs","/api/users/logs/").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST,"/api/users","/api/users/","/api/users/*/reset-password","/api/users/*/reset-password/","/api/auth/reset-password/*","/api/auth/reset-password/*/").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.PATCH,"/api/users/*","/api/users/*/","/api/users/*/status","/api/users/*/status/","/api/users/*/roles","/api/users/*/roles/").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/api/orders/cart/check-stock", "/api/orders/cart/check-stock/", "/api/orders/shipping-fee", "/api/orders/shipping-fee/").permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/auth/login", "/api/auth/login/").permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/auth/change-password", "/api/auth/change-password/").authenticated()
                         .requestMatchers("/actuator/health").permitAll()
