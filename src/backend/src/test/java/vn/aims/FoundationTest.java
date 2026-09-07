@@ -50,7 +50,7 @@ class FoundationTest {
 
     @Test
     void unimplementedEndpointsAndActuatorInternalsAreNotExposed() throws Exception {
-        for (String path : new String[]{"/api/products/audit-logs", "/api/users", "/actuator/env", "/actuator"}) {
+        for (String path : new String[]{"/api/products/audit-logs", "/api/orders", "/actuator/env", "/actuator"}) {
             mvc.perform(get(path)).andExpect(status().isForbidden());
         }
     }

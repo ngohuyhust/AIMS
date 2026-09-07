@@ -1,5 +1,19 @@
 # Migration risks and decisions
 
+## MODULE 4 update
+
+- R10: admin create/list/update/log responses deliberately omit credential hashes. The existing
+  User JsonIgnore boundary is preserved through explicit maps. Reset endpoints remain ADMIN-only
+  and retain their distinct intentional temporary-password response contracts.
+- Original invalid-role/status/not-found/duplicate-email errors, aliases, nullable fields,
+  audit attribution and 10-log cap are tested. Unauthenticated users401, STAFF/PM/lowercase admin403.
+- All user/role/status/reset writes are transactional with audit; a real failed audit insert leaves
+  no partial user. Source actor varchar(50) limitation remains. No schema change or account seed.
+- Existing tokens retain role claims until expiry, including after deactivation/role changes.
+  Source allows self-demotion/deactivation and concurrent last-writer updates; no new rules invented.
+- Safe deviations: no hash disclosure, int32 overflow/nonstring-role400, guaranteed12-character
+  random reset string. Exotic email-validation parity is unverified; see contract limitations.
+
 ## MODULE 3 update
 
 - R02 resolved: mandatory environment JWT_SECRET, minimum32 UTF-8 bytes, HS256 only, no fallback.

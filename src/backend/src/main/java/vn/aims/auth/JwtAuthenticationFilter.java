@@ -17,8 +17,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final ObjectMapper json;
     public JwtAuthenticationFilter(JwtTokens tokens, ObjectMapper json) { this.tokens=tokens; this.json=json; }
     @Override protected boolean shouldNotFilter(HttpServletRequest request) {
-        // Only the authorized protected endpoint is opened in this module.
-        return !request.getRequestURI().matches("/api/auth/change-password/?");
+        String path=request.getRequestURI();
+        return !(path.matches("/api/auth/change-password/?") || path.equals("/api/users") || path.startsWith("/api/users/") || path.startsWith("/api/auth/reset-password/"));
     }
     @Override protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
@@ -29,6 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             var claims=tokens.verify(pieces[1]);
             var authorities=claims.getStringListClaim("roles").stream().map(SimpleGrantedAuthority::new).toList();
             var auth=UsernamePasswordAuthenticationToken.authenticated(claims.getIntegerClaim("userID"),null,authorities);
+            auth.setDetails(claims.getStringClaim("email"));
             SecurityContextHolder.getContext().setAuthentication(auth);
         } catch (Exception error) { reject(response,INVALID); return; }
         chain.doFilter(request,response);

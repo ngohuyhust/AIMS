@@ -2,7 +2,7 @@
 
 Migration có kiểm soát từ NestJS sang Java Spring Boot, giữ nguyên Angular frontend.
 MODULE 1 đã chuyển public product catalog; MODULE 2 bổ sung user/role/audit domain và seed role an toàn.
-MODULE 3 bổ sung login/JWT, đổi mật khẩu, phân quyền và CORS; API quản trị user ở MODULE 4.
+MODULE 3 bổ sung login/JWT, đổi mật khẩu, phân quyền và CORS; MODULE 4 bổ sung API quản trị user/audit và reset mật khẩu (ADMIN).
 Hiện làm việc trên nhánh `main`.
 Tiến độ và điều kiện tiếp tục nằm trong [MIGRATION_STATUS.md](MIGRATION_STATUS.md).
 
@@ -46,7 +46,7 @@ cd src/backend
 
 Từ MODULE 3, `JWT_SECRET` bắt buộc có ít nhất 32 byte UTF-8. Công cụ init phía trên thêm khóa
 ngẫu nhiên vào `.env` nếu chưa có, giữ nguyên cấu hình cũ. Export lại `.env` trước khi chạy backend.
-Không có tài khoản mặc định; tài khoản/role được quản lý ở MODULE 4.
+Không có tài khoản mặc định; API quản trị cần token của tài khoản ADMIN đã được cấp hợp lệ.
 
 Kiểm tra ở terminal khác:
 

@@ -51,4 +51,5 @@ public class User {
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
     public Set<Role> getRoles() { return java.util.Collections.unmodifiableSet(roles); }
+    void replaceRoles(Collection<Role> replacements) { roles.clear(); roles.addAll(replacements); }
 }

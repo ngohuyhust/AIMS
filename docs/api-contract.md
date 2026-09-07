@@ -30,6 +30,41 @@ are400, integer IDs outside PostgreSQL's int32 range are500, unknown productType
 The source allows explicit `status=DELETED` search although detail excludes deleted products; this
 is retained. CD tracks have no promised sort order in the source, so no new sort is introduced.
 
+## MODULE 4 user administration
+
+JWT + exact ADMIN now protects GET/POST `/api/users`, GET `/api/users/logs`, PATCH
+`/api/users/:userId`, PATCH `/:userId/status`, PATCH `/:userId/roles`, POST
+`/api/users/:userId/reset-password` and POST `/api/auth/reset-password/:userId`.
+POST returns201; GET/PATCH200. Trailing slashes are accepted. Missing JWT401, other roles403.
+Attribution comes from signed JWT email, never the submitted body. CSRF excludes these stateless
+API routes only; existing CORS/no-store behavior applies to errors and reset responses too.
+
+Create validates email, nonempty string fullName/phoneNumber, password>=6 Unicode characters and
+nonempty string roles array; unknown fields are ignored. Source actually requires phoneNumber
+despite Angular's optional TypeScript declaration. Error array for an empty body was captured from
+original class-validator and tested exactly. Whitespace-only names/phones are accepted as source
+IsNotEmpty does; database lengths/nullability remain unchanged. Invalid role names and duplicate
+email preserve source400 text. Case-sensitive uniqueness and role names are retained.
+
+List sorts by userID ASC; each user has latest10 logs by createdAt DESC. Global logs return all
+logs newest-first, with nullable user after deletion. User/role fields, null phone, audit fields and
+millisecond-UTC timestamps are explicit response maps; nested audit users omit unloaded roles,
+and per-user audit entries omit unloaded user. PasswordHash is excluded from all responses,
+including create: an intentional fix for R10, not exact reproduction of credential disclosure.
+
+Profile PATCH only changes email/fullName/phoneNumber. Status aliases BLOCKED→DEACTIVATED and
+UNBLOCKED→ACTIVE remain accepted. Roles are replaced after validation and duplicates collapse.
+All mutations and audit inserts share a transaction; audit failure rolls back account changes.
+Reset via `/api/users` returns `{temporaryPassword}` (12 secure alphanumeric characters); reset
+via `/api/auth` returns `{success,message,newPassword,email,fullName}` (8 uppercase hex characters).
+Both preserve original audit action/descriptions and BCrypt cost10. No automatic user seed.
+
+Compatibility limits: user IDs beyond int32 return controlled400 rather than a legacy DB500;
+malformed nonstring roles are controlled400. The 12-character reset generator guarantees length,
+where source base64 filtering can rarely produce fewer characters. Email validation combines
+Jakarta Email with the source-required TLD/length restrictions; exhaustive validator.js edge-case
+equivalence is not claimed. Existing-token revocation/self-admin protection are not added.
+
 ## MODULE 3 authentication
 
 Implemented POST `/api/auth/login` (public, `{email,password}`) and POST
