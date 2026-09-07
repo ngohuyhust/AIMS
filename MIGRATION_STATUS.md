@@ -3,7 +3,7 @@
 ## Current checkpoint
 
 - Authorized scope: **MODULE 5 — Product Administration and Audit**, authorized by `tiếp module 5`.
-- Status: **MODULE 5 validated; commit/push in progress**.
+- Status: **MODULE 5 validated, pushed and verified; awaiting user confirmation**.
 - Next checkpoint: **MODULE 6 — Cart and Shipping**, not authorized yet.
 - Required next message: `TIẾP TỤC MODULE 6`.
 - Business implementation: catalog, user/auth/admin and product administration/audit.
@@ -17,6 +17,9 @@
 - Fourteen module tests include 11 source DTO fixtures, PostgreSQL schema parity and concurrent
   stock/quota tests. Full suite78/78; frontend70/70 unchanged; source read-only.
 - Maven verify78/78 and executable JAR build passed; zero failures/errors/skips in final runs.
+- Implementation `8a5112b62f25b2c5eaeb067e9efed3e4f82d5d05` pushed to origin/main;
+  git ls-remote verified the exact hash. Completion record is a separate documentation commit;
+  its final hash and remote/clean-tree verification are reported in the checkpoint response.
 - [Detailed validation](docs/module-5-validation.md); compatibility limits in contract/risks.
 
 ## MODULE 4 result
@@ -145,7 +148,7 @@ the final commit only records the verified checkpoint state.
 | MODULE 2 | User/role/join/audit domain, safe role seeds | Complete |
 | MODULE 3 | Login/JWT/password change/role security/CORS | Complete |
 | MODULE 4 | User administration and audit APIs | Complete |
-| MODULE 5 | Product administration/audit/manager quota | Validated; commit/push in progress |
+| MODULE 5 | Product administration/audit/manager quota | Complete; awaiting user confirmation |
 | MODULE 6 | Cart/duplicate merging/shipping/VAT boundaries | Not started |
 | MODULE 7 | Transactional placement/stock locks/customer token/delivery/detail | Not started |
 | MODULE 8 | Payment domain/abstractions/states/idempotency/events | Not started |
