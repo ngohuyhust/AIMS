@@ -30,6 +30,27 @@ are400, integer IDs outside PostgreSQL's int32 range are500, unknown productType
 The source allows explicit `status=DELETED` search although detail excludes deleted products; this
 is retained. CD tracks have no promised sort order in the source, so no new sort is introduced.
 
+## MODULE 2 domain boundary
+
+Flyway V3 adds `users`, `roles`, `users_roles`, `user_audit_logs`. Original TypeORM metadata
+is captured offline by `tools/capture-user-schema.cjs` and replayed into a separate PostgreSQL
+schema for comparison of columns/defaults, named constraints and indexes. No deployed DB was read.
+
+User lookups preserve case-sensitive email matching, integer `userID`/`roleID`, nullable phone,
+string status and multiple roles. Audit attribution remains nullable varchar(50), timestamps are
+Instant/timestamptz, and deleting a user removes memberships while retaining logs with null user.
+Shared roles are not removed by user deletion; deleting a referenced role is rejected by PostgreSQL.
+JPA timestamps are maintained on entity insert/update; native SQL callers must update `updated_at`
+explicitly, as in the original schema which has no timestamp trigger.
+
+This module exposes no new HTTP route. The existing `/api/users` inventory below remains a contract
+for MODULE4 (JWT + ADMIN, with authorization supplied by MODULE3). Login/password APIs also remain
+pending MODULE3. User entities are internal: JPA loads passwordHash, but Jackson ignores it; this
+does not yet certify admin response parity or implement the unsafe legacy create response (R10).
+Future HTTP DTOs must deliberately preserve response spelling/null/date behavior without credentials.
+Role-only versioned seeding installs ADMIN/PRODUCT_MANAGER/STAFF and never provisions default users
+or rewrites passwords, status or memberships. Password hashing and JWT are outside this checkpoint.
+
 ## Evidence map
 
 All paths below are relative to the source repository; file contents are pinned by the source commit.

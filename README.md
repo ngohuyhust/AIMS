@@ -1,7 +1,8 @@
 # AIMS
 
 Migration có kiểm soát từ NestJS sang Java Spring Boot, giữ nguyên Angular frontend.
-MODULE 1 đã chuyển public product catalog; các module nghiệp vụ khác chưa được chuyển.
+MODULE 1 đã chuyển public product catalog; MODULE 2 bổ sung user/role/audit domain và seed role an toàn.
+Login/JWT và API quản trị user sẽ được chuyển ở MODULE 3/4. Hiện làm việc trên nhánh `main`.
 Tiến độ và điều kiện tiếp tục nằm trong [MIGRATION_STATUS.md](MIGRATION_STATUS.md).
 
 ## Cấu trúc

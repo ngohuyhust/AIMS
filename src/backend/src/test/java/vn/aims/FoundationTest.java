@@ -58,13 +58,13 @@ class FoundationTest {
     @Test
     void flywayRunsOnPostgresqlAndCanBeRepeatedWithOnlyAuthorizedTables() {
         assertThat(jdbc.queryForObject("select version()", String.class)).startsWith("PostgreSQL 17.");
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("2");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("3");
         assertThat(flyway.validateWithResult().validationSuccessful).isTrue();
         assertThat(flyway.migrate().migrationsExecuted).isZero();
         assertThat(jdbc.queryForList("""
                 select table_name from information_schema.tables
                 where table_schema = 'public' order by table_name
-                """, String.class)).containsExactly("books", "cd_tracks", "cds", "dvds", "flyway_schema_history", "media", "newspapers", "products");
+                """, String.class)).containsExactly("books", "cd_tracks", "cds", "dvds", "flyway_schema_history", "media", "newspapers", "products", "roles", "user_audit_logs", "users", "users_roles");
     }
 
     @Test

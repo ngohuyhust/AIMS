@@ -168,7 +168,7 @@ class CatalogIntegrationTest {
                 SELECT table_name,column_name,data_type,is_nullable,character_maximum_length,
                        numeric_precision,numeric_scale,datetime_precision,
                        replace(replace(column_default,'legacy_catalog.',''),'public.','') AS default_value
-                FROM information_schema.columns WHERE table_schema=? AND table_name<>'flyway_schema_history'
+                FROM information_schema.columns WHERE table_schema=? AND table_name IN ('products','media','books','cds','cd_tracks','dvds','newspapers')
                 ORDER BY table_name,column_name
                 """;
         assertThat(jdbc.queryForList(columns,"public")).isEqualTo(jdbc.queryForList(columns,"legacy_catalog"));
@@ -177,12 +177,12 @@ class CatalogIntegrationTest {
                        replace(replace(pg_get_constraintdef(c.oid),'legacy_catalog.',''),'public.','') AS definition
                 FROM pg_constraint c JOIN pg_class t ON t.oid=c.conrelid
                 JOIN pg_namespace n ON n.oid=t.relnamespace
-                WHERE n.nspname=? AND t.relname<>'flyway_schema_history' ORDER BY t.relname,c.conname
+                WHERE n.nspname=? AND t.relname IN ('products','media','books','cds','cd_tracks','dvds','newspapers') ORDER BY t.relname,c.conname
                 """;
         assertThat(jdbc.queryForList(constraints,"public")).isEqualTo(jdbc.queryForList(constraints,"legacy_catalog"));
         String indexes="""
                 SELECT tablename,indexname,replace(replace(indexdef,'legacy_catalog.',''),'public.','') AS definition
-                FROM pg_indexes WHERE schemaname=? AND tablename<>'flyway_schema_history' ORDER BY tablename,indexname
+                FROM pg_indexes WHERE schemaname=? AND tablename IN ('products','media','books','cds','cd_tracks','dvds','newspapers') ORDER BY tablename,indexname
                 """;
         assertThat(jdbc.queryForList(indexes,"public")).isEqualTo(jdbc.queryForList(indexes,"legacy_catalog"));
     }

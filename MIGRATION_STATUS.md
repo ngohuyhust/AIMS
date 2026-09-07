@@ -2,12 +2,33 @@
 
 ## Current checkpoint
 
-- Authorized scope: **MODULE 1 — Public Product Catalog**, authorized by `Tiếp module 1`.
-- Status: **MODULE 1 implementation validated, pushed and verified; awaiting user confirmation**.
-- Next checkpoint: **MODULE 2 — User Domain and Roles**, not authorized yet.
-- Required next message: `TIẾP TỤC MODULE 2`.
-- Business implementation: public catalog only. No product administration, user/auth, order,
-  payment or notification business logic has been added.
+- Authorized scope: **MODULE 2 — User Domain and Roles**, authorized by `tiếp module 2`.
+- Status: **MODULE 2 validated; commit/push in progress**.
+- Next checkpoint: **MODULE 3 — Authentication and Security**, not authorized yet.
+- Required next message: `TIẾP TỤC MODULE 3`.
+- Business implementation: public catalog and internal user/role/audit domain only.
+- Current branch: `main`, following the user's explicit history consolidation and branch deletion.
+
+## MODULE 2 result
+
+- User, Role and UserAuditLog JPA entities; users_roles composite membership relation.
+- Flyway V3 retains original types/defaults/nullability, named PK/UQ/FK/indexes and delete/update
+  actions. V1 and V2 remain unchanged. Three roles seeded once; no default account bootstrap.
+- Three repositories and transactional read-only UserDomainService lookups by ID/exact email.
+  Internal entity JSON excludes passwordHash; no new HTTP routes, JWT or administration APIs.
+- PostgreSQL integration tests cover metadata schema equality, constraints, multi-role persistence,
+  audit retention, timestamps, credential exclusion, V2→V3 upgrade and safe repeated migration.
+- Module tests10/10; full suite40/40; Maven verify40/40. Zero failures/errors/skips in final runs.
+- Frontend70/70 unchanged; V1/V2 unchanged; original source changes preserved.
+- [Detailed validation](docs/module-2/validation.md), [contract](docs/api-contract.md),
+  [risks](docs/migration-risks.md).
+- Source remains read-only at `c7c022e33f100937cd0f072c3666fd0e26754d8e`.
+
+## Git consolidation history
+
+Before MODULE2, the user requested retaining all original commits on main and deleting other
+branches. Main `4a695590bd4d2b3e735813c006dc487fdff6df05` retains all238 ISD commits and MODULE1
+code. Remote and local now use only main; historical branch references below describe past work.
 
 ## MODULE 1 result
 
@@ -82,8 +103,8 @@ the final commit only records the verified checkpoint state.
 
 | Checkpoint | Scope | Status |
 | --- | --- | --- |
-| MODULE 1 | Public product base/subtypes, Flyway V2, search/random/detail, repository/service/MockMvc tests | Complete; awaiting user confirmation |
-| MODULE 2 | User/role/join/audit domain, safe role seeds | Not started |
+| MODULE 1 | Public product base/subtypes, Flyway V2, search/random/detail, repository/service/MockMvc tests | Complete |
+| MODULE 2 | User/role/join/audit domain, safe role seeds | Validated; commit/push in progress |
 | MODULE 3 | Login/JWT/password change/role security/CORS | Not started |
 | MODULE 4 | User administration and audit APIs | Not started |
 | MODULE 5 | Product administration/audit/manager quota | Not started |
@@ -103,4 +124,4 @@ metadata; public order data/access tokens and delivery edits; unguarded payment/
 VietQR amount/signature checks; race conditions; manager header attribution; user hash disclosure;
 hardcoded frontend production API host. None has been silently implemented or changed in Phase 0.
 
-STOP after the MODULE 1 checkpoint report. Do not edit further until the user's explicit confirmation.
+STOP after the MODULE 2 checkpoint report. Do not start MODULE3 until the user's explicit confirmation.

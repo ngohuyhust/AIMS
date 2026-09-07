@@ -1,5 +1,25 @@
 # Migration risks and decisions
 
+## MODULE 2 update
+
+- R01: all four user-domain tables now have source-metadata DDL and PostgreSQL schema parity tests,
+  including the asymmetric junction FKs (user CASCADE/CASCADE, role NO ACTION/NO ACTION).
+  Production schema drift remains unverified.
+- R03 resolved for this module: V3 inserts only the three roles. There is no startup account seed,
+  credential reset, reactivation or forced role reassignment. Upgrading V2→V3 preserves catalog data;
+  rerunning migration preserves a synthetic deactivated account and its role membership.
+- R10 remains pending for MODULE4: no admin API has been implemented. Internal entity serialization
+  excludes passwordHash. JPA reads the credential field internally (unlike TypeORM select:false);
+  future API responses must use reviewed DTOs and must not expose this field or log entity content.
+- Shared roles use no JPA persistence/removal cascade; domain constructors receive existing roles.
+  This intentionally avoids treating role creation as part of account persistence. Future admin
+  services must resolve role names against the role table, matching source resolveRoles behavior.
+- User status remains varchar(20) with ACTIVE default, without an invented DB enum/check constraint.
+  Email uniqueness remains case-sensitive, and audit performed_by retains its source length50 even
+  though emails allow100. Validation of admin inputs belongs to MODULE4.
+- Since the user's history-consolidation request, all work continues on `main`; the deleted migration
+  branch is not recreated. All238 original ISD commits remain ancestors of main.
+
 ## MODULE 1 update
 
 - R01 is narrowed: seven catalog tables now have locally verified TypeORM metadata, including
