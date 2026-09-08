@@ -1,0 +1,1557 @@
+[
+  {
+    "kind": "CREATE",
+    "input": {},
+    "errors": [
+      "orderId must be positive",
+      "orderId must be an integer",
+      "orderId is required",
+      "amount must be positive",
+      "amount must be a number",
+      "amount is required",
+      "content must contain only non-accented letters, numbers, and spaces",
+      "content must be between 1 and 23 characters",
+      "content must be a string",
+      "content is required"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": "AIMS 1"
+    },
+    "expected": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": "AIMS 1"
+    }
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": "AIMS 1",
+      "ignored": true
+    },
+    "expected": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": "AIMS 1"
+    }
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": null,
+      "amount": 132000,
+      "content": "AIMS 1"
+    },
+    "errors": [
+      "orderId must be positive",
+      "orderId must be an integer",
+      "orderId is required"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": "",
+      "amount": 132000,
+      "content": "AIMS 1"
+    },
+    "errors": [
+      "orderId must be positive"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 0,
+      "amount": 132000,
+      "content": "AIMS 1"
+    },
+    "errors": [
+      "orderId must be positive"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": -1,
+      "amount": 132000,
+      "content": "AIMS 1"
+    },
+    "errors": [
+      "orderId must be positive"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": "1",
+      "amount": 132000,
+      "content": "AIMS 1"
+    },
+    "expected": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": "AIMS 1"
+    }
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": true,
+      "amount": 132000,
+      "content": "AIMS 1"
+    },
+    "expected": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": "AIMS 1"
+    }
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": {},
+      "amount": 132000,
+      "content": "AIMS 1"
+    },
+    "errors": [
+      "orderId must be positive",
+      "orderId must be an integer"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": [],
+      "amount": 132000,
+      "content": "AIMS 1"
+    },
+    "errors": [
+      "orderId must be positive",
+      "orderId must be an integer"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": null,
+      "content": "AIMS 1"
+    },
+    "errors": [
+      "amount must be positive",
+      "amount must be a number",
+      "amount is required"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": "",
+      "content": "AIMS 1"
+    },
+    "errors": [
+      "amount must be positive"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": 0,
+      "content": "AIMS 1"
+    },
+    "errors": [
+      "amount must be positive"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": -1,
+      "content": "AIMS 1"
+    },
+    "errors": [
+      "amount must be positive"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": "1",
+      "content": "AIMS 1"
+    },
+    "expected": {
+      "orderId": 1,
+      "amount": 1,
+      "content": "AIMS 1"
+    }
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": true,
+      "content": "AIMS 1"
+    },
+    "expected": {
+      "orderId": 1,
+      "amount": 1,
+      "content": "AIMS 1"
+    }
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": {},
+      "content": "AIMS 1"
+    },
+    "errors": [
+      "amount must be positive",
+      "amount must be a number"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": [],
+      "content": "AIMS 1"
+    },
+    "errors": [
+      "amount must be positive",
+      "amount must be a number"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": null
+    },
+    "errors": [
+      "content must contain only non-accented letters, numbers, and spaces",
+      "content must be between 1 and 23 characters",
+      "content must be a string",
+      "content is required"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": ""
+    },
+    "errors": [
+      "content must contain only non-accented letters, numbers, and spaces",
+      "content must be between 1 and 23 characters",
+      "content is required"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": 0
+    },
+    "errors": [
+      "content must contain only non-accented letters, numbers, and spaces",
+      "content must be between 1 and 23 characters",
+      "content must be a string"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": -1
+    },
+    "errors": [
+      "content must contain only non-accented letters, numbers, and spaces",
+      "content must be between 1 and 23 characters",
+      "content must be a string"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": "1"
+    },
+    "expected": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": "1"
+    }
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": true
+    },
+    "errors": [
+      "content must contain only non-accented letters, numbers, and spaces",
+      "content must be between 1 and 23 characters",
+      "content must be a string"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": {}
+    },
+    "errors": [
+      "content must contain only non-accented letters, numbers, and spaces",
+      "content must be between 1 and 23 characters",
+      "content must be a string"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": []
+    },
+    "errors": [
+      "content must contain only non-accented letters, numbers, and spaces",
+      "content must be between 1 and 23 characters",
+      "content must be a string"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": " "
+    },
+    "expected": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": " "
+    }
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": "á"
+    },
+    "errors": [
+      "content must contain only non-accented letters, numbers, and spaces"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": 132000,
+      "content": "AAAAAAAAAAAAAAAAAAAAAAAA"
+    },
+    "errors": [
+      "content must be between 1 and 23 characters"
+    ]
+  },
+  {
+    "kind": "CREATE",
+    "input": {
+      "orderId": 1,
+      "amount": "132000.5",
+      "content": "AIMS 1"
+    },
+    "expected": {
+      "orderId": 1,
+      "amount": 132000.5,
+      "content": "AIMS 1"
+    }
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {},
+    "errors": [
+      "bankaccount must be a string",
+      "bankaccount is required",
+      "amount must be positive",
+      "amount must be a number",
+      "amount is required",
+      "transType must be C or D",
+      "transType must be a string",
+      "transType is required",
+      "content must be a string",
+      "content is required",
+      "transactionid must be a string",
+      "transactionid is required",
+      "transactiontime must be a number",
+      "transactiontime is required",
+      "referencenumber must be a string",
+      "referencenumber is required",
+      "orderId must be a string",
+      "orderId is required"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "expected": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    }
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1",
+      "ignored": true
+    },
+    "expected": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    }
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": null,
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "bankaccount must be a string",
+      "bankaccount is required"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "bankaccount is required"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": 0,
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "bankaccount must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": -1,
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "bankaccount must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "1",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "expected": {
+      "bankaccount": "1",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    }
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": true,
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "bankaccount must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": {},
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "bankaccount must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": [],
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "bankaccount must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": null,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "amount must be positive",
+      "amount must be a number",
+      "amount is required"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": "",
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "amount must be positive",
+      "amount must be a number",
+      "amount is required"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 0,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "amount must be positive"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": -1,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "amount must be positive"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": "1",
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "amount must be positive",
+      "amount must be a number"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": true,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "amount must be positive",
+      "amount must be a number"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": {},
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "amount must be positive",
+      "amount must be a number"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": [],
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "amount must be positive",
+      "amount must be a number"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": null,
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transType must be C or D",
+      "transType must be a string",
+      "transType is required"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transType must be C or D",
+      "transType is required"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": 0,
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transType must be C or D",
+      "transType must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": -1,
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transType must be C or D",
+      "transType must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "1",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transType must be C or D"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": true,
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transType must be C or D",
+      "transType must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": {},
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transType must be C or D",
+      "transType must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": [],
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transType must be C or D",
+      "transType must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": null,
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "content must be a string",
+      "content is required"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "content is required"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": 0,
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "content must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": -1,
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "content must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "expected": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    }
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": true,
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "content must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": {},
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "content must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": [],
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "content must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": null,
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transactionid must be a string",
+      "transactionid is required"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transactionid is required"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": 0,
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transactionid must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": -1,
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transactionid must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "expected": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    }
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": true,
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transactionid must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": {},
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transactionid must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": [],
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transactionid must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": null,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transactiontime must be a number",
+      "transactiontime is required"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": "",
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transactiontime must be a number",
+      "transactiontime is required"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 0,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "expected": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 0,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    }
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": -1,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "expected": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": -1,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    }
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": "1",
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transactiontime must be a number"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": true,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transactiontime must be a number"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": {},
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transactiontime must be a number"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": [],
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "errors": [
+      "transactiontime must be a number"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": null,
+      "orderId": "1"
+    },
+    "errors": [
+      "referencenumber must be a string",
+      "referencenumber is required"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "",
+      "orderId": "1"
+    },
+    "errors": [
+      "referencenumber is required"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": 0,
+      "orderId": "1"
+    },
+    "errors": [
+      "referencenumber must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": -1,
+      "orderId": "1"
+    },
+    "errors": [
+      "referencenumber must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "1",
+      "orderId": "1"
+    },
+    "expected": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "1",
+      "orderId": "1"
+    }
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": true,
+      "orderId": "1"
+    },
+    "errors": [
+      "referencenumber must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": {},
+      "orderId": "1"
+    },
+    "errors": [
+      "referencenumber must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": [],
+      "orderId": "1"
+    },
+    "errors": [
+      "referencenumber must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": null
+    },
+    "errors": [
+      "orderId must be a string",
+      "orderId is required"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": ""
+    },
+    "errors": [
+      "orderId is required"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": 0
+    },
+    "errors": [
+      "orderId must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": -1
+    },
+    "errors": [
+      "orderId must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    },
+    "expected": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": "1"
+    }
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": true
+    },
+    "errors": [
+      "orderId must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": {}
+    },
+    "errors": [
+      "orderId must be a string"
+    ]
+  },
+  {
+    "kind": "CALLBACK",
+    "input": {
+      "bankaccount": "12345678",
+      "amount": 132000,
+      "transType": "C",
+      "content": "AIMS 1",
+      "transactionid": "BANK-1",
+      "transactiontime": 1700000000000,
+      "referencenumber": "REF-1",
+      "orderId": []
+    },
+    "errors": [
+      "orderId must be a string"
+    ]
+  }
+]

@@ -2,14 +2,25 @@
 
 ## Current checkpoint
 
-- Authorized scope: **MODULE 9 — PayPal**, followed by MODULE10 per `làm nốt module 9 và sang module 10 luôn đi`.
-- Status: **MODULE 9 validated, pushed and verified; MODULE10 explicitly authorized next**.
-- Next checkpoint: **MODULE 10 — VietQR**, explicitly authorized after MODULE9 completion.
-- Continue directly to MODULE10 after MODULE9 is validated and pushed.
-- Business implementation: catalog, user/auth/admin, product administration/audit, stateless cart/shipping and transactional order placement/ownership/delivery and shared payment core.
+- Authorized scope: **MODULE 10 — VietQR**, after MODULE9 completion per `làm nốt module 9 và sang module 10 luôn đi`.
+- Status: **MODULE 10 validated; commit/push in progress**.
+- Next checkpoint after MODULE10: **MODULE 11 — Order Management and Refunds**, not authorized.
+- User approved the proposed VietQR protection policy with `tiếp đi`; MODULE11 still requires confirmation.
+- Business implementation: catalog, user/auth/admin, product administration/audit, stateless cart/shipping and transactional order placement/ownership/delivery and shared payment core, protected PayPal and VietQR.
 - Current branch: `main`, following the user's explicit history consolidation and branch deletion.
 
+## MODULE 10 result
+
+- V8 exact legacy VietQR table plus unique bank receipts; RestClient QR generation, protected HTTP
+  create/status/callbacks and isolated merchant token issuance. Test callback PM-only, default off.
+- Exact order/account/amount/content proof, concurrent reuse/callback idempotency, atomic payment/
+  order/receipt changes and expiry; late/ambiguous transfers require reconciliation.
+- Module18/18 tests including98 source DTO fixtures; Angular7/7 and production build pass.
+- Full suite626/626 and Maven verify626/626 pass with zero failures/errors/skips; executable JAR built. Push verification in progress. [Validation](docs/module-10-validation.md).
+
 ## MODULE 9 result
+
+- Completion `4fbe6572b23a94674a690ef1c3505a826e6dd1d5` pushed and exact remote hash verified; tree was clean before MODULE10.
 
 - PayPal OAuth/create/capture/refund via RestClient; token-owned create/capture, PM-only refund.
 - V7 exact legacy PayPal table plus durable request/result journal. Verified money/order binding,
@@ -209,18 +220,18 @@ the final commit only records the verified checkpoint state.
 | MODULE 5 | Product administration/audit/manager quota | Complete |
 | MODULE 6 | Cart/duplicate merging/shipping/VAT boundaries | Complete |
 | MODULE 7 | Transactional placement/stock locks/customer token/delivery/detail | Complete |
-| MODULE 8 | Payment domain/abstractions/states/idempotency/events | Complete; awaiting user confirmation |
-| MODULE 9 | PayPal OAuth/create/capture/refund/redirect/currency/mock HTTP | Not started |
-| MODULE 10 | VietQR QR/expiry/callback/auth/idempotency/sandbox/JSONB | Not started |
+| MODULE 8 | Payment domain/abstractions/states/idempotency/events | Complete |
+| MODULE 9 | PayPal OAuth/create/capture/refund/redirect/currency/mock HTTP | Complete |
+| MODULE 10 | VietQR QR/expiry/callback/auth/idempotency/sandbox/JSONB | Validated; push in progress |
 | MODULE 11 | Order management/states/refunds/concurrency | Not started |
 | MODULE 12 | Application events/SendGrid/provider isolation | Not started |
 | MODULE 13 | Full compatibility/integration/Docker image/CI/production/frontend build | Not started |
 
 ## Risks awaiting later checkpoint decisions
 
-See [migration-risks.md](docs/migration-risks.md). Key unresolved items: actual deployed schema
-metadata; durable event delivery; unguarded payment/refund routes;
-VietQR amount/signature checks; order/payment race conditions;
-hardcoded frontend production API host. Manager identity/quota, user hash disclosure and order ownership were addressed in MODULE5/MODULE4/MODULE7 respectively. MODULE8 resolved delivery freezing and core confirmation idempotency.
+See [migration-risks.md](docs/migration-risks.md). Remaining limits: actual deployed schema metadata,
+durable event delivery, late/ambiguous bank-transfer reconciliation, order/refund lifecycle in
+MODULE11 and the hardcoded frontend production API host. MODULE9/10 now protect payment endpoints;
+merchant callback bearer authentication and exact bank/order/amount checks are implemented.
 
-STOP after the MODULE 8 checkpoint report. Do not start MODULE9 until the user's explicit confirmation.
+STOP after the MODULE10 checkpoint report. Do not start MODULE11 until explicit user confirmation.

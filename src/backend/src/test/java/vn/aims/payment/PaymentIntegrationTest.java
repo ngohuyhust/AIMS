@@ -162,10 +162,10 @@ class PaymentIntegrationTest {
         assertThat(payments.find(payment.transactionID()).orElseThrow().transactionContent()).isNull();
         payments.confirm(new PaymentConfirmation(payment.transactionID(),1,"PAYPAL",new BigDecimal("132001")));
     }
-    @Test void noPaymentEndpointsOrConcreteGatewayTablesExist() throws Exception {
-        for(String path:List.of("/api/payments","/api/vietqr/payments","/vqr/bank/api/transaction-callback"))
+    @Test void unimplementedPaymentEndpointsRemainClosed() throws Exception {
+        for(String path:List.of("/api/payments","/api/orders/1/cancel"))
             mvc.perform(post(path).contentType(org.springframework.http.MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isForbidden());
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('vietqr_transactions')",Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('vietqr_transactions')",Integer.class)).isEqualTo(1);
     }
     @Test void v5UpgradePreservesOrderAndCreatesOnlySharedPaymentTable() {
         var old=org.flywaydb.core.Flyway.configure().dataSource(DB.getJdbcUrl(),DB.getUsername(),DB.getPassword()).schemas("upgrade_payment").defaultSchema("upgrade_payment").target("5").load();

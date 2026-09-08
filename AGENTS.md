@@ -19,6 +19,7 @@
   Exact approved file hashes are in docs/frontend-approved-changes.json (including related tests);
   keep docs/frontend-manifest.json and the ISD source unchanged. Do not expand that exception silently.
   MODULE9 explicit user exception: PayPal create/capture send the order token; refund requires PRODUCT_MANAGER JWT. Minimal payment service and related test changes are authorized.
+  MODULE10 user approved continuation of the proposed policy: order-token QR create/status, merchant bearer callbacks, PM-only sandbox test trigger disabled by default. Minimal payment service headers/mapping and related tests are authorized.
 - Run `python3 tools/verify-frontend.py` at every checkpoint. The manifest records the source commit.
 
 ## Implementation

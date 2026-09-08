@@ -8,6 +8,7 @@ import { API_BASE_URL } from '../app.config';
   providedIn: 'root'
 })
 export class PaymentService {
+  private readonly vietqrOrders = new Map<number, number>();
   constructor(
     private readonly http: HttpClient,
     private readonly orderAccess: OrderAccessService,
@@ -55,11 +56,19 @@ export class PaymentService {
       orderId,
       amount,
       content
-    });
+    }, { headers: this.orderAccess.headers(orderId) }).pipe(
+      tap((response: any) => {
+        if (Number.isInteger(response.paymentId) && response.orderId === orderId) {
+          this.vietqrOrders.set(response.paymentId, orderId);
+        }
+      })
+    );
   }
 
   getVietqrPaymentStatus(paymentId: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/api/vietqr/payments/${paymentId}/status`);
+    return this.http.get(`${this.baseUrl}/api/vietqr/payments/${paymentId}/status`, {
+      headers: this.orderAccess.headers(this.vietqrOrders.get(paymentId) ?? 0)
+    });
   }
 
   triggerVietqrTestCallback(paymentId: number): Observable<any> {

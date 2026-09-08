@@ -66,4 +66,20 @@ describe('guest order capabilities', () => {
     expect(refund.request.body).toEqual({ orderID: 7 }); refund.flush({});
   });
 
+  it('binds VietQR polling to the order returned by creation and does not leak other capabilities', () => {
+    TestBed.inject(OrderAccessService).remember(7, token);
+    const payments = TestBed.inject(PaymentService);
+    payments.createVietqrPayment(7, 132000, 'AIMS 7').subscribe();
+    const create = http.expectOne('/api/vietqr/payments');
+    expect(create.request.headers.get('x-order-token')).toBe(token);
+    expect(create.request.body).toEqual({ orderId: 7, amount: 132000, content: 'AIMS 7' });
+    create.flush({ paymentId: 42, orderId: 7 });
+    payments.getVietqrPaymentStatus(42).subscribe();
+    const status = http.expectOne('/api/vietqr/payments/42/status');
+    expect(status.request.headers.get('x-order-token')).toBe(token); status.flush({});
+    payments.getVietqrPaymentStatus(43).subscribe();
+    const other = http.expectOne('/api/vietqr/payments/43/status');
+    expect(other.request.headers.has('x-order-token')).toBe(false); other.flush({});
+  });
+
 });

@@ -30,6 +30,62 @@ are400, integer IDs outside PostgreSQL's int32 range are500, unknown productType
 The source allows explicit `status=DELETED` search although detail excludes deleted products; this
 is retained. CD tracks have no promised sort order in the source, so no new sort is introduced.
 
+## MODULE 10 VietQR
+
+User approved the proposed protections by asking to continue: order capability for QR create/status,
+merchant bearer token for callbacks, PRODUCT_MANAGER-only sandbox trigger disabled by default.
+Angular service headers/payment-to-order mapping and related test are the only frontend changes.
+
+| Method/path (also trailing slash) | Authorization | Input | Success |
+| --- | --- | --- | --- |
+| POST /api/vietqr/payments | x-order-token for orderId | {orderId,amount,content} | 201 payment response |
+| GET/HEAD /api/vietqr/payments/:paymentId/status | x-order-token for associated order | int32 path ID | 200 payment response |
+| GET/HEAD /api/vietqr/payments/by-ref/:reference/status | x-order-token for associated order | reference path | 200 payment response |
+| POST /api/vietqr/payments/:paymentId/trigger-callback | PRODUCT_MANAGER JWT; feature enabled; sandbox | path ID | 201 {status:"SUCCESS"} |
+| POST /api/vietqr/payments/callback | merchant bearer token | original VietqrCallbackDto | 201 {status:"SUCCESS",message,paymentId} |
+| POST /vqr/api/token_generate | Basic merchant credentials | no body | 201 {access_token,token_type:"Bearer",expires_in:300} |
+| POST /vqr/bank/api/transaction-callback or transaction-sync | merchant bearer token | callback fields/aliases | 201 {status:"SUCCESS",message,paymentId} |
+
+No query parameters. Payment response preserves paymentId, orderId, numeric amount, transactionRef,
+content/paymentContent, qrCode, qrLink, expiredAt (millisecond UTC), status, bankCode, bankAccount and
+bankAccountName. Original create/callback DTO behavior/error order and whitelist captured in98 cases.
+Create accepts source numeric conversion; callback numeric fields remain strict. Merchant routes also
+map bankAccount, transactionId, transactionTime, referenceNumber, orderid and numeric strings. Invalid
+or malformed bodies400; missing/invalid credentials401; wrong role/disabled trigger403; wrong order
+capability404; ambiguous/terminal/conflicting state409; sanitized provider502/503, unexpected500.
+API and merchant responses use no-store. No raw upstream error, credential or callback signature logs.
+
+Merchant JWT lasts300seconds, is signed using a domain-separated key derived from JWT_SECRET and
+validates issuer/audience/subject/issued/expiry times. User JWTs cannot authenticate callbacks; merchant
+JWTs cannot authenticate user routes. Basic credentials are checked in constant time; unset merchant
+configuration fails closed. This follows the provider host-to-host bearer protocol, not an invented
+`sign` algorithm: [VietQR integration documentation](https://doc.vietqr.vn/doc/api-vietqr-callback/api-vietqr-host2host/integrated-document-for-payment-service-vietqr).
+
+V8 retains exact legacy vietqr_transactions schema and adds unique bank-receipt ledger. Intent is
+committed before QR generation; retry reuses the same PENDING payment. Generation serializes on the
+order lock and uses the stored normalized content. Source amount is rounded whole VND HALF_UP and
+compared to the order. Outbound Basic/token/generation paths and response aliases remain compatible.
+A lost QR-generation response can cause regeneration for the same payment; QR generation does not
+debit money and no unsupported provider idempotency guarantee is claimed.
+
+Callbacks verify bank account, canonical positive order ID, exact amount/content, credit type, valid
+timestamp and one unambiguous reference or order/content/amount candidate. No fallback across orders.
+A receipt cannot settle two payments. PAID/shared SUCCESS/order transition and receipt insert commit
+atomically; duplicates do not re-emit the shared event. Expiry/status and callback share the order lock;
+expiry marks QR EXPIRED and shared FAILED together. Late/ambiguous transfers require reconciliation,
+not revival. Creation expires old pending rows before beginning a new attempt. Refund and stock/
+order cancellation remain MODULE11. Shared notification event is still non-durable (MODULE12).
+
+Configuration: VIETQR_API_BASE_URL defaults https://dev.vietqr.org; outbound VIETQR_USERNAME,
+VIETQR_PASSWORD, VIETQR_BANK_CODE, VIETQR_BANK_ACCOUNT, VIETQR_BANK_ACCOUNT_NAME are required for
+creation. VIETQR_MERCHANT_USERNAME/PASSWORD are independent inbound credentials. TTL defaults15min
+via VIETQR_PAYMENT_TTL_MINUTES; invalid/nonpositive/over-one-year values fall back to15min.
+VIETQR_ENABLE_TEST_CALLBACK defaults false. When enabled, require PM JWT and exact dev.vietqr.org
+host (or loopback for local tests); a substring/fake sandbox host is rejected. Triggering holds no
+order transaction while the provider may callback synchronously. It does not directly mark PAID.
+Angular remembers paymentId->orderId in memory after create/reuse, then attaches only that order's
+capability while polling; page reload creates/reuses QR again before polling, preserving the UI flow.
+
 ## MODULE 9 PayPal
 
 User explicitly approved **create/capture use the order capability; refund only PRODUCT_MANAGER**,

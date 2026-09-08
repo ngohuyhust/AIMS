@@ -148,7 +148,7 @@ class OrderIntegrationTest {
             .andExpect(status().isBadRequest()).andExpect(jsonPath("$.message[0]").value("cartItems must contain at least 1 elements"));
         for(String path:List.of("/api/orders/pending","/api/orders/vietqr-refunds","/api/payments")) mvc.perform(get(path)).andExpect(status().isForbidden());
         for(String path:List.of("/api/orders/1/cancel","/api/orders/1/approve","/api/customer/orders/1/cancel")) mvc.perform(post(path)).andExpect(status().isForbidden());
-        assertThat(jdbc.queryForObject("SELECT to_regclass('public.vietqr_transactions') IS NULL",Boolean.class)).isTrue();
+        assertThat(jdbc.queryForObject("SELECT to_regclass('public.vietqr_transactions') IS NOT NULL",Boolean.class)).isTrue();
         mvc.perform(options("/api/orders/1/delivery-info").header("Origin","http://localhost:4200").header("Access-Control-Request-Method","PATCH")
             .header("Access-Control-Request-Headers","x-order-token,content-type")).andExpect(status().isNoContent())
             .andExpect(header().string("Access-Control-Allow-Headers","x-order-token,content-type"));

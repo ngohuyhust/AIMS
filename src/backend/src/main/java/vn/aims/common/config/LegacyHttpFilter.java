@@ -30,7 +30,7 @@ public class LegacyHttpFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        if (request.getRequestURI().equals("/api") || request.getRequestURI().startsWith("/api/")) response.setHeader("Cache-Control","no-store");
+        if (request.getRequestURI().equals("/api") || request.getRequestURI().startsWith("/api/") || request.getRequestURI().startsWith("/vqr/")) response.setHeader("Cache-Control","no-store");
         String origin=request.getHeader("Origin");
         boolean allowed=origin == null || origin.matches("^http://(localhost|127\\.0\\.0\\.1|0\\.0\\.0\\.0):[0-9]+$")
                 || origin.matches("^https://.*\\.vercel\\.app$") || configuredOrigins.contains(origin);

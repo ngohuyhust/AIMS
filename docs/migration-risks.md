@@ -1,5 +1,28 @@
 # Migration risks and decisions
 
+## MODULE 10 completed implementation
+
+- User approved order-capability QR create/status, merchant bearer callbacks and PM-only sandbox
+  test trigger disabled by default; minimal frontend service headers/mapping/test are authorized.
+  Public callbacks and source untracked UUID token are replaced with authenticated300s merchant
+  tokens isolated from user JWTs. The optional source sign field is not a verified HMAC; host-to-host
+  bearer authentication is the implemented protocol. No production deployment is claimed.
+- Callback validates bank account, exact amount/content, canonical order ID, credit type, timestamp
+  and unambiguous payment match. Receipt uniqueness prevents a bank transfer settling two payments.
+  Ambiguous historical references, expired/late transfers and malformed proof require reconciliation;
+  no cross-order fallback or automatic QR refund/stock release. Bank/sign omitted from raw_callback.
+- QR PAID, shared SUCCESS, order state and receipt commit together; expiry to EXPIRED/FAILED is also
+  atomic and shares order locking. Source races/unconditional expiry writes are not preserved.
+  Durable receipt table is a deliberate addition; original VietQR table metadata remains exact.
+- Intent persists before remote generation. Retrying generation may create another remote QR for
+  the same local payment after a lost response; it never charges funds. Old pending rows expire on
+  status/create, not a background job. Delivery remains frozen until payment fails or is reconciled.
+- Test trigger requires explicit enablement, PM JWT and exact sandbox host; it does not hold an order
+  lock while an external service may callback synchronously. Default customer test button remains
+  visible to preserve UI but receives403. Production deployment must keep the test flag false.
+- Only local mock gateway/Testcontainers used; no real credentials, callbacks or bank transfers.
+  Notifications remain in-process/non-durable; MODULE11/12/13 own later lifecycle/delivery/deployment.
+
 ## MODULE 9 update
 
 - User approved token-owned PayPal create/capture and PRODUCT_MANAGER-only refund; source public
