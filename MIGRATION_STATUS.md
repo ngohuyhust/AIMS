@@ -3,7 +3,7 @@
 ## Current checkpoint
 
 - Authorized scope: **MODULE 11 — Order management/refunds**, followed by explicitly authorized MODULE12.
-- Status: **MODULE 11 validated; commit/push in progress**.
+- Status: **MODULE 11 validated, pushed and verified; continuing to authorized MODULE12**.
 - Next checkpoint: **MODULE 12 — Notifications**, authorized by `tiếp nốt module 11 và sang module 12 luôn`.
 - User decision: paid orders may only be cancelled by PRODUCT_MANAGER.
 - Business implementation: catalog, user/auth/admin, product administration/audit, stateless cart/shipping and transactional order placement/ownership/delivery and shared payment core, protected PayPal and VietQR.
@@ -14,7 +14,7 @@
 - PM lists/approve/reject/cancel/manual VietQR refund; customer-owned unpaid cancellation only.
 - V9 durable lifecycle action, sorted stock restore, PayPal refund recovery, atomic manual refund,
   pending payment/cancellation guards and after-commit lifecycle events. No frontend edits.
-- Module14/14, full suite640/640 and Maven verify640/640 pass with zero failures/errors/skips; executable JAR built. Push verification in progress.
+- Module14/14, full suite640/640 and Maven verify640/640 pass with zero failures/errors/skips; executable JAR built. Implementation `bca83c3503555f7bafd12273dcd26676fd03d527` pushed to origin/main; exact hash and clean tree verified.
 - [Validation](docs/module-11-validation.md).
 
 ## MODULE 10 result
@@ -233,7 +233,7 @@ the final commit only records the verified checkpoint state.
 | MODULE 8 | Payment domain/abstractions/states/idempotency/events | Complete |
 | MODULE 9 | PayPal OAuth/create/capture/refund/redirect/currency/mock HTTP | Complete |
 | MODULE 10 | VietQR QR/expiry/callback/auth/idempotency/sandbox/JSONB | Complete |
-| MODULE 11 | Order management/states/refunds/concurrency | Implementation in progress |
+| MODULE 11 | Order management/states/refunds/concurrency | Complete |
 | MODULE 12 | Application events/SendGrid/provider isolation | Not started |
 | MODULE 13 | Full compatibility/integration/Docker image/CI/production/frontend build | Not started |
 
