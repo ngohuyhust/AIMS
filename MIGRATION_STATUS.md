@@ -17,12 +17,20 @@
   compared all 19 tables in one repeatable-read transaction. `public` was not modified.
 - Java container on localhost:3000 is healthy and catalog returns 182 active products from
   `aims_java`; non-root/read-only runtime, notifications and gateway test disabled.
+- Supabase pooler uses JDBC `prepareThreshold=0`, equivalent to the source `maxPreparedStatements: 0`,
+  preventing intermittent server prepared-statement name collisions.
 - No negative stock/invalid prices/orphan order items or payments/non-BCrypt users. Twenty-seven
   historical orders lack customer tokens; pending/refund states need reconciliation before cutover.
-- Local `.env.supabase` is ignored, mode 0600, and contains no provider credentials.
+- Local `.env.supabase` is ignored and mode 0600. It maps the PayPal sandbox, VietQR development
+  and SendGrid variables from the legacy backend; notifications and the VietQR test callback remain
+  disabled, and validation made no provider transaction.
+- Java 21 Maven verify passed 661/661; the idempotent migration recheck compared all 1,521 rows,
+  and the provider-configured local container returned health `UP` without calling a provider.
 - Implementation `ca41956b93ae6fff2c9ef0478ff742c7a965d27e` pushed to `origin/main`; exact
   remote hash verified. [GitHub CI 34251292984](https://github.com/ngohuyhust/AIMS/actions/runs/34251292984)
-  passed backend and frontend. This completion record changes documentation only.
+  passed backend and frontend. Supabase pooler/provider follow-up
+  `50da457ff696fc7e446e1fddf829c0e2e273afca` is also pushed and verified by
+  [GitHub CI 34253734702](https://github.com/ngohuyhust/AIMS/actions/runs/34253734702).
 - [Procedure and limits](docs/legacy-supabase-migration.md).
 
 ## MODULE 13 result
