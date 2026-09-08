@@ -40,6 +40,8 @@ and can be stopped/restarted with `docker stop` / `docker start` without changin
 Migration completed on 2026-09-08: `aims_java` has Flyway V1-V10 and an exactly compared snapshot
 of 1,521 rows across all 19 legacy tables. A production-profile Java container passed health and
 catalog checks against that schema. The legacy `public` table set and row counts remained unchanged.
+Implementation `ca41956b93ae6fff2c9ef0478ff742c7a965d27e` is verified on `origin/main`;
+[CI run 34251292984](https://github.com/ngohuyhust/AIMS/actions/runs/34251292984) passed both jobs.
 
 The schema can be abandoned without affecting NestJS by stopping Java and leaving traffic on
 `public`. Dropping `aims_java` is intentionally not automated and needs a separate backup/approval.

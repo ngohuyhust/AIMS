@@ -3,7 +3,7 @@
 ## Current checkpoint
 
 - Authorized scope: **Legacy Supabase connection and isolated data migration**.
-- Status: **`aims_java` created and validated; code/docs commit and push pending**.
+- Status: **`aims_java` created and validated; code/docs pushed and GitHub CI passed**.
 - Next checkpoint: explicit production traffic cutover, not yet performed.
 - Current branch: `main`, preserving consolidated ISD history.
 
@@ -20,6 +20,9 @@
 - No negative stock/invalid prices/orphan order items or payments/non-BCrypt users. Twenty-seven
   historical orders lack customer tokens; pending/refund states need reconciliation before cutover.
 - Local `.env.supabase` is ignored, mode 0600, and contains no provider credentials.
+- Implementation `ca41956b93ae6fff2c9ef0478ff742c7a965d27e` pushed to `origin/main`; exact
+  remote hash verified. [GitHub CI 34251292984](https://github.com/ngohuyhust/AIMS/actions/runs/34251292984)
+  passed backend and frontend. This completion record changes documentation only.
 - [Procedure and limits](docs/legacy-supabase-migration.md).
 
 ## MODULE 13 result
