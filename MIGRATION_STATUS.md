@@ -2,13 +2,23 @@
 
 ## Current checkpoint
 
-- Authorized scope: **MODULE 11 and MODULE 12 — Notifications**.
-- Status: **MODULE 11 and MODULE 12 complete, pushed and verified**.
-- Next checkpoint: **MODULE 13 — Full Integration and Deployment**, not authorized.
-- User decision: paid orders may only be cancelled by PRODUCT_MANAGER.
-- Current branch: `main`, preserving the consolidated ISD commit history.
+- Authorized scope: **MODULE 13 — Full Integration and Deployment**, authorized by `tiếp`.
+- Status: **MODULE 13 implemented and locally validated; commit/push and remote CI pending**.
+- Next checkpoint: none in the original sequence; production rollout is separate work.
+- Current branch: `main`, preserving consolidated ISD history.
+
+## MODULE 13 result
+
+- Production/container profiles, runtime Docker image, optional Compose backend, GitHub CI,
+  integration journeys, environment/deployment/rollback documentation; no frontend changes.
+- Module5/5, full suite661/661 and Maven verify661/661 pass without failures/errors/skips.
+- Angular7/7 and production build pass; Docker production smoke and Compose configuration pass.
+- Source and frontend hashes verified from both read-only sibling and preserved Git history.
+- [Validation](docs/module-13-validation.md), [deployment runbook](docs/deployment.md).
 
 ## MODULE 12 result
+
+- Completion `48bea5c167d476efdd7ee9fa83a9f39230ae1179` verified on origin/main before MODULE13.
 
 - Four order email events, transactional V10 outbox, SendGrid SDK, escaped templates and isolated
   bounded retries. Delivery defaults off; no real email sent and no frontend edits.
@@ -244,7 +254,7 @@ the final commit only records the verified checkpoint state.
 | MODULE 10 | VietQR QR/expiry/callback/auth/idempotency/sandbox/JSONB | Complete |
 | MODULE 11 | Order management/states/refunds/concurrency | Complete |
 | MODULE 12 | Application events/SendGrid/provider isolation | Complete |
-| MODULE 13 | Full compatibility/integration/Docker image/CI/production/frontend build | Not started |
+| MODULE 13 | Full compatibility/integration/Docker image/CI/production/frontend build | Locally validated; push/CI pending |
 
 ## Risks awaiting later checkpoint decisions
 
@@ -253,4 +263,4 @@ notification retention/delivery reconciliation, late/ambiguous bank-transfer rec
 the hardcoded frontend production API host. MODULE9/10 now protect payment endpoints;
 merchant callback bearer authentication and exact bank/order/amount checks are implemented.
 
-MODULE12 complete. STOP awaiting explicit authorization for MODULE13.
+Finish MODULE13 commit/push/CI verification, then STOP. No production rollout authorized.

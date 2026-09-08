@@ -281,3 +281,13 @@ not proof of inbox delivery. Six attempts then FAILED; no bounce webhook or auto
 Outbox payload includes delivery PII/order token: restrict access and define retention before production.
 No provider response body, recipient or token is logged. Paid emails omit the customer Cancel button
 because the user chose PM-only cancellation. No frontend exception was expanded.
+
+## MODULE 13 deployment boundary
+
+Local production-profile image and integration tests pass; deployment artifacts/CI do not constitute
+a live production cutover. Frontend still targets the legacy Render hostname outside localhost.
+An authorized replacement at that hostname or a separately approved frontend URL edit is required.
+Production database metadata/import/baseline, initial ADMIN provisioning, TLS and live gateways need
+rehearsal/operational approval. Production profile requires explicit DB/HTTPS frontend configuration
+and disallows sandbox callback trigger; it does not silently change legacy CORS or select live gateways.
+See docs/deployment.md for environment, rollout and rollback; no production access was performed.

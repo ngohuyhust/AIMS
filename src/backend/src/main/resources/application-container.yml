@@ -1,0 +1,11 @@
+# Isolated Compose or explicitly configured container database; never read legacy DB_* variables.
+server:
+  address: 0.0.0.0
+  shutdown: graceful
+spring:
+  datasource:
+    url: ${AIMS_DB_URL}
+    username: ${AIMS_DB_USERNAME}
+    password: ${AIMS_DB_PASSWORD}
+  lifecycle:
+    timeout-per-shutdown-phase: 20s

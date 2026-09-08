@@ -749,3 +749,12 @@ consistent with the user-approved PM-only paid cancellation policy. Angular is u
 Source in-memory best-effort delivery is replaced by a durable V10 outbox with bounded retries.
 Default local delivery is off; pending notifications accumulate until configuration enables sending.
 See [Module12 validation/configuration](module-12-validation.md) for retry/PII/delivery limits.
+
+## MODULE 13 — integration checkpoint
+
+No endpoint, method, header, JSON, role or frontend change. Full prior contract suite plus three
+production-profile journeys verify catalog→stock→placement→owned QR→merchant callback→PM lifecycle
+and notification composition. Local Docker smoke checks actual HTTP health/catalog and PM protection
+on a fresh V1–V10 PostgreSQL database. Existing policy exceptions remain those explicitly approved
+in Modules5–11. No claim of live provider or unknown production-schema equivalence is made.
+See [validation](module-13-validation.md) and [deployment/URL constraints](deployment.md).

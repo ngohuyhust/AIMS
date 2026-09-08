@@ -9,6 +9,7 @@ import subprocess
 root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser()
 parser.add_argument("--source", type=Path, default=root.parent / "ISD.20252-25")
+parser.add_argument("--source-ref", action="store_true", help="Verify baseline from preserved Git history (CI)")
 args = parser.parse_args()
 manifest = json.loads((root / "docs/frontend-manifest.json").read_text())
 approval_path = root / "docs/frontend-approved-changes.json"
@@ -22,7 +23,8 @@ def included(path):
 
 expected = manifest["files"]
 tracked = subprocess.check_output(
-    ["git", "ls-files", "-z", "src/frontend"], cwd=args.source
+    ["git", "ls-tree", "-r", "--name-only", "-z", manifest["sourceCommit"], "src/frontend"] if args.source_ref
+    else ["git", "ls-files", "-z", "src/frontend"], cwd=root if args.source_ref else args.source
 ).decode().split("\0")
 source_paths = {str(Path(p).relative_to("src/frontend")) for p in tracked if p and included(Path(p))}
 actual_paths = {
@@ -37,7 +39,11 @@ for relative, digest in expected.items():
     for label, base in (("source", args.source), ("target", root)):
         path = base / "src/frontend" / relative
         required = approved.get(relative, digest) if label == "target" else digest
-        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != required:
+        if label == "source" and args.source_ref:
+            content = subprocess.check_output(["git", "show", f"{manifest['sourceCommit']}:src/frontend/{relative}"], cwd=root)
+        else:
+            content = path.read_bytes() if path.is_file() else b""
+        if hashlib.sha256(content).hexdigest() != required:
             errors.append(f"Content mismatch: {label}/src/frontend/{relative}")
 for relative, digest in approved.items():
     path = root / "src/frontend" / relative

@@ -1,41 +1,14 @@
 # AIMS
 
-Migration có kiểm soát từ NestJS sang Java Spring Boot, giữ nguyên Angular frontend.
-MODULE 1 đã chuyển public product catalog; MODULE 2 bổ sung user/role/audit domain và seed role an toàn.
-MODULE 3 bổ sung login/JWT, đổi mật khẩu, phân quyền và CORS; MODULE 4 bổ sung API quản trị user/audit và reset mật khẩu (ADMIN).
-Hiện làm việc trên nhánh `main`.
-
-MODULE 5 bổ sung quản trị sản phẩm/stock/audit, batch deactivate/delete và quota20 sản phẩm/ngày.
-Các route này yêu cầu PRODUCT_MANAGER và header `x-manager-id`; quota/audit dùng email JWT đã xác thực.
-Tiến độ và điều kiện tiếp tục nằm trong [MIGRATION_STATUS.md](MIGRATION_STATUS.md).
-
-## Cấu trúc
-
-```text
-src/frontend/       Angular giữ nguyên từ source (70 file, gồm lockfile)
-src/backend/        Java 21 / Spring Boot / Maven Wrapper
-docs/               API contract, rủi ro, manifest frontend, kết quả kiểm tra
-tools/              Tạo cấu hình local và xác minh frontend
-docker-compose.yml  PostgreSQL riêng cho AIMS local
-AGENTS.md           Quy tắc checkpoint cho các lượt tiếp theo
-```
-
-## Yêu cầu
-
-- JDK 21, Docker đang chạy, Python 3 để chạy công cụ kiểm tra.
-- Maven được tải tự động qua Wrapper 3.3.4, cố định Maven 3.9.16; không cần cài Maven toàn máy.
-- Spring Boot cố định 3.5.16, patch stable của nhánh yêu cầu và tương thích Java 21 theo
-  [tài liệu Spring](https://docs.spring.io/spring-boot/3.5/system-requirements.html).
-- PostgreSQL 17.6 Alpine dùng chung cho Compose và Testcontainers; đây là lựa chọn local,
-  chưa xác nhận phiên bản database triển khai cũ. Không cần tài khoản PayPal/VietQR/SendGrid.
-
-Đặt `JAVA_HOME` trỏ tới JDK 21 trước khi dùng Wrapper. Maven Enforcer từ chối JDK khác 21.
-Trên macOS có JDK 21 đã cài: `export JAVA_HOME=$(/usr/libexec/java_home -v 21)`.
-Quy trình PHASE 0 dùng JDK tạm đã kiểm tra SHA-256; xem [bằng chứng](docs/phase-0-validation.md).
+Backend NestJS đã chuyển sang Java21 / Spring Boot3.5.16, modular monolith theo feature.
+Angular giữ nguyên nguồn và các sửa đổi token đã được duyệt ở Module7/9/10.
+Catalog, user/auth/admin, product/audit, cart/shipping, order, PayPal, VietQR, refunds và notifications
+đã được triển khai. [Tiến độ/kiểm thử](MIGRATION_STATUS.md), [API contract](docs/api-contract.md).
 
 ## Chạy local
 
-Từ thư mục AIMS:
+Cần JDK21, Docker, Python3; frontend dùng Node24 và lockfile hiện tại.
+Maven Wrapper cố định Maven3.9.16; không cần cài Maven toàn máy.
 
 ```sh
 python3 tools/init-local-env.py
@@ -47,88 +20,62 @@ cd src/backend
 ./mvnw spring-boot:run
 ```
 
-Từ MODULE 3, `JWT_SECRET` bắt buộc có ít nhất 32 byte UTF-8. Công cụ init phía trên thêm khóa
-ngẫu nhiên vào `.env` nếu chưa có, giữ nguyên cấu hình cũ. Export lại `.env` trước khi chạy backend.
-Không có tài khoản mặc định; API quản trị cần token của tài khoản ADMIN đã được cấp hợp lệ.
+Backend mặc định bind `127.0.0.1:3000`; PostgreSQL riêng tại `127.0.0.1:55432/aims_local`.
+Công cụ init sinh password/JWT ngẫu nhiên, giữ cấu hình có sẵn; `.env` không được commit.
+Không đọc `.env` của ISD, không tự kết nối database cũ. Không seed/reset tài khoản mặc định.
+Health: `curl --fail http://localhost:3000/actuator/health` trả `{"status":"UP"}`.
+Database mới có role, chưa có user/sản phẩm; initial ADMIN cần được cấp qua quy trình trong
+[tài liệu triển khai](docs/deployment.md), không dùng tài khoản mặc định cũ.
 
-Kiểm tra ở terminal khác:
-
-```sh
-curl --fail http://localhost:3000/actuator/health
-```
-
-Khi PostgreSQL hoạt động, response là `{"status":"UP"}`. Profile mặc định `local` bind backend
-127.0.0.1:3000, kết nối `127.0.0.1:55432/aims_local` với user `aims_local`.
-Password ngẫu nhiên được tạo trong `.env` ignored, quyền 0600, không in ra console và không ghi đè
-nếu file đã tồn tại. Spring không tự đọc `.env`, nên phải export như hướng dẫn. Không source `.env`
-của project NestJS. Compose có volume riêng và chỉ publish PostgreSQL ra loopback.
-
-Dừng backend bằng Ctrl+C; `docker compose stop` dừng database và giữ dữ liệu.
-Để chạy JAR sau build: `java -jar target/aims-backend-0.0.1-SNAPSHOT.jar` trong src/backend,
-vẫn dùng JDK 21 và biến môi trường local đã export.
-
-| Biến / cấu hình | Ý nghĩa PHASE 0 |
-| --- | --- |
-| JAVA_HOME | JDK 21 |
-| AIMS_LOCAL_DB_PASSWORD | Password database local được sinh tự động, không có giá trị cố định trong Git |
-| PORT | Port backend, mặc định 3000 |
-| MAVEN_USER_HOME | Tùy chọn vị trí cache Maven Wrapper |
-| DOCKER_HOST | Chỉ đặt nếu Testcontainers không tìm được Docker socket; ví dụ Docker Desktop macOS: unix:///Users/abc/.docker/run/docker.sock |
-| spring.jpa.hibernate.ddl-auto | validate, không create/update |
-| spring.flyway.clean-disabled | true |
-| spring.flyway.baseline-on-migrate | false |
-
-Không có production profile hay cấu hình gateway ở checkpoint này. JWT và CORS cho các feature
-khác sẽ được chuyển ở module 3, gateway/email ở module 9/10/12, image backend/CI/deployment ở module 13.
-Spring Security mở health và public catalog GET/HEAD; API quản trị chưa được mở.
-
-Public catalog giữ nguyên query/JSON của Angular:
+Frontend, chạy từ root ở terminal khác:
 
 ```sh
-curl 'http://localhost:3000/api/products?keyword=book&mediaTypes=BOOK,CD&minPrice=0'
-curl http://localhost:3000/api/products/random
-curl http://localhost:3000/api/products/1
+cd src/frontend
+npm ci
+npm start
 ```
 
-Database local ban đầu không có sản phẩm: search/random trả `[]`, detail chưa tồn tại trả404.
-Catalog có CORS tương thích localhost/Vercel/ALLOWED_ORIGINS và Cache-Control no-store.
+Mở `http://localhost:4200`. Không chạy build/install trong project ISD nguồn.
+Frontend trên host khác localhost vẫn gọi `https://isd-20252-25.onrender.com`; muốn đổi sang domain
+backend khác cần người dùng cho phép sửa cấu hình frontend. Không tự thay URL hoặc chuyển traffic.
 
-## Kiểm thử
-
-Docker phải chạy. Tests dùng PostgreSQL Testcontainer mới, tách khỏi database Compose, không cần
-`.env`. Thiếu Docker thì test phải thất bại, không được skip.
+## Kiểm thử và Docker
 
 ```sh
 cd src/backend
-./mvnw -B -Dtest=FoundationTest test
-./mvnw -B -Dtest=CatalogIntegrationTest,ProductServiceTest test
 ./mvnw -B test
 ./mvnw -B verify
+cd ../..
+python3 tools/verify-frontend.py
+docker compose --profile application up -d --build --wait
 ```
 
-Suite kiểm tra application context, HTTP thật, MockMvc health, phạm vi endpoint được mở,
-Flyway apply/validate/re-run và cấu hình không phá hủy schema. V1 chỉ tạo lịch sử Flyway;
-V2 tạo 7 bảng catalog, giữ constraint/index của TypeORM. Test MODULE 1 đối chiếu JSON với mẫu
-chạy từ TypeScript gốc và so sánh metadata schema trên PostgreSQL.
+Image runtime lấy JAR **đã verify**, chạy JRE21 với UID10001, healthcheck, filesystem read-only và
+`/tmp` tạm trong Compose. Build lại JAR trước mỗi image build. Compose mặc định chỉ bật PostgreSQL;
+profile `application` thêm backend tại port3000 (dừng backend chạy bằng Maven trước để tránh trùng port).
+`docker compose --profile application stop` giữ dữ liệu; không dùng `down -v` với dữ liệu cần giữ.
 
-Từ root, xác minh frontend với source read-only:
+Kiểm tra image độc lập, không đụng database Compose:
 
 ```sh
-python3 tools/verify-frontend.py
+python3 tools/smoke-container.py --image aims-backend:local
 ```
 
-Có thể dùng `--source /path/to/ISD.20252-25`. Công cụ kiểm tra tập file và từng SHA-256 so với cả
-source lẫn manifest đã commit. Không format/cài dependency/chạy build trong project nguồn.
-Frontend build đầy đủ nằm ở MODULE 13. Hiện chỉ catalog được chuyển; checkout/auth/payment chưa có.
-Frontend vẫn giữ nguyên API_BASE_URL: localhost/127.0.0.1 dùng port 3000, host khác gọi Render cũ.
+Script tạo database/network ngẫu nhiên rồi tự dọn tài nguyên của chính nó. Testcontainers bắt buộc
+PostgreSQL thật qua Docker, không skip khi thiếu Docker, không H2, không gọi gateway/email thật.
+Frontend: `npm test -- --watch=false` và `npm run build` trong `src/frontend`.
 
-## Tài liệu và checkpoint
+CI `.github/workflows/ci.yml` chạy Maven verify/Testcontainers, Docker smoke và Angular test/build;
+đối chiếu cả70 file nguồn từ commit ISD được bảo tồn trong Git bằng `verify-frontend.py --source-ref`.
+CI chỉ kiểm tra/build, không tự deploy hoặc publish image. [Biến môi trường và rollout](docs/deployment.md).
 
-- [API contract](docs/api-contract.md): 44 route NestJS, headers, payloads, status/errors, Angular consumers.
-- [Rủi ro cần quyết định](docs/migration-risks.md): schema chưa có dump, quyền truy cập order/payment,
-  JWT fallback, user seeding, callback và concurrency.
-- [Quy tắc lâu dài](AGENTS.md): mỗi lượt đúng một checkpoint, test/build/review/commit/push rồi dừng.
-- [Maven Wrapper chính thức](https://maven.apache.org/tools/wrapper/index.html).
+## Quy tắc nghiệp vụ đã chốt
 
-Source gốc `../ISD.20252-25` là read-only. Không thay đổi frontend để thích ứng với Java.
-Chỉ tiếp tục MODULE 2 khi người dùng gửi `TIẾP TỤC MODULE 2`.
+- Quota/audit PM dùng email JWT, vẫn yêu cầu `x-manager-id`; tiền dùng BigDecimal/HALF_UP.
+- Order detail/delivery và tạo/xác nhận thanh toán yêu cầu capability của đơn.
+- Đang/đã thanh toán khóa sửa giao hàng; kiểm tra số tiền, callback lặp không cập nhật lần nữa.
+- Refund và hủy đơn đã thanh toán chỉ PRODUCT_MANAGER; hoàn VietQR là xác nhận chuyển khoản thủ công.
+- Email lưu outbox trong transaction; gửi riêng, mặc định tắt. Bật gửi sẽ xử lý cả backlog.
+
+Source `../ISD.20252-25` chỉ đọc, commit `c7c022e33f100937cd0f072c3666fd0e26754d8e`.
+[AGENTS.md](AGENTS.md) quy định checkpoint; [rủi ro](docs/migration-risks.md) ghi các giới hạn còn lại.

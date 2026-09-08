@@ -1,0 +1,11 @@
+spring:
+  config:
+    import: classpath:application-container.yml
+logging:
+  level:
+    root: INFO
+server:
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never

@@ -18,5 +18,30 @@ services:
       retries: 12
     restart: unless-stopped
 
+  backend:
+    profiles: [application]
+    build: ./src/backend
+    image: aims-backend:local
+    environment:
+      SPRING_PROFILES_ACTIVE: container
+      AIMS_DB_URL: jdbc:postgresql://postgres:5432/aims_local
+      AIMS_DB_USERNAME: aims_local
+      AIMS_DB_PASSWORD: ${AIMS_LOCAL_DB_PASSWORD:?Run python3 tools/init-local-env.py first}
+      JWT_SECRET: ${JWT_SECRET:?Run python3 tools/init-local-env.py first}
+      NOTIFICATIONS_ENABLED: "false"
+      VIETQR_ENABLE_TEST_CALLBACK: "false"
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 30s
+    restart: unless-stopped
+
 volumes:
   aims-postgres-data:
