@@ -3,7 +3,7 @@
 ## Current checkpoint
 
 - Authorized scope: **MODULE 10 — VietQR**, after MODULE9 completion per `làm nốt module 9 và sang module 10 luôn đi`.
-- Status: **MODULE 10 validated; commit/push in progress**.
+- Status: **MODULE 10 validated, pushed and verified; awaiting user confirmation**.
 - Next checkpoint after MODULE10: **MODULE 11 — Order Management and Refunds**, not authorized.
 - User approved the proposed VietQR protection policy with `tiếp đi`; MODULE11 still requires confirmation.
 - Business implementation: catalog, user/auth/admin, product administration/audit, stateless cart/shipping and transactional order placement/ownership/delivery and shared payment core, protected PayPal and VietQR.
@@ -16,7 +16,7 @@
 - Exact order/account/amount/content proof, concurrent reuse/callback idempotency, atomic payment/
   order/receipt changes and expiry; late/ambiguous transfers require reconciliation.
 - Module18/18 tests including98 source DTO fixtures; Angular7/7 and production build pass.
-- Full suite626/626 and Maven verify626/626 pass with zero failures/errors/skips; executable JAR built. Push verification in progress. [Validation](docs/module-10-validation.md).
+- Full suite626/626 and Maven verify626/626 pass with zero failures/errors/skips; executable JAR built. Implementation `ce8710bb947f7699e02031a2668a74f5aa9f89a2` pushed to origin/main; exact remote hash and clean tree verified before this completion record. [Validation](docs/module-10-validation.md).
 
 ## MODULE 9 result
 
@@ -222,7 +222,7 @@ the final commit only records the verified checkpoint state.
 | MODULE 7 | Transactional placement/stock locks/customer token/delivery/detail | Complete |
 | MODULE 8 | Payment domain/abstractions/states/idempotency/events | Complete |
 | MODULE 9 | PayPal OAuth/create/capture/refund/redirect/currency/mock HTTP | Complete |
-| MODULE 10 | VietQR QR/expiry/callback/auth/idempotency/sandbox/JSONB | Validated; push in progress |
+| MODULE 10 | VietQR QR/expiry/callback/auth/idempotency/sandbox/JSONB | Complete |
 | MODULE 11 | Order management/states/refunds/concurrency | Not started |
 | MODULE 12 | Application events/SendGrid/provider isolation | Not started |
 | MODULE 13 | Full compatibility/integration/Docker image/CI/production/frontend build | Not started |
