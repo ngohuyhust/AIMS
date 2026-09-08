@@ -3,7 +3,7 @@
 ## Current checkpoint
 
 - Authorized scope: **MODULE 9 — PayPal**, followed by MODULE10 per `làm nốt module 9 và sang module 10 luôn đi`.
-- Status: **MODULE 9 validated; implementation commit/push in progress**.
+- Status: **MODULE 9 validated, pushed and verified; MODULE10 explicitly authorized next**.
 - Next checkpoint: **MODULE 10 — VietQR**, explicitly authorized after MODULE9 completion.
 - Continue directly to MODULE10 after MODULE9 is validated and pushed.
 - Business implementation: catalog, user/auth/admin, product administration/audit, stateless cart/shipping and transactional order placement/ownership/delivery and shared payment core.
@@ -15,7 +15,7 @@
 - V7 exact legacy PayPal table plus durable request/result journal. Verified money/order binding,
   concurrent retry idempotency and atomic shared/payment/order updates; pending results return409.
 - Module17/17 tests including39 source DTO fixtures; frontend6/6 tests passed.
-- Full suite608/608 and Maven verify608/608 passed with zero failures/errors/skips; executable JAR and Angular production build pass. Push verification pending. [Validation](docs/module-9-validation.md).
+- Full suite608/608 and Maven verify608/608 passed with zero failures/errors/skips; executable JAR and Angular production build pass. Implementation `e3be40d005e34981065d15bfd5d8a1ebf187be46` pushed to origin/main; exact remote hash verified and tree clean before this completion record. [Validation](docs/module-9-validation.md).
 
 ## MODULE 8 result
 
