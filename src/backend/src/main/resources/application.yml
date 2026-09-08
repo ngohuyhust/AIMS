@@ -5,6 +5,9 @@ server:
 logging:
   level:
     org.springframework.web: INFO
+    org.apache.http.wire: OFF
+    org.apache.http.headers: OFF
+    org.springframework.jdbc.core.StatementCreatorUtils: OFF
     org.hibernate.orm.jdbc.bind: OFF
     org.hibernate.orm.jdbc.extract: OFF
     org.hibernate.engine.jdbc.spi.SqlExceptionHelper: OFF

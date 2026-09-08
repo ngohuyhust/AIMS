@@ -41,6 +41,7 @@ public class PaymentService {
         if(wholeVnd(order.total()).compareTo(payment.amount())!=0) throw new PaymentException(409,"Order total changed since payment was created");
         if(!payments.transition(payment.transactionID(),PaymentStatus.PENDING,PaymentStatus.SUCCESS)) return false;
         payments.markOrderPaid(order.id());
+        events.publishEvent(new vn.aims.notification.NotificationRequested("ORDER_PAYMENT_SUCCEEDED",order.id(),payment.transactionID(),null,null));
         var event=new PaymentConfirmed(order.id(),payment.transactionID());
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override public void afterCommit() { events.publishEvent(event); }

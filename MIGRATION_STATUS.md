@@ -2,14 +2,22 @@
 
 ## Current checkpoint
 
-- Authorized scope: **MODULE 11 — Order management/refunds**, followed by explicitly authorized MODULE12.
-- Status: **MODULE 11 validated, pushed and verified; continuing to authorized MODULE12**.
-- Next checkpoint: **MODULE 12 — Notifications**, authorized by `tiếp nốt module 11 và sang module 12 luôn`.
+- Authorized scope: **MODULE 11 and MODULE 12 — Notifications**.
+- Status: **MODULE 11 complete; MODULE 12 validated, preparing commit/push**.
+- Next checkpoint: **MODULE 13 — Full Integration and Deployment**, not authorized.
 - User decision: paid orders may only be cancelled by PRODUCT_MANAGER.
-- Business implementation: catalog, user/auth/admin, product administration/audit, stateless cart/shipping and transactional order placement/ownership/delivery and shared payment core, protected PayPal and VietQR.
-- Current branch: `main`, following the user's explicit history consolidation and branch deletion.
+- Current branch: `main`, preserving the consolidated ISD commit history.
+
+## MODULE 12 result
+
+- Four order email events, transactional V10 outbox, SendGrid SDK, escaped templates and isolated
+  bounded retries. Delivery defaults off; no real email sent and no frontend edits.
+- Module16/16, full suite656/656 and Maven verify656/656 pass with zero failures/errors/skips; executable JAR built. Frontend/source hashes unchanged.
+- [Validation and configuration](docs/module-12-validation.md).
 
 ## MODULE 11 result
+
+- Completion `749968a06f6c0d52e886feb84edfc14b855aab49` pushed and verified on origin/main before MODULE12.
 
 - PM lists/approve/reject/cancel/manual VietQR refund; customer-owned unpaid cancellation only.
 - V9 durable lifecycle action, sorted stock restore, PayPal refund recovery, atomic manual refund,
@@ -234,14 +242,14 @@ the final commit only records the verified checkpoint state.
 | MODULE 9 | PayPal OAuth/create/capture/refund/redirect/currency/mock HTTP | Complete |
 | MODULE 10 | VietQR QR/expiry/callback/auth/idempotency/sandbox/JSONB | Complete |
 | MODULE 11 | Order management/states/refunds/concurrency | Complete |
-| MODULE 12 | Application events/SendGrid/provider isolation | Not started |
+| MODULE 12 | Application events/SendGrid/provider isolation | Validated; push pending |
 | MODULE 13 | Full compatibility/integration/Docker image/CI/production/frontend build | Not started |
 
 ## Risks awaiting later checkpoint decisions
 
 See [migration-risks.md](docs/migration-risks.md). Remaining limits: actual deployed schema metadata,
-durable event delivery, late/ambiguous bank-transfer reconciliation, order/refund lifecycle in
-MODULE11 and the hardcoded frontend production API host. MODULE9/10 now protect payment endpoints;
+notification retention/delivery reconciliation, late/ambiguous bank-transfer reconciliation and
+the hardcoded frontend production API host. MODULE9/10 now protect payment endpoints;
 merchant callback bearer authentication and exact bank/order/amount checks are implemented.
 
-Complete and push MODULE11, then continue to explicitly authorized MODULE12. Do not start MODULE13 without confirmation.
+Complete and push MODULE12, then STOP. Do not start MODULE13 without confirmation.

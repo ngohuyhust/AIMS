@@ -81,5 +81,5 @@ public class OrderLifecycleService {
     private void allowed(Order order,String action) {
         if(!Set.of("PENDING","PENDING_PROCESSING").contains(order.status)) throw new OrderError(400,"Order "+order.orderID+" cannot be "+switch(action){case "approve"->"approved";case "reject"->"rejected";default->"cancelled";}+" from status "+order.status);
     }
-    private void publish(OrderLifecycleEvent event) {TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization(){@Override public void afterCommit(){events.publishEvent(event);}});}
+    private void publish(OrderLifecycleEvent event) {events.publishEvent(new vn.aims.notification.NotificationRequested(event.type(),event.orderId(),event.paymentTransactionId(),event.refundMethod(),event.refundStatus()));TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization(){@Override public void afterCommit(){events.publishEvent(event);}});}
 }

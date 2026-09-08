@@ -736,3 +736,16 @@ There are 44 existing controller route declarations in this inventory (including
 merchant aliases), plus the new health endpoint. No backend cart persistence, token refresh,
 logout, user DELETE or notification HTTP endpoint exists. All business APIs remain unimplemented
 in Phase 0; their compatibility assertions must be added in the corresponding module.
+
+## MODULE 12 — notification side effects (no new HTTP API)
+
+Payment success and order approve/reject/cancel keep their existing methods, paths, authentication,
+roles, payloads, responses and status codes. After a real state change, the same business transaction
+stores one EMAIL snapshot per event/refund status. Duplicate state callbacks do not send again.
+Delivery happens separately; provider outages leave the successful business response unchanged.
+Four source email subjects/text variants and order/invoice/payment/refund fields are retained;
+view links use `/order-detail?orderId=...&token=...`. The payment email has no customer Cancel button,
+consistent with the user-approved PM-only paid cancellation policy. Angular is unchanged.
+Source in-memory best-effort delivery is replaced by a durable V10 outbox with bounded retries.
+Default local delivery is off; pending notifications accumulate until configuration enables sending.
+See [Module12 validation/configuration](module-12-validation.md) for retry/PII/delivery limits.

@@ -269,3 +269,15 @@ No production database, payment gateway or email service was contacted.
   business schema and creates no business tables. No destructive migration or auto-baseline.
 - JWT implementation, RestClient gateway adapters and SendGrid SDK are added only in their
   respective authorized modules; Phase 0 has no inert business stubs or real provider calls.
+
+## MODULE 12 notification delivery
+
+Durable V10 snapshots close the source in-process event-loss gap between database commit and enqueue.
+Email provider errors are isolated from committed business state; inability to persist the outbox
+rolls back the associated business transaction. Default delivery is off; enabling it drains queued
+notifications, including older events. Operators must review the backlog and sender/public URL first.
+At-least-once delivery can duplicate after remote acceptance/local commit failure; SENT is acceptance,
+not proof of inbox delivery. Six attempts then FAILED; no bounce webhook or automatic reconciliation.
+Outbox payload includes delivery PII/order token: restrict access and define retention before production.
+No provider response body, recipient or token is logged. Paid emails omit the customer Cancel button
+because the user chose PM-only cancellation. No frontend exception was expanded.
