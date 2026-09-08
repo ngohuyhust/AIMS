@@ -1,5 +1,24 @@
 # Migration risks and decisions
 
+## MODULE 11 update
+
+- User chose paid-order cancellation only by PM. Customer token grants unpaid cancellation only;
+  paid cancellation returns403. No frontend change or indirect customer PayPal refund bypass.
+- Source refunded before checking transition and restored stock without durable action identity.
+  V9 reserves the action under the order lock before remote refund; approval/payment begin/delivery
+  cannot interleave with cancellation. PayPal direct refunds cannot start on APPROVED orders.
+- Remote refund and database finalization cannot be one atomic transaction. Existing PayPal journal
+  plus lifecycle reservation permit retry after a local failure without another refund/stock restore.
+  Pending/ambiguous payment outcomes require reconciliation; do not reset the action or force stock.
+- PM may still approve unpaid PENDING orders as source; payment core then forbids creating payment
+  for APPROVED orders. This source business rule is retained and requires operational care.
+- VietQR confirmation records the manager's manual refund; no bank transfer is performed. Same-order
+  locks and conditional payment transition prevent repeat stock restore/refund confirmation.
+- New table is auxiliary only; original schema preserved. Sorted product locks, after-commit events,
+  manager token redaction and parameterized list filters retain existing module safeguards.
+- MODULE12 must address durable notification delivery; no email sent by MODULE11.
+
+
 ## MODULE 10 completed implementation
 
 - User approved order-capability QR create/status, merchant bearer callbacks and PM-only sandbox

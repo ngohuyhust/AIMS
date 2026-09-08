@@ -2,14 +2,24 @@
 
 ## Current checkpoint
 
-- Authorized scope: **MODULE 10 — VietQR**, after MODULE9 completion per `làm nốt module 9 và sang module 10 luôn đi`.
-- Status: **MODULE 10 validated, pushed and verified; awaiting user confirmation**.
-- Next checkpoint after MODULE10: **MODULE 11 — Order Management and Refunds**, not authorized.
-- User approved the proposed VietQR protection policy with `tiếp đi`; MODULE11 still requires confirmation.
+- Authorized scope: **MODULE 11 — Order management/refunds**, followed by explicitly authorized MODULE12.
+- Status: **MODULE 11 validated; commit/push in progress**.
+- Next checkpoint: **MODULE 12 — Notifications**, authorized by `tiếp nốt module 11 và sang module 12 luôn`.
+- User decision: paid orders may only be cancelled by PRODUCT_MANAGER.
 - Business implementation: catalog, user/auth/admin, product administration/audit, stateless cart/shipping and transactional order placement/ownership/delivery and shared payment core, protected PayPal and VietQR.
 - Current branch: `main`, following the user's explicit history consolidation and branch deletion.
 
+## MODULE 11 result
+
+- PM lists/approve/reject/cancel/manual VietQR refund; customer-owned unpaid cancellation only.
+- V9 durable lifecycle action, sorted stock restore, PayPal refund recovery, atomic manual refund,
+  pending payment/cancellation guards and after-commit lifecycle events. No frontend edits.
+- Module14/14, full suite640/640 and Maven verify640/640 pass with zero failures/errors/skips; executable JAR built. Push verification in progress.
+- [Validation](docs/module-11-validation.md).
+
 ## MODULE 10 result
+
+- Completion `c728df37102429b4645f0dd92151a1c766a80a51` verified on origin/main before MODULE11.
 
 - V8 exact legacy VietQR table plus unique bank receipts; RestClient QR generation, protected HTTP
   create/status/callbacks and isolated merchant token issuance. Test callback PM-only, default off.
@@ -223,7 +233,7 @@ the final commit only records the verified checkpoint state.
 | MODULE 8 | Payment domain/abstractions/states/idempotency/events | Complete |
 | MODULE 9 | PayPal OAuth/create/capture/refund/redirect/currency/mock HTTP | Complete |
 | MODULE 10 | VietQR QR/expiry/callback/auth/idempotency/sandbox/JSONB | Complete |
-| MODULE 11 | Order management/states/refunds/concurrency | Not started |
+| MODULE 11 | Order management/states/refunds/concurrency | Implementation in progress |
 | MODULE 12 | Application events/SendGrid/provider isolation | Not started |
 | MODULE 13 | Full compatibility/integration/Docker image/CI/production/frontend build | Not started |
 
@@ -234,4 +244,4 @@ durable event delivery, late/ambiguous bank-transfer reconciliation, order/refun
 MODULE11 and the hardcoded frontend production API host. MODULE9/10 now protect payment endpoints;
 merchant callback bearer authentication and exact bank/order/amount checks are implemented.
 
-STOP after the MODULE10 checkpoint report. Do not start MODULE11 until explicit user confirmation.
+Complete and push MODULE11, then continue to explicitly authorized MODULE12. Do not start MODULE13 without confirmation.

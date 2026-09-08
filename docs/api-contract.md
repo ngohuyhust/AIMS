@@ -30,6 +30,46 @@ are400, integer IDs outside PostgreSQL's int32 range are500, unknown productType
 The source allows explicit `status=DELETED` search although detail excludes deleted products; this
 is retained. CD tracks have no promised sort order in the source, so no new sort is introduced.
 
+## MODULE 11 order management/refunds
+
+User explicitly chose **only PRODUCT_MANAGER may cancel paid orders**. Customer cancellation keeps
+POST /api/customer/orders/:orderId/cancel?token=... for owned unpaid orders, returns403 for paid
+orders,400 missing token and404 wrong token/order. Frontend unchanged. Manager responses omit the
+customer capability, continuing MODULE7's ownership policy.
+
+PM JWT routes (including trailing slash): GET/HEAD /api/orders/pending and /api/orders/vietqr-refunds;
+POST /api/orders/:orderId/approve, /reject, /cancel and /confirm-vietqr-refund. GET200 pagination
+{items,total,page,limit,totalPages}; POST201 full order graph with persisted decimal strings, UTC
+millisecond dates and original JSON field names. Missing JWT401, wrong role403, invalid numeric
+path/page/limit400, missing order404; invalid transition400; payment/action conflicts409; upstream
+refund502/503 sanitized; unexpected500. Empty POST body allowed, no new request fields.
+
+Lists preserve page>=1 and limit1..30, source search receiver/email/phone/#order ID, TODAY/WEEK(last7
+calendar days)/MONTH from server-local midnight, dynamic latest SUCCESS payment filter or UNPAID.
+Pending includes PENDING_PROCESSING then PENDING, oldest first; refunds includes REFUND_PENDING
+with source VIETQR fallback/filter behavior. A stable order-ID tie breaker and repeatable-read
+snapshot avoid duplicate/drifting pages. Unknown dateRange ignored; non-VIETQR refund-list payment
+filter ignored as source. Source wildcard LIKE semantics retained, SQL values parameterized.
+
+Source allows PM approval/rejection/cancellation from PENDING or PENDING_PROCESSING, including
+approval of unpaid PENDING orders; other states reject. Newly protected: unresolved PENDING payment
+blocks lifecycle changes; cancellation journal blocks new payments, delivery edits and competing
+approval. Direct PayPal refund cannot start after order approval. Duplicate matching cancellation
+returns its completed result without stock/event duplication; different actions reject.
+
+V9 adds order_lifecycle_operations, durable per-order CANCEL/REJECT reservation with payment binding
+and PENDING/COMPLETED outcome. No original business-table or V1–V8 change. PayPal refund runs without
+order/product locks using MODULE9's journal. After verified REFUNDED, atomically restore stock in
+ascending product order, finalize CANCELLED/REJECTED and complete the action. Local failure after
+remote refund leaves a resumable action; retry skips the refund and restores stock once. VietQR
+paid cancellation restores stock once and sets REFUND_PENDING; PM confirmation sets shared REFUNDED
+and order REFUNDED without another stock restore. It records a manual transfer, never sends one.
+
+Lifecycle events ORDER_APPROVED/ORDER_REJECTED/ORDER_CANCELLED carry IDs/refund status after commit;
+no event on rollback/duplicate. Delivery is not durable yet; MODULE12 follows. Ambiguous payment
+history/unknown provider needs reconciliation. No forced cancellation of uncertain payments, no
+stock release before confirmed PayPal refund and no cancellation of APPROVED/delivery states.
+
 ## MODULE 10 VietQR
 
 User approved the proposed protections by asking to continue: order capability for QR create/status,

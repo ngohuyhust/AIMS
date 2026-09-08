@@ -163,7 +163,7 @@ class PaymentIntegrationTest {
         payments.confirm(new PaymentConfirmation(payment.transactionID(),1,"PAYPAL",new BigDecimal("132001")));
     }
     @Test void unimplementedPaymentEndpointsRemainClosed() throws Exception {
-        for(String path:List.of("/api/payments","/api/orders/1/cancel"))
+        for(String path:List.of("/api/payments","/api/orders/1/ship"))
             mvc.perform(post(path).contentType(org.springframework.http.MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isForbidden());
         assertThat(jdbc.queryForObject("SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('vietqr_transactions')",Integer.class)).isEqualTo(1);
     }

@@ -17,6 +17,7 @@ public class PaymentService {
     public PaymentView begin(int orderId,String method,BigDecimal requestedAmount,String content) {
         validateMethod(method);
         var order=payments.lockOrder(orderId);
+        if(payments.hasLifecycleOperation(orderId)) throw new PaymentException(409,"Order has a cancellation action");
         if(!order.status().equals("PENDING")) throw new PaymentException(409,"Order cannot accept payment from its current status");
         var amount=wholeVnd(order.total());
         if(amount.signum()<=0 || requestedAmount==null || requestedAmount.compareTo(amount)!=0)

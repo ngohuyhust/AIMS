@@ -34,7 +34,7 @@ public class OrderRepository {
     }
     void persist(Object value) { em.persist(value); }
     boolean hasActivePayment(int id) {
-        return Boolean.TRUE.equals(jdbc.queryForObject("SELECT EXISTS (SELECT 1 FROM payment_transactions WHERE order_id=? AND status IN ('PENDING','SUCCESS'))",Boolean.class,id));
+        return Boolean.TRUE.equals(jdbc.queryForObject("SELECT EXISTS (SELECT 1 FROM payment_transactions WHERE order_id=? AND status IN ('PENDING','SUCCESS')) OR EXISTS(SELECT 1 FROM order_lifecycle_operations WHERE order_id=? AND status='PENDING')",Boolean.class,id,id));
     }
     String paymentMethod(int id) {
         var rows=jdbc.queryForList("SELECT method FROM payment_transactions WHERE order_id=? AND status='SUCCESS' ORDER BY created_at DESC,transaction_id DESC LIMIT 1",String.class,id);

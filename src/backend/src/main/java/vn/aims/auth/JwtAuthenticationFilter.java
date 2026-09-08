@@ -18,6 +18,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public JwtAuthenticationFilter(JwtTokens tokens, ObjectMapper json) { this.tokens=tokens; this.json=json; }
     @Override protected boolean shouldNotFilter(HttpServletRequest request) {
         String path=request.getRequestURI();
+        if(path.matches("/api/orders/(pending|vietqr-refunds)/?") || path.matches("/api/orders/[^/]+/(approve|cancel|reject|confirm-vietqr-refund)/?")) return false;
         if(path.equals("/api/products/audit-logs") || path.equals("/api/products/audit-logs/")) return false;
         if((path.equals("/api/products") || path.startsWith("/api/products/")) && !request.getMethod().equals("GET") && !request.getMethod().equals("HEAD") && !request.getMethod().equals("OPTIONS")) return false;
         return !(path.matches("/api/auth/change-password/?") || path.equals("/api/users") || path.startsWith("/api/users/") || path.startsWith("/api/auth/reset-password/"));

@@ -146,8 +146,10 @@ class OrderIntegrationTest {
     @Test void dtoErrorsAndFutureRoutesRemainGuarded() throws Exception {
         mvc.perform(post("/api/orders").contentType(MediaType.APPLICATION_JSON).content("{}"))
             .andExpect(status().isBadRequest()).andExpect(jsonPath("$.message[0]").value("cartItems must contain at least 1 elements"));
-        for(String path:List.of("/api/orders/pending","/api/orders/vietqr-refunds","/api/payments")) mvc.perform(get(path)).andExpect(status().isForbidden());
-        for(String path:List.of("/api/orders/1/cancel","/api/orders/1/approve","/api/customer/orders/1/cancel")) mvc.perform(post(path)).andExpect(status().isForbidden());
+        for(String path:List.of("/api/orders/pending","/api/orders/vietqr-refunds")) mvc.perform(get(path)).andExpect(status().isUnauthorized());
+        mvc.perform(get("/api/payments")).andExpect(status().isForbidden());
+        for(String path:List.of("/api/orders/1/cancel","/api/orders/1/approve")) mvc.perform(post(path)).andExpect(status().isUnauthorized());
+        mvc.perform(post("/api/customer/orders/1/cancel")).andExpect(status().isNotFound());
         assertThat(jdbc.queryForObject("SELECT to_regclass('public.vietqr_transactions') IS NOT NULL",Boolean.class)).isTrue();
         mvc.perform(options("/api/orders/1/delivery-info").header("Origin","http://localhost:4200").header("Access-Control-Request-Method","PATCH")
             .header("Access-Control-Request-Headers","x-order-token,content-type")).andExpect(status().isNoContent())

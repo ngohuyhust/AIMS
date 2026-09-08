@@ -18,6 +18,7 @@ public class PaymentRepository {
             (row,index)->new OrderState(row.getInt(1),row.getString(2),row.getBigDecimal(3)),id);
         if(rows.isEmpty()) throw new PaymentException(404,"Order with ID "+id+" not found");return rows.getFirst();
     }
+    boolean hasLifecycleOperation(int id) {return Boolean.TRUE.equals(jdbc.queryForObject("SELECT EXISTS(SELECT 1 FROM order_lifecycle_operations WHERE order_id=?)",Boolean.class,id));}
     Optional<PaymentView> find(int id,boolean lock) {
         return jdbc.query("SELECT * FROM payment_transactions WHERE transaction_id=?"+(lock?" FOR UPDATE":""),ROW,id).stream().findFirst();
     }

@@ -45,6 +45,8 @@ public class PaypalService {
             }
             if(operation.equals("REFUND") && (binding.captureId()==null || !Set.of("SUCCESS","REFUNDED").contains(binding.paymentStatus())))
                 throw new PaymentException(400,"No successful PayPal capture found for order ID "+orderId);
+            if(operation.equals("REFUND") && !order.status().equals("PENDING_PROCESSING") && !binding.paymentStatus().equals("REFUNDED"))
+                throw new PaymentException(409,"Order cannot be refunded from its current status");
             store.operation(binding.transactionId(),operation);
             return new Prepared(new GatewayRequest(orderId,binding.transactionId(),binding.amount(),"PAYPAL payment for order "+orderId),binding.gatewayId(),binding.captureId());
         });
