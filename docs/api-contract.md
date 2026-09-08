@@ -758,3 +758,9 @@ and notification composition. Local Docker smoke checks actual HTTP health/catal
 on a fresh V1–V10 PostgreSQL database. Existing policy exceptions remain those explicitly approved
 in Modules5–11. No claim of live provider or unknown production-schema equivalence is made.
 See [validation](module-13-validation.md) and [deployment/URL constraints](deployment.md).
+
+## Legacy Supabase isolated schema
+
+No HTTP contract changed. The same Java API was started against `AIMS_DB_SCHEMA=aims_java`; health
+and catalog succeeded using copied legacy data. The NestJS `public` schema and production traffic
+were not switched. Provider credentials remain disabled in the local connected instance.

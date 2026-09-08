@@ -11,6 +11,8 @@ public class ProductionConfiguration {
     public static void validate(Environment environment) {
         for(String key:new String[]{"AIMS_DB_URL","AIMS_DB_USERNAME","AIMS_DB_PASSWORD","APP_PUBLIC_URL"})
             if(environment.getProperty(key,"").isBlank())throw new IllegalArgumentException("Production requires "+key);
+        String schema=environment.getProperty("AIMS_DB_SCHEMA","public");
+        if(!schema.matches("[a-z_][a-z0-9_]{0,62}"))throw new IllegalArgumentException("Invalid AIMS_DB_SCHEMA");
         var url=URI.create(environment.getProperty("APP_PUBLIC_URL"));
         if(!"https".equals(url.getScheme()) || url.getHost()==null || url.getUserInfo()!=null || url.getQuery()!=null || url.getFragment()!=null)
             throw new IllegalArgumentException("Production APP_PUBLIC_URL requires HTTPS without credentials, query or fragment");

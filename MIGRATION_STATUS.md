@@ -2,10 +2,25 @@
 
 ## Current checkpoint
 
-- Authorized scope: **MODULE 13 — Full Integration and Deployment**, authorized by `tiếp`.
-- Status: **MODULE 13 complete: local checks and GitHub CI passed; implementation pushed and verified**.
-- Next checkpoint: none in the original sequence; production rollout is separate work.
+- Authorized scope: **Legacy Supabase connection and isolated data migration**.
+- Status: **`aims_java` created and validated; code/docs commit and push pending**.
+- Next checkpoint: explicit production traffic cutover, not yet performed.
 - Current branch: `main`, preserving consolidated ISD history.
+
+## Legacy Supabase result
+
+- Direct PostgreSQL endpoint inspected with read-only transaction; NestJS was not started because
+  TypeORM uses `synchronize: true`. Legacy `public` has 19 tables and no Flyway history.
+- Constraints/indexes match AIMS; only physical column order differs. Disposable rehearsal copied
+  all 1,521 rows, preserved exact per-table counts and booted the production Java profile.
+- Created isolated `aims_java` in the same Supabase database, applied Flyway V1-V10, copied and
+  compared all 19 tables in one repeatable-read transaction. `public` was not modified.
+- Java container on localhost:3000 is healthy and catalog returns 182 active products from
+  `aims_java`; non-root/read-only runtime, notifications and gateway test disabled.
+- No negative stock/invalid prices/orphan order items or payments/non-BCrypt users. Twenty-seven
+  historical orders lack customer tokens; pending/refund states need reconciliation before cutover.
+- Local `.env.supabase` is ignored, mode 0600, and contains no provider credentials.
+- [Procedure and limits](docs/legacy-supabase-migration.md).
 
 ## MODULE 13 result
 

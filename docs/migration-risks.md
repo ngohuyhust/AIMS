@@ -291,3 +291,13 @@ Production database metadata/import/baseline, initial ADMIN provisioning, TLS an
 rehearsal/operational approval. Production profile requires explicit DB/HTTPS frontend configuration
 and disallows sandbox callback trigger; it does not silently change legacy CORS or select live gateways.
 See docs/deployment.md for environment, rollout and rollback; no production access was performed.
+
+## Isolated legacy Supabase snapshot
+
+With explicit user authorization, the legacy PostgreSQL endpoint was inspected read-only and a new
+`aims_java` schema was created beside `public`. Flyway V1-V10 and 1,521 source rows were copied and
+compared inside a repeatable-read transaction. NestJS `public` was not modified and traffic was not
+switched. The snapshot is not change-data-capture: any later NestJS writes remain only in `public`.
+There are 27 historical orders without customer access tokens and unresolved pending/refund payment
+states; reconcile them before cutover. Provider credentials were not copied and notifications remain
+off. Details and rollback boundary: [legacy Supabase migration](legacy-supabase-migration.md).

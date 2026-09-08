@@ -7,5 +7,14 @@ spring:
     url: ${AIMS_DB_URL}
     username: ${AIMS_DB_USERNAME}
     password: ${AIMS_DB_PASSWORD}
+    hikari:
+      schema: ${AIMS_DB_SCHEMA:public}
+  jpa:
+    properties:
+      hibernate:
+        default_schema: ${AIMS_DB_SCHEMA:public}
+  flyway:
+    default-schema: ${AIMS_DB_SCHEMA:public}
+    schemas: ${AIMS_DB_SCHEMA:public}
   lifecycle:
     timeout-per-shutdown-phase: 20s

@@ -14,5 +14,6 @@ class ProductionConfigurationTest {
     @Test void refusesInsecurePublicUrlAndSandboxTrigger() {
         assertThatThrownBy(()->ProductionConfiguration.validate(valid().withProperty("APP_PUBLIC_URL","http://localhost:4200"))).hasMessageContaining("HTTPS");
         assertThatThrownBy(()->ProductionConfiguration.validate(valid().withProperty("VIETQR_ENABLE_TEST_CALLBACK","true"))).hasMessageContaining("VIETQR_ENABLE_TEST_CALLBACK");
+        assertThatThrownBy(()->ProductionConfiguration.validate(valid().withProperty("AIMS_DB_SCHEMA","public;drop schema public"))).hasMessageContaining("AIMS_DB_SCHEMA");
     }
 }

@@ -69,6 +69,23 @@ CI `.github/workflows/ci.yml` chạy Maven verify/Testcontainers, Docker smoke v
 đối chiếu cả70 file nguồn từ commit ISD được bảo tồn trong Git bằng `verify-frontend.py --source-ref`.
 CI chỉ kiểm tra/build, không tự deploy hoặc publish image. [Biến môi trường và rollout](docs/deployment.md).
 
+Database Supabase cũ có thể được diễn tập không ghi bằng `python3 tools/rehearse-legacy-data.py`.
+Migration có kiểm soát dùng schema riêng `aims_java`; xem
+[hướng dẫn Supabase](docs/legacy-supabase-migration.md). Không khởi động NestJS chỉ để kiểm tra DB
+vì cấu hình TypeORM cũ bật `synchronize: true`.
+
+Trên workspace đã migration, backend snapshot có thể chạy bằng file local ignored quyền 0600:
+
+```sh
+docker run -d --name aims-supabase-api --env-file .env.supabase \
+  -p 127.0.0.1:3000:3000 --read-only --tmpfs /tmp --cap-drop ALL \
+  --security-opt no-new-privileges aims-backend:local
+docker stop aims-supabase-api
+docker start aims-supabase-api
+```
+
+File này chỉ cấu hình database/schema/JWT/CORS; provider credentials không được copy và email vẫn tắt.
+
 ## Quy tắc nghiệp vụ đã chốt
 
 - Quota/audit PM dùng email JWT, vẫn yêu cầu `x-manager-id`; tiền dùng BigDecimal/HALF_UP.

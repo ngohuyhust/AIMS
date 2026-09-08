@@ -31,6 +31,7 @@ committed env files or CLI command literals containing credentials. Spring does 
 | AIMS_LOCAL_DB_PASSWORD | Generated local Compose password, local profile only |
 | AIMS_DB_URL | Required container/production JDBC PostgreSQL URL; external DB should use `sslmode=verify-full` and trusted CA |
 | AIMS_DB_USERNAME / AIMS_DB_PASSWORD | Required container/production credentials |
+| AIMS_DB_SCHEMA | PostgreSQL schema, default `public`; use `aims_java` for the isolated legacy snapshot |
 | JWT_SECRET | Required, at least32 UTF-8 bytes; random key, no fallback; rotating invalidates user/merchant tokens |
 | APP_PUBLIC_URL | Frontend base URL, localhost4200 locally; explicit HTTPS required production; controls payment redirects/email links |
 | ALLOWED_ORIGINS | Comma-separated extra CORS origins; source localhost/Vercel rules remain unchanged |
