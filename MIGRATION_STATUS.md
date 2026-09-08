@@ -3,7 +3,7 @@
 ## Current checkpoint
 
 - Authorized scope: **MODULE 11 and MODULE 12 — Notifications**.
-- Status: **MODULE 11 complete; MODULE 12 validated, preparing commit/push**.
+- Status: **MODULE 11 and MODULE 12 complete, pushed and verified**.
 - Next checkpoint: **MODULE 13 — Full Integration and Deployment**, not authorized.
 - User decision: paid orders may only be cancelled by PRODUCT_MANAGER.
 - Current branch: `main`, preserving the consolidated ISD commit history.
@@ -13,6 +13,7 @@
 - Four order email events, transactional V10 outbox, SendGrid SDK, escaped templates and isolated
   bounded retries. Delivery defaults off; no real email sent and no frontend edits.
 - Module16/16, full suite656/656 and Maven verify656/656 pass with zero failures/errors/skips; executable JAR built. Frontend/source hashes unchanged.
+- Implementation `646eec524acdd9eb8a5b8c26a2960194eaa20a8b` pushed to origin/main; exact remote hash and clean tree verified. This separate completion record is pushed and its hash reported in the user checkpoint.
 - [Validation and configuration](docs/module-12-validation.md).
 
 ## MODULE 11 result
@@ -242,7 +243,7 @@ the final commit only records the verified checkpoint state.
 | MODULE 9 | PayPal OAuth/create/capture/refund/redirect/currency/mock HTTP | Complete |
 | MODULE 10 | VietQR QR/expiry/callback/auth/idempotency/sandbox/JSONB | Complete |
 | MODULE 11 | Order management/states/refunds/concurrency | Complete |
-| MODULE 12 | Application events/SendGrid/provider isolation | Validated; push pending |
+| MODULE 12 | Application events/SendGrid/provider isolation | Complete |
 | MODULE 13 | Full compatibility/integration/Docker image/CI/production/frontend build | Not started |
 
 ## Risks awaiting later checkpoint decisions
@@ -252,4 +253,4 @@ notification retention/delivery reconciliation, late/ambiguous bank-transfer rec
 the hardcoded frontend production API host. MODULE9/10 now protect payment endpoints;
 merchant callback bearer authentication and exact bank/order/amount checks are implemented.
 
-Complete and push MODULE12, then STOP. Do not start MODULE13 without confirmation.
+MODULE12 complete. STOP awaiting explicit authorization for MODULE13.
