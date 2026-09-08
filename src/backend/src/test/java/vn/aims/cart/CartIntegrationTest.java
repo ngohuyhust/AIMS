@@ -112,7 +112,7 @@ class CartIntegrationTest {
         mvc.perform(post("/api/orders/1/approve").contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isForbidden());
         mvc.perform(get("/api/orders/pending")).andExpect(status().isForbidden());
         mvc.perform(patch("/api/orders/1/status")).andExpect(status().isForbidden());
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM flyway_schema_history WHERE success",Integer.class)).isEqualTo(6);
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('carts','paypal_transactions','vietqr_transactions')",Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM flyway_schema_history WHERE success",Integer.class)).isEqualTo(7);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('carts','vietqr_transactions')",Integer.class)).isZero();
     }
 }

@@ -18,6 +18,7 @@
   MODULE7 explicit user exception: protect order ownership and minimally adapt token storage/headers.
   Exact approved file hashes are in docs/frontend-approved-changes.json (including related tests);
   keep docs/frontend-manifest.json and the ISD source unchanged. Do not expand that exception silently.
+  MODULE9 explicit user exception: PayPal create/capture send the order token; refund requires PRODUCT_MANAGER JWT. Minimal payment service and related test changes are authorized.
 - Run `python3 tools/verify-frontend.py` at every checkpoint. The manifest records the source commit.
 
 ## Implementation

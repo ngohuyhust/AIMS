@@ -21,9 +21,10 @@ public class FoundationSecurityConfiguration {
     SecurityFilterChain foundationSecurity(HttpSecurity http, vn.aims.auth.JwtTokens tokens,
             com.fasterxml.jackson.databind.ObjectMapper json) throws Exception {
         return http
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/orders", "/api/orders/", "/api/orders/*/delivery-info", "/api/orders/*/delivery-info/", "/api/orders/cart/check-stock", "/api/orders/cart/check-stock/", "/api/orders/shipping-fee", "/api/orders/shipping-fee/", "/api/auth/login", "/api/auth/login/", "/api/auth/change-password", "/api/auth/change-password/", "/api/users", "/api/users/**", "/api/auth/reset-password/**", "/api/products", "/api/products/**"))
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/paypal/order/create", "/api/paypal/order/create/", "/api/paypal/order/capture", "/api/paypal/order/capture/", "/api/paypal/order/refund", "/api/paypal/order/refund/", "/api/orders", "/api/orders/", "/api/orders/*/delivery-info", "/api/orders/*/delivery-info/", "/api/orders/cart/check-stock", "/api/orders/cart/check-stock/", "/api/orders/shipping-fee", "/api/orders/shipping-fee/", "/api/auth/login", "/api/auth/login/", "/api/auth/change-password", "/api/auth/change-password/", "/api/users", "/api/users/**", "/api/auth/reset-password/**", "/api/products", "/api/products/**"))
                 .addFilterBefore(new vn.aims.auth.JwtAuthenticationFilter(tokens,json), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(requests -> requests
+                        .requestMatchers(HttpMethod.POST, "/api/paypal/order/create", "/api/paypal/order/create/", "/api/paypal/order/capture", "/api/paypal/order/capture/", "/api/paypal/order/refund", "/api/paypal/order/refund/").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/users","/api/users/","/api/users/logs","/api/users/logs/").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.HEAD,"/api/users","/api/users/","/api/users/logs","/api/users/logs/").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST,"/api/users","/api/users/","/api/users/*/reset-password","/api/users/*/reset-password/","/api/auth/reset-password/*","/api/auth/reset-password/*/").hasAuthority("ADMIN")

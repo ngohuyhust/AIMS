@@ -163,15 +163,15 @@ class PaymentIntegrationTest {
         payments.confirm(new PaymentConfirmation(payment.transactionID(),1,"PAYPAL",new BigDecimal("132001")));
     }
     @Test void noPaymentEndpointsOrConcreteGatewayTablesExist() throws Exception {
-        for(String path:List.of("/api/payments","/api/paypal/order/create","/api/paypal/order/capture","/api/paypal/order/refund","/api/vietqr/payments","/vqr/bank/api/transaction-callback"))
+        for(String path:List.of("/api/payments","/api/vietqr/payments","/vqr/bank/api/transaction-callback"))
             mvc.perform(post(path).contentType(org.springframework.http.MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isForbidden());
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('paypal_transactions','vietqr_transactions')",Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('vietqr_transactions')",Integer.class)).isZero();
     }
     @Test void v5UpgradePreservesOrderAndCreatesOnlySharedPaymentTable() {
         var old=org.flywaydb.core.Flyway.configure().dataSource(DB.getJdbcUrl(),DB.getUsername(),DB.getPassword()).schemas("upgrade_payment").defaultSchema("upgrade_payment").target("5").load();
         old.migrate();
         jdbc.update("INSERT INTO upgrade_payment.orders(sub_total,tax,shipping_fee,total_payment) VALUES (100,10,22000,22110)");
-        var current=org.flywaydb.core.Flyway.configure().dataSource(DB.getJdbcUrl(),DB.getUsername(),DB.getPassword()).schemas("upgrade_payment").defaultSchema("upgrade_payment").load();
+        var current=org.flywaydb.core.Flyway.configure().dataSource(DB.getJdbcUrl(),DB.getUsername(),DB.getPassword()).schemas("upgrade_payment").defaultSchema("upgrade_payment").target("6").load();
         assertThat(current.migrate().migrationsExecuted).isEqualTo(1);assertThat(current.migrate().migrationsExecuted).isZero();
         assertThat(jdbc.queryForObject("SELECT total_payment FROM upgrade_payment.orders",BigDecimal.class)).isEqualByComparingTo("22110");
         assertThat(jdbc.queryForObject("SELECT count(*) FROM upgrade_payment.payment_transactions",Integer.class)).isZero();

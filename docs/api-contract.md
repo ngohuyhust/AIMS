@@ -30,6 +30,53 @@ are400, integer IDs outside PostgreSQL's int32 range are500, unknown productType
 The source allows explicit `status=DELETED` search although detail excludes deleted products; this
 is retained. CD tracks have no promised sort order in the source, so no new sort is introduced.
 
+## MODULE 9 PayPal
+
+User explicitly approved **create/capture use the order capability; refund only PRODUCT_MANAGER**,
+including minimal Angular payment-service headers and related tests. No UI, URL or payload edits.
+
+| Method/path (also trailing slash) | Authorization | Body | Success |
+| --- | --- | --- | --- |
+| POST /api/paypal/order/create | x-order-token belonging to orderID | {orderID:number} | 201 {paypalOrderID,status,approveUrl?} |
+| POST /api/paypal/order/capture | x-order-token belonging to orderID | {paypalOrderID:string,orderID:number} | 201 raw verified completed PayPal order |
+| POST /api/paypal/order/refund | Bearer JWT with PRODUCT_MANAGER role | {orderID:number} | 201 raw verified completed PayPal refund |
+
+No query parameters. Unknown body fields ignored; numeric strings rejected. Original DTO validation
+messages/order (including duplicate refund errors and `Mising orderID`) are captured in39 offline
+fixtures. Positive fractional IDs pass source DTO but cannot address an int32 DB key: sanitized500.
+Missing capability/JWT401, wrong ownership404, wrong role403, mismatched gateway ID400, incompatible
+payment state409. Invalid JSON400; unexpected server errors500. Provider errors are sanitized502,
+unknown transport outcome503. Source broadly returned400 with upstream text; leaking that text is
+not preserved. Cache-Control:no-store and existing CORS apply. Other methods remain closed.
+
+Create derives amount from the locked order via shared PaymentService, rounds VND HALF_UP, then
+converts with the source fixed **25,000 VND/USD** to two decimal places HALF_UP. This is the source
+application's fixed conversion, not a current exchange-rate claim. OAuth uses client credentials,
+Basic/form token request and a cached expiring bearer token. Orders v2 create/capture and Payments v2
+full refund use RestClient, 3s connect/10s read timeouts, no redirects and stable PayPal-Request-Id.
+Create preserves intent CAPTURE, reference_id, description, branding and return/cancel query strings.
+Prefer:return=representation requests full data for verification; capture/refund success preserves raw
+provider JSON. Verify gateway ID, order reference, USD currency, amount and completed capture/refund.
+Incomplete capture/refund returns409 so Angular cannot mistakenly treat any201 as paid/refunded.
+
+V7 preserves original paypal_transactions metadata exactly and adds paypal_operations, a durable
+operation journal (one CREATE/CAPTURE/REFUND per shared transaction, stable UUID, creation time and
+JSONB response). Three transactions commit intent, serialize/journal remote outcome, then atomically
+apply PayPal/shared/order changes. External calls hold only the operation lock, not the order lock.
+Concurrent duplicates reuse journal results; failed local apply retries without another money POST.
+Uncertain transport retries reuse the same request ID within5h; later attempts return409 requiring
+reconciliation. Known pending results refresh with GET, not another capture/refund POST. Cached
+completed results may be applied after5h without a new external charge. Provider idempotency is
+bounded; this is not an unconditional exactly-once claim. See [PayPal idempotency](https://developer.paypal.com/reference/guidelines/idempotency/)
+and [Orders request-ID retention](https://developer.paypal.com/serversdk/net-standard-library/api-endpoints/orders/create-order/).
+
+Refund records shared/PayPal REFUNDED only after verified COMPLETED. It does not cancel the order,
+restore stock or send email (MODULE11/12). Pending or ambiguous payments remain PENDING and keep
+delivery frozen. No arbitrary retry with a new payment identity or automatic failure/expiry.
+Configure PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET, optional PAYPAL_API_BASE_URL (sandbox default),
+and APP_PUBLIC_URL (http://localhost:4200 default) in the backend process environment. No credentials
+are committed or read from the source; tests use only a loopback mock, never live PayPal.
+
 ## MODULE 8 payment core
 
 No payment/controller endpoint is added. PayPal/VietQR/provider callbacks remain denied403 until

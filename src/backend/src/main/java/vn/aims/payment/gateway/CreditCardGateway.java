@@ -3,11 +3,13 @@ package vn.aims.payment.gateway;
 import com.fasterxml.jackson.databind.JsonNode;
 import vn.aims.payment.PaymentConfirmation;
 
-/** Active capture/refund modality. No implementation or network calls before MODULE9. */
+/** Active modality; separate transport from verification so outcomes can be journaled first. */
 public interface CreditCardGateway {
-    record CaptureResult(boolean completed,PaymentConfirmation confirmation,JsonNode raw) {}
     String method();
-    JsonNode createOrder(GatewayRequest request);
-    CaptureResult captureOrder(String gatewayOrderId,int orderId);
-    JsonNode refund(GatewayRequest request);
+    JsonNode createOrder(GatewayRequest request,java.util.UUID requestId);
+    JsonNode captureOrder(String gatewayOrderId,java.util.UUID requestId);
+    JsonNode refund(String captureId,int orderId,java.util.UUID requestId);
+    JsonNode getOrder(String gatewayOrderId);
+    JsonNode getRefund(String refundId);
+    PaymentConfirmation verifyCapture(GatewayRequest request,String gatewayOrderId,JsonNode raw);
 }

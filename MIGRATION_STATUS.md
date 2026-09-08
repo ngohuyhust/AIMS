@@ -2,14 +2,24 @@
 
 ## Current checkpoint
 
-- Authorized scope: **MODULE 8 — Payment Core**, authorized by `hoàn thành nốt module 7 và sang module 8 luôn`.
-- Status: **MODULE 8 validated, pushed and verified; awaiting user confirmation**.
-- Next checkpoint: **MODULE 9 — PayPal**, not authorized yet.
-- Required next message: `TIẾP TỤC MODULE 9`.
+- Authorized scope: **MODULE 9 — PayPal**, followed by MODULE10 per `làm nốt module 9 và sang module 10 luôn đi`.
+- Status: **MODULE 9 validated; implementation commit/push in progress**.
+- Next checkpoint: **MODULE 10 — VietQR**, explicitly authorized after MODULE9 completion.
+- Continue directly to MODULE10 after MODULE9 is validated and pushed.
 - Business implementation: catalog, user/auth/admin, product administration/audit, stateless cart/shipping and transactional order placement/ownership/delivery and shared payment core.
 - Current branch: `main`, following the user's explicit history consolidation and branch deletion.
 
+## MODULE 9 result
+
+- PayPal OAuth/create/capture/refund via RestClient; token-owned create/capture, PM-only refund.
+- V7 exact legacy PayPal table plus durable request/result journal. Verified money/order binding,
+  concurrent retry idempotency and atomic shared/payment/order updates; pending results return409.
+- Module17/17 tests including39 source DTO fixtures; frontend6/6 tests passed.
+- Full suite608/608 and Maven verify608/608 passed with zero failures/errors/skips; executable JAR and Angular production build pass. Push verification pending. [Validation](docs/module-9-validation.md).
+
 ## MODULE 8 result
+
+- Completion `1094df3ff2acfccfa89a768c38b12ab34d0dbe96` verified before MODULE9.
 
 - V6 shared PaymentTransaction only; exact source metadata, no PayPal/VietQR schema or endpoints.
 - Separate gateway modality interfaces; pending attempt reuse, conditional state transitions,

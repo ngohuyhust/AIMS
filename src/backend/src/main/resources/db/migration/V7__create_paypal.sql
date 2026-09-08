@@ -1,0 +1,13 @@
+-- Original TypeORM metadata, generated offline.
+CREATE TABLE "paypal_transactions" ("paypal_transaction_id" SERIAL NOT NULL, "paypal_order_id" character varying(100), "paypal_capture_id" character varying(100), "payer_id" character varying(100), "status" character varying(50), "transaction_id" integer, CONSTRAINT "REL_51a55916531fe2107acfa9dd3f" UNIQUE ("transaction_id"), CONSTRAINT "PK_2b480e2438cf5d4006e139756b4" PRIMARY KEY ("paypal_transaction_id"));
+ALTER TABLE "paypal_transactions" ADD CONSTRAINT "FK_51a55916531fe2107acfa9dd3f9" FOREIGN KEY ("transaction_id") REFERENCES "payment_transactions"("transaction_id") ON DELETE CASCADE ON UPDATE NO ACTION;
+
+-- Migration addition: durable request identities/results for uncertain network outcomes.
+CREATE TABLE paypal_operations (
+    operation_id uuid PRIMARY KEY,
+    transaction_id integer NOT NULL REFERENCES payment_transactions(transaction_id) ON DELETE CASCADE,
+    operation varchar(10) NOT NULL CHECK (operation IN ('CREATE','CAPTURE','REFUND')),
+    created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+    response jsonb,
+    UNIQUE(transaction_id,operation)
+);

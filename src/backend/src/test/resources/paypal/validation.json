@@ -1,0 +1,449 @@
+[
+  {
+    "operation": "CREATE",
+    "input": {},
+    "errors": [
+      "orderID must be a positive number",
+      "orderID must be a number",
+      "Missing orderID"
+    ]
+  },
+  {
+    "operation": "CREATE",
+    "input": {
+      "orderID": null,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "orderID must be a positive number",
+      "orderID must be a number",
+      "Missing orderID"
+    ]
+  },
+  {
+    "operation": "CREATE",
+    "input": {
+      "orderID": "",
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "orderID must be a positive number",
+      "orderID must be a number",
+      "Missing orderID"
+    ]
+  },
+  {
+    "operation": "CREATE",
+    "input": {
+      "orderID": 0,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "orderID must be a positive number"
+    ]
+  },
+  {
+    "operation": "CREATE",
+    "input": {
+      "orderID": -1,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "orderID must be a positive number"
+    ]
+  },
+  {
+    "operation": "CREATE",
+    "input": {
+      "orderID": "1",
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "orderID must be a positive number",
+      "orderID must be a number"
+    ]
+  },
+  {
+    "operation": "CREATE",
+    "input": {
+      "orderID": true,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "orderID must be a positive number",
+      "orderID must be a number"
+    ]
+  },
+  {
+    "operation": "CREATE",
+    "input": {
+      "orderID": [],
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "orderID must be a positive number",
+      "orderID must be a number"
+    ]
+  },
+  {
+    "operation": "CREATE",
+    "input": {
+      "orderID": {},
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "orderID must be a positive number",
+      "orderID must be a number"
+    ]
+  },
+  {
+    "operation": "CREATE",
+    "input": {
+      "orderID": 1,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "expected": {
+      "orderID": 1
+    }
+  },
+  {
+    "operation": "CREATE",
+    "input": {
+      "orderID": 1.25,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "expected": {
+      "orderID": 1.25
+    }
+  },
+  {
+    "operation": "CAPTURE",
+    "input": {},
+    "errors": [
+      "paypalOrderID phải là một chuỗi ký tự",
+      "Mã paypalOrderID từ PayPal không được để trống",
+      "orderID phải là số dương",
+      "orderID phải là một số",
+      "orderID hệ thống không được để trống"
+    ]
+  },
+  {
+    "operation": "CAPTURE",
+    "input": {
+      "orderID": null,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "orderID phải là số dương",
+      "orderID phải là một số",
+      "orderID hệ thống không được để trống"
+    ]
+  },
+  {
+    "operation": "CAPTURE",
+    "input": {
+      "orderID": "",
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "orderID phải là số dương",
+      "orderID phải là một số",
+      "orderID hệ thống không được để trống"
+    ]
+  },
+  {
+    "operation": "CAPTURE",
+    "input": {
+      "orderID": 0,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "orderID phải là số dương"
+    ]
+  },
+  {
+    "operation": "CAPTURE",
+    "input": {
+      "orderID": -1,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "orderID phải là số dương"
+    ]
+  },
+  {
+    "operation": "CAPTURE",
+    "input": {
+      "orderID": "1",
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "orderID phải là số dương",
+      "orderID phải là một số"
+    ]
+  },
+  {
+    "operation": "CAPTURE",
+    "input": {
+      "orderID": true,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "orderID phải là số dương",
+      "orderID phải là một số"
+    ]
+  },
+  {
+    "operation": "CAPTURE",
+    "input": {
+      "orderID": [],
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "orderID phải là số dương",
+      "orderID phải là một số"
+    ]
+  },
+  {
+    "operation": "CAPTURE",
+    "input": {
+      "orderID": {},
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "orderID phải là số dương",
+      "orderID phải là một số"
+    ]
+  },
+  {
+    "operation": "CAPTURE",
+    "input": {
+      "orderID": 1,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "expected": {
+      "paypalOrderID": "PAYPAL-1",
+      "orderID": 1
+    }
+  },
+  {
+    "operation": "CAPTURE",
+    "input": {
+      "orderID": 1.25,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "expected": {
+      "paypalOrderID": "PAYPAL-1",
+      "orderID": 1.25
+    }
+  },
+  {
+    "operation": "CAPTURE",
+    "input": {
+      "orderID": 1,
+      "paypalOrderID": null
+    },
+    "errors": [
+      "paypalOrderID phải là một chuỗi ký tự",
+      "Mã paypalOrderID từ PayPal không được để trống"
+    ]
+  },
+  {
+    "operation": "CAPTURE",
+    "input": {
+      "orderID": 1,
+      "paypalOrderID": ""
+    },
+    "errors": [
+      "Mã paypalOrderID từ PayPal không được để trống"
+    ]
+  },
+  {
+    "operation": "CAPTURE",
+    "input": {
+      "orderID": 1,
+      "paypalOrderID": 4
+    },
+    "errors": [
+      "paypalOrderID phải là một chuỗi ký tự"
+    ]
+  },
+  {
+    "operation": "CAPTURE",
+    "input": {
+      "orderID": 1,
+      "paypalOrderID": " "
+    },
+    "expected": {
+      "paypalOrderID": " ",
+      "orderID": 1
+    }
+  },
+  {
+    "operation": "CAPTURE",
+    "input": {
+      "orderID": 1,
+      "paypalOrderID": {}
+    },
+    "errors": [
+      "paypalOrderID phải là một chuỗi ký tự"
+    ]
+  },
+  {
+    "operation": "CAPTURE",
+    "input": {
+      "orderID": 1,
+      "paypalOrderID": []
+    },
+    "errors": [
+      "paypalOrderID phải là một chuỗi ký tự"
+    ]
+  },
+  {
+    "operation": "REFUND",
+    "input": {},
+    "errors": [
+      "Invalid orderID",
+      "Invalid orderID",
+      "Mising orderID"
+    ]
+  },
+  {
+    "operation": "REFUND",
+    "input": {
+      "orderID": null,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "Invalid orderID",
+      "Invalid orderID",
+      "Mising orderID"
+    ]
+  },
+  {
+    "operation": "REFUND",
+    "input": {
+      "orderID": "",
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "Invalid orderID",
+      "Invalid orderID",
+      "Mising orderID"
+    ]
+  },
+  {
+    "operation": "REFUND",
+    "input": {
+      "orderID": 0,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "Invalid orderID"
+    ]
+  },
+  {
+    "operation": "REFUND",
+    "input": {
+      "orderID": -1,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "Invalid orderID"
+    ]
+  },
+  {
+    "operation": "REFUND",
+    "input": {
+      "orderID": "1",
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "Invalid orderID",
+      "Invalid orderID"
+    ]
+  },
+  {
+    "operation": "REFUND",
+    "input": {
+      "orderID": true,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "Invalid orderID",
+      "Invalid orderID"
+    ]
+  },
+  {
+    "operation": "REFUND",
+    "input": {
+      "orderID": [],
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "Invalid orderID",
+      "Invalid orderID"
+    ]
+  },
+  {
+    "operation": "REFUND",
+    "input": {
+      "orderID": {},
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "errors": [
+      "Invalid orderID",
+      "Invalid orderID"
+    ]
+  },
+  {
+    "operation": "REFUND",
+    "input": {
+      "orderID": 1,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "expected": {
+      "orderID": 1
+    }
+  },
+  {
+    "operation": "REFUND",
+    "input": {
+      "orderID": 1.25,
+      "paypalOrderID": "PAYPAL-1",
+      "ignored": true
+    },
+    "expected": {
+      "orderID": 1.25
+    }
+  }
+]

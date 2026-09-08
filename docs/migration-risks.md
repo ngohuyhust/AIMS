@@ -1,5 +1,31 @@
 # Migration risks and decisions
 
+## MODULE 9 update
+
+- User approved token-owned PayPal create/capture and PRODUCT_MANAGER-only refund; source public
+  money endpoints are deliberately closed. Angular changes are limited to approved service headers
+  and their test. Original ISD frontend and original manifest remain unchanged.
+- Source ignored capture orderID and accepted top-level COMPLETED without validating capture amount.
+  The adapter now binds order/transaction/gateway ID and verifies reference/currency/amount and actual
+  capture completion before confirming. Pending capture/refund is409, avoiding false UI success.
+- V7 adds a deliberate auxiliary paypal_operations journal while retaining original PayPal table
+  names, columns, nullable relation, unique key and cascade exactly. Journal responses can contain
+  provider PII needed for recovery/raw response compatibility: do not log them or expose database
+  access. Retention/reconciliation procedures are still an operational follow-up, not an admin API.
+- Stable request UUID and per-operation DB lock prevent duplicate local POSTs after journal commit.
+  Crash before journal commit retries the same UUID within5h; beyond that, block for reconciliation.
+  A lost result is never converted blindly into FAILED/new payment. Pending results refresh via GET.
+  This is bounded provider idempotency, not an unbounded exactly-once financial guarantee.
+- Local apply failures preserve the journal; PayPal/shared/order updates roll back together. Refund
+  is terminal and late capture/create application cannot downgrade it. Core after-commit events are
+  still non-durable; notification delivery remains MODULE12. Cancellation/stock restore is MODULE11.
+- Upstream errors are sanitized502/503 rather than source400 with provider details. OAuth is cached,
+  HTTPS required outside loopback, redirects disabled; no live credentials or gateway calls in tests.
+  Fixed source conversion25,000 VND/USD uses approved BigDecimal/HALF_UP; not a market rate.
+- Unknown/PENDING outcomes can hold delivery/payment switching until reconciled. No expiry job or
+  manual override endpoint is introduced. Live sandbox acceptance/deployment remains MODULE13.
+
+
 ## MODULE 8 update
 
 - User chose to freeze delivery while pending/paid and validate whole-VND amount against order.

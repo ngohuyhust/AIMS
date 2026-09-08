@@ -17,14 +17,14 @@ export class PaymentService {
   createOrder(orderId: number): Observable<any> {
     return this.http.post(`${this.baseUrl}/api/paypal/order/create`, {
       orderID: orderId
-    });
+    }, { headers: this.orderAccess.headers(orderId) });
   }
 
   captureOrder(paypalOrderID: string, orderId: number): Observable<any> {
     return this.http.post(`${this.baseUrl}/api/paypal/order/capture`, {
       paypalOrderID,
       orderID: orderId
-    });
+    }, { headers: this.orderAccess.headers(orderId) });
   }
   getOrderDetail(orderId: number): Observable<any> {
     return this.http.get(`${this.baseUrl}/api/orders/${orderId}`, { headers: this.orderAccess.headers(orderId) });

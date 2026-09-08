@@ -49,4 +49,21 @@ describe('guest order capabilities', () => {
     detail.flush({});
     expect(TestBed.inject(OrderAccessService).headers(7).get('x-order-token')).toBe(token);
   });
+  it('sends the matching capability on PayPal create/capture while preserving payloads', () => {
+    TestBed.inject(OrderAccessService).remember(7, token);
+    const payments = TestBed.inject(PaymentService);
+    payments.createOrder(7).subscribe();
+    const create = http.expectOne('/api/paypal/order/create');
+    expect(create.request.headers.get('x-order-token')).toBe(token);
+    expect(create.request.body).toEqual({ orderID: 7 }); create.flush({});
+    payments.captureOrder('PAYPAL-7', 7).subscribe();
+    const capture = http.expectOne('/api/paypal/order/capture');
+    expect(capture.request.headers.get('x-order-token')).toBe(token);
+    expect(capture.request.body).toEqual({ paypalOrderID: 'PAYPAL-7', orderID: 7 }); capture.flush({});
+    payments.refundOrder(7).subscribe();
+    const refund = http.expectOne('/api/paypal/order/refund');
+    expect(refund.request.headers.has('x-order-token')).toBe(false);
+    expect(refund.request.body).toEqual({ orderID: 7 }); refund.flush({});
+  });
+
 });

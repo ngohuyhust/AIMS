@@ -1,10 +1,10 @@
 {
-  "authorization": "MODULE 7: user explicitly chose token protection and minimal frontend changes. Three original-file edits (two services and obsolete shell test) plus capability service/test additions; original source baseline remains unchanged.",
+  "authorization": "MODULE 7: user explicitly chose token protection and minimal frontend changes. Three original-file edits (two services and obsolete shell test) plus capability service/test additions; original source baseline remains unchanged. MODULE 9: user approved PayPal create/capture order-token headers and PRODUCT_MANAGER-only refunds; related service test extended.",
   "files": {
     "src/app/services/order.service.ts": "3c41175d3b915bd285e56ee60a3cf143893d3ec77322145998349dde4c8f5b05",
-    "src/app/services/payment.service.ts": "333ddfbef260764130aa0c80a825bfc7d03c20c451c3551fa6fdf134d753e111",
+    "src/app/services/payment.service.ts": "8a2ce0a7fa4880dc14d929cfe5e6885c499c422fed8b664d3d60917ab18abbfa",
     "src/app/services/order-access.service.ts": "c6c27bc77e5d128653cc73ce8b223d870336c036f69b151d3eb4196c632ad8f6",
-    "src/app/services/order-access.service.spec.ts": "7afa9cebadf1f671e29741ce651d9dd11dd8c2ae0c8a3fe1b0c230bcc78b8b88",
+    "src/app/services/order-access.service.spec.ts": "7d638a734481d273a9e1350ea9782003879c41e235b5faeba666340ad5515030",
     "src/app/app.spec.ts": "18ef7306eababef14e7d590dcb110090b4ba9d9820f510a0ac9b9988e87b26f7"
   }
 }
