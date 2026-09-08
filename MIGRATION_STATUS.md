@@ -3,7 +3,7 @@
 ## Current checkpoint
 
 - Authorized scope: **MODULE 13 — Full Integration and Deployment**, authorized by `tiếp`.
-- Status: **MODULE 13 implemented and locally validated; commit/push and remote CI pending**.
+- Status: **MODULE 13 complete: local checks and GitHub CI passed; implementation pushed and verified**.
 - Next checkpoint: none in the original sequence; production rollout is separate work.
 - Current branch: `main`, preserving consolidated ISD history.
 
@@ -14,6 +14,9 @@
 - Module5/5, full suite661/661 and Maven verify661/661 pass without failures/errors/skips.
 - Angular7/7 and production build pass; Docker production smoke and Compose configuration pass.
 - Source and frontend hashes verified from both read-only sibling and preserved Git history.
+- Implementation `3e6c45ea2696daf4cfcda4e450a43aa54b1ce1e8` pushed to origin/main; exact remote hash and clean tree verified.
+- [GitHub CI run34244665470](https://github.com/ngohuyhust/AIMS/actions/runs/34244665470): backend and frontend SUCCESS, including image smoke on Linux.
+- This separate completion record contains no code changes; its final hash/push are reported in the user checkpoint.
 - [Validation](docs/module-13-validation.md), [deployment runbook](docs/deployment.md).
 
 ## MODULE 12 result
@@ -254,7 +257,7 @@ the final commit only records the verified checkpoint state.
 | MODULE 10 | VietQR QR/expiry/callback/auth/idempotency/sandbox/JSONB | Complete |
 | MODULE 11 | Order management/states/refunds/concurrency | Complete |
 | MODULE 12 | Application events/SendGrid/provider isolation | Complete |
-| MODULE 13 | Full compatibility/integration/Docker image/CI/production/frontend build | Locally validated; push/CI pending |
+| MODULE 13 | Full compatibility/integration/Docker image/CI/production/frontend build | Complete |
 
 ## Risks awaiting later checkpoint decisions
 
@@ -263,4 +266,4 @@ notification retention/delivery reconciliation, late/ambiguous bank-transfer rec
 the hardcoded frontend production API host. MODULE9/10 now protect payment endpoints;
 merchant callback bearer authentication and exact bank/order/amount checks are implemented.
 
-Finish MODULE13 commit/push/CI verification, then STOP. No production rollout authorized.
+Original PHASE0–MODULE13 sequence complete. STOP awaiting user direction; no production rollout authorized.

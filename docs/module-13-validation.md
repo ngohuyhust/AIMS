@@ -61,4 +61,7 @@ No production deploy, database connection, DNS/Render switch, real gateway reque
 Existing production frontend API hostname remains; a new hostname needs explicit frontend approval.
 Actual DB import/baseline, initial admin provisioning, live provider activation, TLS, reconciliation
 and notification retention need an operational rollout. See [deployment runbook](deployment.md).
-Remote CI result and commit/push verification are recorded after publishing the workflow.
+Implementation `3e6c45ea2696daf4cfcda4e450a43aa54b1ce1e8` pushed to origin/main; exact remote
+hash and clean tree verified. [CI run34244665470](https://github.com/ngohuyhust/AIMS/actions/runs/34244665470)
+completed SUCCESS for backend and frontend, including Maven/Testcontainers, Linux Docker smoke,
+npm ci/test/build and both baseline/hash verification steps. This completion record changes docs only.
