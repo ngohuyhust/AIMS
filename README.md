@@ -84,7 +84,8 @@ docker stop aims-supabase-api
 docker start aims-supabase-api
 ```
 
-File này chỉ cấu hình database/schema/JWT/CORS; provider credentials không được copy và email vẫn tắt.
+File này cũng ánh xạ cấu hình PayPal sandbox, VietQR development và SendGrid từ backend cũ.
+Email và callback thử VietQR vẫn tắt để việc khởi động không tự gọi provider hoặc gửi thư thật.
 
 ## Quy tắc nghiệp vụ đã chốt
 

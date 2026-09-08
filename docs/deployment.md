@@ -29,7 +29,7 @@ committed env files or CLI command literals containing credentials. Spring does 
 | SPRING_PROFILES_ACTIVE | production for deployment; Compose explicitly uses container |
 | PORT | 3000; server binds all interfaces in container/production |
 | AIMS_LOCAL_DB_PASSWORD | Generated local Compose password, local profile only |
-| AIMS_DB_URL | Required container/production JDBC PostgreSQL URL; external DB should use `sslmode=verify-full` and trusted CA |
+| AIMS_DB_URL | Required JDBC PostgreSQL URL; Supabase transaction pooler also needs `prepareThreshold=0`; external DB should use certificate verification where supported |
 | AIMS_DB_USERNAME / AIMS_DB_PASSWORD | Required container/production credentials |
 | AIMS_DB_SCHEMA | PostgreSQL schema, default `public`; use `aims_java` for the isolated legacy snapshot |
 | JWT_SECRET | Required, at least32 UTF-8 bytes; random key, no fallback; rotating invalidates user/merchant tokens |
@@ -86,8 +86,8 @@ A new backend hostname requires a separately approved minimal frontend configura
 The preserved frontend Dockerfile is the old development image; deployment should publish the
 verified Angular `dist/frontend/browser` static output with SPA fallback to index.html.
 
-No real production health, provider credentials, sender verification, TLS termination or external
-schema has been checked. CORS retains broad legacy Vercel allowance. Notification outbox carries PII
+No live provider authentication, sender verification, TLS termination or production traffic has been
+checked. CORS retains broad legacy Vercel allowance. Notification outbox carries PII
 and order capability: restrict DB/backups and set retention; retries can duplicate after remote
 acceptance/local commit failure. Late bank transfers, ambiguous payments and FAILED emails need
 operator reconciliation. See the detailed risk register and Module9–12 validation documents.

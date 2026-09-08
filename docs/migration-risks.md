@@ -299,5 +299,6 @@ With explicit user authorization, the legacy PostgreSQL endpoint was inspected r
 compared inside a repeatable-read transaction. NestJS `public` was not modified and traffic was not
 switched. The snapshot is not change-data-capture: any later NestJS writes remain only in `public`.
 There are 27 historical orders without customer access tokens and unresolved pending/refund payment
-states; reconcile them before cutover. Provider credentials were not copied and notifications remain
-off. Details and rollback boundary: [legacy Supabase migration](legacy-supabase-migration.md).
+states; reconcile them before cutover. Provider credentials are available only in the ignored local
+`.env.supabase`; notifications and the VietQR test callback remain off, and no provider transaction
+was executed. Details and rollback boundary: [legacy Supabase migration](legacy-supabase-migration.md).

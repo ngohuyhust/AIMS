@@ -52,7 +52,7 @@ def main():
     application = "aims-supabase-check-" + secrets.token_hex(4)
     jdbc = (
         f"jdbc:postgresql://{legacy['DB_HOST']}:{legacy['DB_PORT']}/"
-        f"{legacy['DB_DATABASE']}?sslmode=require"
+        f"{legacy['DB_DATABASE']}?sslmode=require&prepareThreshold=0"
     )
 
     def start_application():

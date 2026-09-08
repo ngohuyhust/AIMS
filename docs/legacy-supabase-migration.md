@@ -27,15 +27,21 @@ python3 tools/migrate-legacy-supabase.py
 ```
 
 For Java use `AIMS_DB_SCHEMA=aims_java` with the same host/database credentials mapped to AIMS_DB_*.
+The Supabase transaction pooler requires `prepareThreshold=0` in the JDBC URL, matching the legacy
+TypeORM `maxPreparedStatements: 0`; otherwise repeated startups can fail with prepared statement
+name collisions.
 Keep notifications off and gateway callbacks unchanged until traffic is deliberately switched.
 Because the copy is a point-in-time snapshot, later writes in `public` are not synchronized. A final
 cutover therefore requires a write freeze or a reviewed delta transfer, followed by count/payment/
 stock reconciliation. Do not run NestJS and Java as independent writers after the snapshot.
 
 This workspace has a Git-ignored `.env.supabase` with mode 0600 for local execution. It uses a stable
-local JWT secret and intentionally omits PayPal, VietQR and SendGrid credentials. The running container
-name is `aims-supabase-api`; it binds only `127.0.0.1:3000`, runs as UID 10001 with a read-only root,
-and can be stopped/restarted with `docker stop` / `docker start` without changing `public`.
+local JWT secret and maps the legacy PayPal sandbox, VietQR development and SendGrid configuration to
+the Spring variable names. `NOTIFICATIONS_ENABLED=false` and `VIETQR_ENABLE_TEST_CALLBACK=false`, so
+startup does not send email or enable the synthetic callback. No provider transaction was made during
+validation. The running container name is `aims-supabase-api`; it binds only `127.0.0.1:3000`, runs as
+UID 10001 with a read-only root, and can be stopped/restarted with `docker stop` / `docker start`
+without changing `public`.
 
 Migration completed on 2026-09-08: `aims_java` has Flyway V1-V10 and an exactly compared snapshot
 of 1,521 rows across all 19 legacy tables. A production-profile Java container passed health and
