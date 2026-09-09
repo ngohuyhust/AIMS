@@ -85,7 +85,9 @@ docker start aims-supabase-api
 ```
 
 File này cũng ánh xạ cấu hình PayPal sandbox, VietQR development và SendGrid từ backend cũ.
-Email và callback thử VietQR vẫn tắt để việc khởi động không tự gọi provider hoặc gửi thư thật.
+Theo xác nhận của người dùng, workspace hiện đặt `NOTIFICATIONS_ENABLED=true`: các sự kiện đơn hàng
+mới sẽ gửi email thật qua SendGrid như NestJS. Callback thử VietQR vẫn tắt.
+SendGrid không tham gia đăng nhập; contract gốc không có đăng ký công khai hoặc xác minh email.
 
 ## Quy tắc nghiệp vụ đã chốt
 

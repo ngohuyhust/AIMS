@@ -300,5 +300,6 @@ compared inside a repeatable-read transaction. NestJS `public` was not modified 
 switched. The snapshot is not change-data-capture: any later NestJS writes remain only in `public`.
 There are 27 historical orders without customer access tokens and unresolved pending/refund payment
 states; reconcile them before cutover. Provider credentials are available only in the ignored local
-`.env.supabase`; notifications and the VietQR test callback remain off, and no provider transaction
-was executed. Details and rollback boundary: [legacy Supabase migration](legacy-supabase-migration.md).
+`.env.supabase`. Real SendGrid delivery was explicitly enabled on 2026-09-09 after confirming zero
+pending messages; future order notifications transfer their stored snapshots to SendGrid. The VietQR
+test callback remains off. Details and rollback boundary: [legacy Supabase migration](legacy-supabase-migration.md).

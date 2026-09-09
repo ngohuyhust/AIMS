@@ -30,16 +30,18 @@ For Java use `AIMS_DB_SCHEMA=aims_java` with the same host/database credentials 
 The Supabase transaction pooler requires `prepareThreshold=0` in the JDBC URL, matching the legacy
 TypeORM `maxPreparedStatements: 0`; otherwise repeated startups can fail with prepared statement
 name collisions.
-Keep notifications off and gateway callbacks unchanged until traffic is deliberately switched.
+Keep notifications off by default and gateway callbacks unchanged until explicitly authorized.
 Because the copy is a point-in-time snapshot, later writes in `public` are not synchronized. A final
 cutover therefore requires a write freeze or a reviewed delta transfer, followed by count/payment/
 stock reconciliation. Do not run NestJS and Java as independent writers after the snapshot.
 
 This workspace has a Git-ignored `.env.supabase` with mode 0600 for local execution. It uses a stable
 local JWT secret and maps the legacy PayPal sandbox, VietQR development and SendGrid configuration to
-the Spring variable names. `NOTIFICATIONS_ENABLED=false` and `VIETQR_ENABLE_TEST_CALLBACK=false`, so
-startup does not send email or enable the synthetic callback. No provider transaction was made during
-validation. The running container name is `aims-supabase-api`; it binds only `127.0.0.1:3000`, runs as
+the Spring variable names. On 2026-09-09 the user explicitly authorized real SendGrid delivery, so
+this workspace now uses `NOTIFICATIONS_ENABLED=true`; order payment/review/cancellation events send
+to the address in `delivery_info`. The pre-activation outbox contained zero pending messages and the
+SendGrid API key passed a read-only authentication check. `VIETQR_ENABLE_TEST_CALLBACK=false` remains
+unchanged. The running container name is `aims-supabase-api`; it binds only `127.0.0.1:3000`, runs as
 UID 10001 with a read-only root, and can be stopped/restarted with `docker stop` / `docker start`
 without changing `public`.
 

@@ -16,16 +16,17 @@
 - Created isolated `aims_java` in the same Supabase database, applied Flyway V1-V10, copied and
   compared all 19 tables in one repeatable-read transaction. `public` was not modified.
 - Java container on localhost:3000 is healthy and catalog returns 182 active products from
-  `aims_java`; non-root/read-only runtime, notifications and gateway test disabled.
+  `aims_java`; non-root/read-only runtime and VietQR gateway test disabled.
 - Supabase pooler uses JDBC `prepareThreshold=0`, equivalent to the source `maxPreparedStatements: 0`,
   preventing intermittent server prepared-statement name collisions.
 - No negative stock/invalid prices/orphan order items or payments/non-BCrypt users. Twenty-seven
   historical orders lack customer tokens; pending/refund states need reconciliation before cutover.
 - Local `.env.supabase` is ignored and mode 0600. It maps the PayPal sandbox, VietQR development
-  and SendGrid variables from the legacy backend; notifications and the VietQR test callback remain
-  disabled, and validation made no provider transaction.
+  and SendGrid variables from the legacy backend. Real SendGrid delivery was explicitly enabled on
+  2026-09-09 after confirming zero pending outbox messages; its API key authenticated successfully.
+  The VietQR test callback remains disabled.
 - Java 21 Maven verify passed 661/661; the idempotent migration recheck compared all 1,521 rows,
-  and the provider-configured local container returned health `UP` without calling a provider.
+  and the provider-configured local container returned health `UP`.
 - Implementation `ca41956b93ae6fff2c9ef0478ff742c7a965d27e` pushed to `origin/main`; exact
   remote hash verified. [GitHub CI 34251292984](https://github.com/ngohuyhust/AIMS/actions/runs/34251292984)
   passed backend and frontend. Supabase pooler/provider follow-up
