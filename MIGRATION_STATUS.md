@@ -2,10 +2,24 @@
 
 ## Current checkpoint
 
-- Authorized scope: **Legacy Supabase connection and isolated data migration**.
-- Status: **`aims_java` created and validated; code/docs pushed and GitHub CI passed**.
-- Next checkpoint: explicit production traffic cutover, not yet performed.
+- Authorized scope: **refactor package structure for the `order` feature**.
+- Status: **code and documentation complete; 661/661 backend tests pass**.
+- Next checkpoint: apply the same structure to `product`, only after user confirmation.
 - Current branch: `main`, preserving consolidated ISD history.
+
+## ORDER PACKAGE REFACTOR result
+
+- Split the 17 production classes in `vn.aims.order` into `api`, `application`, `domain` and
+  `infrastructure`; updated the payment entity link and order DTO test imports.
+- HTTP routes, JSON, validation order, transactions, database schema and Flyway migrations are
+  unchanged. The entity fields now use explicit accessors across package boundaries.
+- Order tests pass 28/28. Java 21 Maven `verify` passes 661/661 with zero failures/errors/skips and
+  builds the executable JAR. Frontend verification passes all 70 source files.
+- Implementation `8017d5cff401a071811334872c40d41e6d3ce262` is recorded by this completion commit.
+- Read-only source remains at `c7c022e33f100937cd0f072c3666fd0e26754d8e` with its pre-existing
+  `.DS_Store` changes and untracked activity-diagram directory preserved.
+- Remaining features keep their current layout until each receives its own tested checkpoint;
+  [package convention](docs/backend-structure.md).
 
 ## Legacy Supabase result
 
