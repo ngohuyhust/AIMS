@@ -3,7 +3,7 @@ package vn.aims.payment;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
-import vn.aims.order.Order;
+import vn.aims.order.domain.Order;
 
 @Entity @Table(name="payment_transactions")
 public class PaymentTransaction {

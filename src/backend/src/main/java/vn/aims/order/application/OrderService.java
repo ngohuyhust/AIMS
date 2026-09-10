@@ -1,4 +1,4 @@
-package vn.aims.order;
+package vn.aims.order.application;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.math.*;
@@ -8,6 +8,8 @@ import java.util.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.aims.cart.*;
+import vn.aims.order.domain.*;
+import vn.aims.order.infrastructure.OrderRepository;
 import vn.aims.product.ProductResponse;
 
 @Service
@@ -37,15 +39,15 @@ public class OrderService {
         var delivery=input.get("deliveryInfo");
         // Legacy DTO omits IsDefined; missing delivery fails inside the transaction and rolls back.
         var quote=CartService.totals(subtotal,shipping.fee(delivery.get("province").asText(),weight,subtotal,null));
-        var order=new Order();order.subTotal=quote.subtotal();order.tax=quote.tax();order.shippingFee=quote.shippingFee();order.totalPayment=quote.totalPayment();
-        order.status="PENDING";order.createdAt=order.updatedAt=Instant.now();
-        byte[] token=new byte[32];RANDOM.nextBytes(token);order.customerAccessToken=HexFormat.of().formatHex(token);
+        var order=new Order();order.setSubTotal(quote.subtotal());order.setTax(quote.tax());order.setShippingFee(quote.shippingFee());order.setTotalPayment(quote.totalPayment());
+        order.setStatus("PENDING");order.setCreatedAt(Instant.now());order.setUpdatedAt(order.getCreatedAt());
+        byte[] token=new byte[32];RANDOM.nextBytes(token);order.setCustomerAccessToken(HexFormat.of().formatHex(token));
         for(var item:items.entrySet()) {
-            var line=new OrderItem();line.order=order;line.product=orders.product(item.getKey());
-            line.quantity=item.getValue().intValueExact();line.unitPrice=products.get(item.getKey()).price();order.orderItems.add(line);
+            var line=new OrderItem();line.setOrder(order);line.setProduct(orders.product(item.getKey()));
+            line.setQuantity(item.getValue().intValueExact());line.setUnitPrice(products.get(item.getKey()).price());order.getOrderItems().add(line);
         }
-        order.deliveryInfo=new DeliveryInfo();order.deliveryInfo.order=order;setDelivery(order.deliveryInfo,delivery);
-        order.invoice=new Invoice();order.invoice.order=order;order.invoice.createdAt=order.createdAt;setInvoice(order);
+        order.setDeliveryInfo(new DeliveryInfo());order.getDeliveryInfo().setOrder(order);setDelivery(order.getDeliveryInfo(),delivery);
+        order.setInvoice(new Invoice());order.getInvoice().setOrder(order);order.getInvoice().setCreatedAt(order.getCreatedAt());setInvoice(order);
         return OrderResponse.from(orders.save(order),true);
     }
     @Transactional(readOnly=true)
@@ -58,30 +60,30 @@ public class OrderService {
     @Transactional
     public Map<String,Object> update(int id,String token,JsonNode delivery) {
         var order=orders.find(id,true);access.require(order,id,token,false);
-        if(!order.status.equals("PENDING"))
-            throw new OrderError(400,"Order "+id+" cannot update delivery info from status "+order.status);
+        if(!order.getStatus().equals("PENDING"))
+            throw new OrderError(400,"Order "+id+" cannot update delivery info from status "+order.getStatus());
         if(orders.hasActivePayment(id)) throw new OrderError(409,"Delivery information cannot change while payment is pending or successful");
-        double weight=order.orderItems.stream().mapToDouble(item->item.product==null?0:ProductResponse.from(item.product).weight()*item.quantity).sum();
-        order.shippingFee=shipping.fee(delivery.get("province").asText(),weight,order.subTotal,null);
-        order.totalPayment=order.subTotal.add(order.tax).add(order.shippingFee).setScale(2,RoundingMode.HALF_UP);
-        order.updatedAt=Instant.now();
-        boolean newDelivery=order.deliveryInfo==null;
-        if(newDelivery) { order.deliveryInfo=new DeliveryInfo();order.deliveryInfo.order=order; }
-        setDelivery(order.deliveryInfo,delivery);
-        if(newDelivery) orders.persist(order.deliveryInfo);
-        boolean newInvoice=order.invoice==null;
-        if(newInvoice) { order.invoice=new Invoice();order.invoice.order=order;order.invoice.createdAt=Instant.now(); }
+        double weight=order.getOrderItems().stream().mapToDouble(item->item.getProduct()==null?0:ProductResponse.from(item.getProduct()).weight()*item.getQuantity()).sum();
+        order.setShippingFee(shipping.fee(delivery.get("province").asText(),weight,order.getSubTotal(),null));
+        order.setTotalPayment(order.getSubTotal().add(order.getTax()).add(order.getShippingFee()).setScale(2,RoundingMode.HALF_UP));
+        order.setUpdatedAt(Instant.now());
+        boolean newDelivery=order.getDeliveryInfo()==null;
+        if(newDelivery) { order.setDeliveryInfo(new DeliveryInfo());order.getDeliveryInfo().setOrder(order); }
+        setDelivery(order.getDeliveryInfo(),delivery);
+        if(newDelivery) orders.persist(order.getDeliveryInfo());
+        boolean newInvoice=order.getInvoice()==null;
+        if(newInvoice) { order.setInvoice(new Invoice());order.getInvoice().setOrder(order);order.getInvoice().setCreatedAt(Instant.now()); }
         setInvoice(order);
-        if(newInvoice) orders.persist(order.invoice);
+        if(newInvoice) orders.persist(order.getInvoice());
         return OrderResponse.from(orders.save(order),true);
     }
     private void setDelivery(DeliveryInfo delivery,JsonNode input) {
-        delivery.receiverName=input.get("receiverName").asText();delivery.email=input.get("email").asText();
-        delivery.phoneNumber=input.get("phoneNumber").asText();delivery.address=input.get("address").asText();delivery.province=input.get("province").asText();
-        if(input.has("deliveryNotes")) delivery.deliveryNotes=input.get("deliveryNotes").isNull()?null:input.get("deliveryNotes").asText();
+        delivery.setReceiverName(input.get("receiverName").asText());delivery.setEmail(input.get("email").asText());
+        delivery.setPhoneNumber(input.get("phoneNumber").asText());delivery.setAddress(input.get("address").asText());delivery.setProvince(input.get("province").asText());
+        if(input.has("deliveryNotes")) delivery.setDeliveryNotes(input.get("deliveryNotes").isNull()?null:input.get("deliveryNotes").asText());
     }
     private void setInvoice(Order order) {
-        order.invoice.totalExcludeVAT=order.subTotal;order.invoice.totalIncludeVAT=order.subTotal.add(order.tax).setScale(2,RoundingMode.HALF_UP);
-        order.invoice.shippingFee=order.shippingFee;order.invoice.totalPayment=order.totalPayment;
+        order.getInvoice().setTotalExcludeVAT(order.getSubTotal());order.getInvoice().setTotalIncludeVAT(order.getSubTotal().add(order.getTax()).setScale(2,RoundingMode.HALF_UP));
+        order.getInvoice().setShippingFee(order.getShippingFee());order.getInvoice().setTotalPayment(order.getTotalPayment());
     }
 }

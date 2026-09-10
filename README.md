@@ -5,6 +5,10 @@ Angular giữ nguyên nguồn và các sửa đổi token đã được duyệt 
 Catalog, user/auth/admin, product/audit, cart/shipping, order, PayPal, VietQR, refunds và notifications
 đã được triển khai. [Tiến độ/kiểm thử](MIGRATION_STATUS.md), [API contract](docs/api-contract.md).
 
+Mỗi feature lớn được tách tiếp theo vai trò `api`, `application`, `domain`, `infrastructure` để tìm
+controller/use case/entity/truy cập dữ liệu nhanh hơn. `order` là feature đầu tiên đã áp dụng đầy đủ;
+xem [quy ước cấu trúc backend](docs/backend-structure.md).
+
 ## Chạy local
 
 Cần JDK21, Docker, Python3; frontend dùng Node24 và lockfile hiện tại.

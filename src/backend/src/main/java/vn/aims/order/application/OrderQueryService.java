@@ -1,10 +1,11 @@
-package vn.aims.order;
+package vn.aims.order.application;
 
 import java.util.*;
 import java.time.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.*;
+import vn.aims.order.infrastructure.OrderRepository;
 
 @Service
 public class OrderQueryService {

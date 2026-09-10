@@ -1,7 +1,8 @@
-package vn.aims.order;
+package vn.aims.order.api;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import vn.aims.order.application.*;
 
 @RestController
 public class OrderManagementController {

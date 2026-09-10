@@ -1,4 +1,4 @@
-package vn.aims.order;
+package vn.aims.order.api;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.*;
@@ -7,13 +7,14 @@ import jakarta.validation.constraints.Email;
 import java.util.*;
 import org.springframework.stereotype.Component;
 import vn.aims.cart.CartInput;
+import vn.aims.order.application.OrderError;
 
 @Component
 public class OrderInput {
     record EmailValue(@Email String value) {}
     private final Validator validator;
     public OrderInput(Validator validator) { this.validator=validator; }
-    ObjectNode parse(JsonNode body,boolean placement) {
+    public ObjectNode parse(JsonNode body,boolean placement) {
         var errors=new ArrayList<String>();var clean=JsonNodeFactory.instance.objectNode();
         if(placement) {
             try { clean=CartInput.parse(body,false); } catch(CartInput.Invalid error) { errors.addAll(error.messages); }
