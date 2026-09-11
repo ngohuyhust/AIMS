@@ -2,24 +2,28 @@
 
 ## Current checkpoint
 
-- Authorized scope: **refactor package structure for the `order` feature**.
-- Status: **code and documentation complete; 661/661 backend tests pass**.
-- Next checkpoint: apply the same structure to `product`, only after user confirmation.
+- Authorized scope: **replace the layered package names with conventional Spring package names**.
+- Status: **implementation and documentation complete; 661/661 backend tests pass**.
+- Next checkpoint: no package refactor remains; production cutover remains a separate operational step.
 - Current branch: `main`, preserving consolidated ISD history.
 
-## ORDER PACKAGE REFACTOR result
+## CONVENTIONAL SPRING PACKAGE REFACTOR result
 
-- Split the 17 production classes in `vn.aims.order` into `api`, `application`, `domain` and
-  `infrastructure`; updated the payment entity link and order DTO test imports.
-- HTTP routes, JSON, validation order, transactions, database schema and Flyway migrations are
-  unchanged. The entity fields now use explicit accessors across package boundaries.
-- Order tests pass 28/28. Java 21 Maven `verify` passes 661/661 with zero failures/errors/skips and
-  builds the executable JAR. Frontend verification passes all 70 source files.
-- Implementation `8017d5cff401a071811334872c40d41e6d3ce262` is recorded by this completion commit.
+- Refactored all backend features into direct `controller`, `service`, `repository`, `entity` and
+  `dto` packages, with explicit `exception`, `event`, `security`, `client`, `gateway` and `provider`
+  packages where the class role requires one.
+- Updated package declarations, imports and the explicit accessors needed at package boundaries.
+  HTTP routes, JSON contracts, validation, transaction boundaries, database schema and Flyway
+  migrations are unchanged. Clean Java 21 production and test compilation pass.
+- Maven `verify` passes 661/661 tests with zero failures, errors or skips and builds the executable
+  JAR. Frontend verification passes all 70 source files against the approved baseline.
+- The superseded full-backend refactor and its status commit are replaced on `origin/main`; history
+  through `a74f5d7f0c7702742f375e33311b59d40f35ca74` remains intact.
+- Implementation `4eccce06d3c53abdbbefe12df621a08aef217f2d` is recorded by this completion commit;
+  exact remote verification is reported in the checkpoint response.
 - Read-only source remains at `c7c022e33f100937cd0f072c3666fd0e26754d8e` with its pre-existing
   `.DS_Store` changes and untracked activity-diagram directory preserved.
-- Remaining features keep their current layout until each receives its own tested checkpoint;
-  [package convention](docs/backend-structure.md).
+- [Package convention and final layout](docs/backend-structure.md).
 
 ## Legacy Supabase result
 
