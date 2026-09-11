@@ -14,6 +14,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import static org.assertj.core.api.Assertions.*;
+import vn.aims.user.service.UserDomainService;
+import vn.aims.user.entity.*;
+import vn.aims.user.repository.*;
 
 @Testcontainers
 @SpringBootTest
@@ -65,8 +68,8 @@ class UserDomainIntegrationTest {
     @Test void changingAccountDoesNotResetCredentialsOrRolesAndUpdatesTimestamp() {
         var user = account();
         var created = user.getCreatedAt();
-        user.status = "DEACTIVATED";
-        user.fullName = "Changed";
+        user.changeStatus("DEACTIVATED");
+        user.updateProfile(user.getEmail(),"Changed",user.getPhoneNumber());
         users.flush();
         em.clear();
         var loaded = service.findById(user.getUserID()).orElseThrow();

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 import java.time.Instant;
 import static org.assertj.core.api.Assertions.*;
+import vn.aims.auth.security.*;
 
 class JwtTokensTest {
     final String key = UUID.randomUUID().toString()+UUID.randomUUID();

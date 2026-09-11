@@ -20,6 +20,8 @@ import java.util.concurrent.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import vn.aims.paypal.client.PaypalApiClient;
+import vn.aims.payment.exception.PaymentException;
 
 @Testcontainers @SpringBootTest @AutoConfigureMockMvc(print=org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint.NONE)
 class PaypalIntegrationTest {
@@ -60,7 +62,7 @@ class PaypalIntegrationTest {
     @AfterAll static void stop() { SERVER.stop(0); }
     @Autowired JdbcTemplate jdbc;
     @Autowired MockMvc mvc;
-    @Autowired vn.aims.auth.JwtTokens jwt;
+    @Autowired vn.aims.auth.security.JwtTokens jwt;
     @BeforeEach void setup() {
         mode="normal";CALLS.clear();jdbc.update("DELETE FROM orders");
         for(int id=1;id<=2;id++) jdbc.update("INSERT INTO orders(order_id,sub_total,tax,shipping_fee,total_payment,customer_access_token) VALUES (?,100000,10000,22000,132000,?)",id,(id==1?"a":"b").repeat(64));
@@ -189,7 +191,7 @@ class PaypalIntegrationTest {
         assertThat(oauth.getFirst().body()).isEqualTo("grant_type=client_credentials");
         assertThat(CALLS.stream().filter(c->!c.path().equals("/v1/oauth2/token")).allMatch(c->c.authorization().equals("Bearer synthetic-oauth-only"))).isTrue();
         mode="unauthorized";
-        assertThatThrownBy(()->client.call(org.springframework.http.HttpMethod.POST,"/v2/checkout/orders",key,null)).isInstanceOf(vn.aims.payment.PaymentException.class);
+        assertThatThrownBy(()->client.call(org.springframework.http.HttpMethod.POST,"/v2/checkout/orders",key,null)).isInstanceOf(PaymentException.class);
         mode="normal";client.call(org.springframework.http.HttpMethod.POST,"/v2/checkout/orders",key,null);
         assertThat(CALLS.stream().filter(c->c.path().equals("/v1/oauth2/token")).count()).isEqualTo(2);
     }

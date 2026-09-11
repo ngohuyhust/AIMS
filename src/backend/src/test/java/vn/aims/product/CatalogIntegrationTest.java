@@ -23,6 +23,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import static org.assertj.core.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import vn.aims.product.dto.ProductSearch;
+import vn.aims.product.repository.ProductRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -81,8 +83,8 @@ class CatalogIntegrationTest {
                 SELECT n,'BOOK','Random '||n,'BOOK','R-'||n,1,100,100 FROM generate_series(100,124) n
                 """);
         var random = repository.random();
-        assertThat(random).hasSize(20).extracting(p -> p.productID).doesNotHaveDuplicates();
-        assertThat(random).allMatch(p -> p.status.equals("ACTIVE"));
+        assertThat(random).hasSize(20).extracting(p -> p.getProductID()).doesNotHaveDuplicates();
+        assertThat(random).allMatch(p -> p.getStatus().equals("ACTIVE"));
         mvc.perform(get("/api/products/random").param("limit","1"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(20))
                 .andExpect(jsonPath("$[0].book").doesNotExist());

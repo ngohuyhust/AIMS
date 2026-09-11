@@ -3,6 +3,7 @@ package vn.aims.vietqr;
 import com.fasterxml.jackson.databind.*;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.*;
+import vn.aims.vietqr.dto.VietqrInput;
 
 class VietqrInputTest {
     @Test void original98DtoFixtures() throws Exception {

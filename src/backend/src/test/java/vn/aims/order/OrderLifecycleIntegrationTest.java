@@ -32,8 +32,8 @@ class OrderLifecycleIntegrationTest {
         p.add("PAYPAL_API_BASE_URL",()->"http://127.0.0.1:"+SERVER.getAddress().getPort());p.add("PAYPAL_CLIENT_ID",()->"test-client");p.add("PAYPAL_CLIENT_SECRET",()->"test-secret");
     }
     @AfterAll static void stop() {SERVER.stop(0);}
-    @Autowired vn.aims.payment.PaymentService payments;
-    @Autowired JdbcTemplate jdbc;@Autowired MockMvc mvc;@Autowired ObjectMapper json;@Autowired vn.aims.auth.JwtTokens jwt;
+    @Autowired vn.aims.payment.service.PaymentService payments;
+    @Autowired JdbcTemplate jdbc;@Autowired MockMvc mvc;@Autowired ObjectMapper json;@Autowired vn.aims.auth.security.JwtTokens jwt;
     @BeforeEach void seed() {
         REFUNDS.set(0);jdbc.update("DELETE FROM orders");jdbc.update("DELETE FROM product_logs");jdbc.update("DELETE FROM products");
         jdbc.update("INSERT INTO products(product_id,product_type,title,category,barcode,weight,original_value,current_price,quantity_in_stock) VALUES (1,'BOOK','Test','Book','lifecycle-1',0.5,100000,100000,3)");
@@ -114,7 +114,7 @@ class OrderLifecycleIntegrationTest {
 
     @Test void durableCancellationBlocksNewPaymentBeforeStockRelease() throws Exception {
         jdbc.update("INSERT INTO order_lifecycle_operations(order_id,action) VALUES (1,'CANCEL')");
-        assertThatThrownBy(()->payments.begin(1,"PAYPAL",new java.math.BigDecimal("132000"),"TEST")).isInstanceOf(vn.aims.payment.PaymentException.class);
+        assertThatThrownBy(()->payments.begin(1,"PAYPAL",new java.math.BigDecimal("132000"),"TEST")).isInstanceOf(vn.aims.payment.exception.PaymentException.class);
         action(1,"cancel",201);assertThat(jdbc.queryForObject("SELECT count(*) FROM payment_transactions",Integer.class)).isZero();
     }
     @Test void listDateUnpaidAndRefundQueueFiltersAreConsistent() throws Exception {

@@ -16,6 +16,8 @@ import org.testcontainers.junit.jupiter.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import vn.aims.auth.service.AuthService;
+import vn.aims.auth.security.*;
 
 @Testcontainers @SpringBootTest @AutoConfigureMockMvc @Transactional
 @org.springframework.context.annotation.Import(AuthIntegrationTest.ProbeConfiguration.class)

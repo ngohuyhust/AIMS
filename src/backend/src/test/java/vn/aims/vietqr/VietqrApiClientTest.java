@@ -8,6 +8,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import org.junit.jupiter.api.*;
 import static org.assertj.core.api.Assertions.*;
+import vn.aims.payment.exception.PaymentException;
+import vn.aims.vietqr.client.VietqrApiClient;
 
 class VietqrApiClientTest {
     HttpServer server;
@@ -35,10 +37,10 @@ class VietqrApiClientTest {
         assertThat(response.path("transactionRefId").asText()).isEqualTo("REF-1");assertThat(response.path("qrLink")).isEqualTo(response.path("qrCode"));
     }
     @Test void sanitizesErrorsAndRejectsInsecureOrFakeSandboxHost() {
-        mode="error";assertThatThrownBy(()->client().generate(1,BigDecimal.ONE,"AIMS 1")).isInstanceOf(vn.aims.payment.PaymentException.class).hasMessageNotContaining("NEVER_EXPOSE");
+        mode="error";assertThatThrownBy(()->client().generate(1,BigDecimal.ONE,"AIMS 1")).isInstanceOf(PaymentException.class).hasMessageNotContaining("NEVER_EXPOSE");
         assertThatThrownBy(()->new VietqrApiClient("http://example.test","a","b","c","d","e",json)).isInstanceOf(IllegalArgumentException.class);
         var remote=new VietqrApiClient("https://dev.vietqr.org.evil.test","a","b","c","d","e",json);
         assertThat(remote.sandbox()).isFalse();
-        assertThatThrownBy(()->remote.trigger("AIMS 1",BigDecimal.ONE)).isInstanceOf(vn.aims.payment.PaymentException.class).hasMessageContaining("only available");
+        assertThatThrownBy(()->remote.trigger("AIMS 1",BigDecimal.ONE)).isInstanceOf(PaymentException.class).hasMessageContaining("only available");
     }
 }

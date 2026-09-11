@@ -18,8 +18,13 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.*;
-import vn.aims.payment.*;
+import vn.aims.payment.dto.*;
+import vn.aims.payment.event.*;
+import vn.aims.payment.exception.*;
+import vn.aims.payment.service.*;
+import vn.aims.payment.entity.PaymentStatus;
 import vn.aims.payment.gateway.*;
+import vn.aims.vietqr.gateway.VietqrGateway;
 import static org.assertj.core.api.Assertions.*;
 
 @Testcontainers @SpringBootTest @org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc(print=org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint.NONE)
@@ -50,7 +55,7 @@ class VietqrIntegrationTest {
     }
     @AfterAll static void stop() {SERVER.stop(0);}
     @Autowired org.springframework.test.web.servlet.MockMvc mvc;
-    @Autowired vn.aims.auth.JwtTokens jwt;
+    @Autowired vn.aims.auth.security.JwtTokens jwt;
     @Autowired JdbcTemplate jdbc;
     @Autowired VietqrGateway gateway;
     @Autowired PaymentService payments;

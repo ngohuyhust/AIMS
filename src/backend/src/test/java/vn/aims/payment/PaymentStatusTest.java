@@ -3,6 +3,8 @@ package vn.aims.payment;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.*;
+import vn.aims.payment.service.PaymentService;
+import vn.aims.payment.entity.PaymentStatus;
 
 class PaymentStatusTest {
     @Test void onlyThreeStateTransitionsAreAllowed() {

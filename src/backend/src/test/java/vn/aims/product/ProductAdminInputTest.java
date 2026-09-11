@@ -3,6 +3,7 @@ package vn.aims.product;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.*;
+import vn.aims.product.dto.ProductAdminInput;
 
 class ProductAdminInputTest {
     @Test void dtoValidationMatchesOriginalNestPipeFixtures() throws Exception {

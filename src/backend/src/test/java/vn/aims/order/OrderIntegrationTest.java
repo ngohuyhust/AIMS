@@ -23,7 +23,7 @@ class OrderIntegrationTest {
     @Autowired MockMvc mvc;
     @Autowired JdbcTemplate jdbc;
     @Autowired ObjectMapper json;
-    @Autowired vn.aims.auth.JwtTokens jwt;
+    @Autowired vn.aims.auth.security.JwtTokens jwt;
     static final String DELIVERY="{\"receiverName\":\"Customer\",\"email\":\"customer@example.test\",\"phoneNumber\":\"0912345678\",\"address\":\"Test address\",\"province\":\"Hà Nội\"}";
     @BeforeEach void setup() {
         jdbc.update("DELETE FROM orders");jdbc.update("DELETE FROM product_logs");jdbc.update("DELETE FROM products");

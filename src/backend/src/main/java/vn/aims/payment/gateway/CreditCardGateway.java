@@ -1,7 +1,7 @@
 package vn.aims.payment.gateway;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import vn.aims.payment.PaymentConfirmation;
+import vn.aims.payment.dto.PaymentConfirmation;
 
 /** Active modality; separate transport from verification so outcomes can be journaled first. */
 public interface CreditCardGateway {

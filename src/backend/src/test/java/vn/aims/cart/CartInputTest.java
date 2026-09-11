@@ -3,6 +3,7 @@ package vn.aims.cart;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.*;
+import vn.aims.cart.dto.CartInput;
 
 class CartInputTest {
     @Test void matchesOriginalValidationPipe() throws Exception {

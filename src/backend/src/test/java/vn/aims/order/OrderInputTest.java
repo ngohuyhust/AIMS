@@ -3,8 +3,8 @@ package vn.aims.order;
 import com.fasterxml.jackson.databind.*;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.*;
-import vn.aims.order.api.OrderInput;
-import vn.aims.order.application.OrderError;
+import vn.aims.order.dto.OrderInput;
+import vn.aims.order.exception.OrderError;
 
 class OrderInputTest {
     @Test void originalDtoFixtures() throws Exception {
