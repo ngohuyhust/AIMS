@@ -18,8 +18,10 @@ Các tích hợp kỹ thuật có package mang đúng tên chức năng: `auth/s
 
 Đăng nhập username/password đi qua chuỗi Spring Security chuẩn
 `AuthenticationManager` → `DaoAuthenticationProvider` → `AimsUserDetailsService` →
-`LegacyBcryptPasswordEncoder`. JWT stateless vẫn được phát sau khi xác thực thành công và được
-kiểm tra bởi security filter riêng cho các request được bảo vệ.
+`LegacyBcryptPasswordEncoder`. JWT stateless được phát bằng Spring `JwtEncoder`; Spring Boot OAuth2
+Resource Server kiểm tra bằng `JwtDecoder`/`BearerTokenAuthenticationFilter`, chuyển claim `roles`
+thành authority và cung cấp `Jwt` principal cho controller. Không còn servlet JWT filter tự viết hay
+thao tác trực tiếp với `SecurityContextHolder`.
 
 Quy ước áp dụng cho `auth`, `cart`, `notification`, `order`, `payment`, `paypal`, `product`, `user`
 và `vietqr`. Mỗi feature chỉ tạo những package có lớp tương ứng; ví dụ `notification` không có HTTP

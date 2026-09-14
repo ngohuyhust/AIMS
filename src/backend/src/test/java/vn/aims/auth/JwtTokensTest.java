@@ -19,6 +19,12 @@ class JwtTokensTest {
         jwt.sign(new MACSigner(secret));
         return jwt.serialize();
     }
+    String signedWithoutExpiry() throws Exception {
+        var claims = new JWTClaimsSet.Builder().claim("userID",1).claim("roles",List.of("ADMIN")).build();
+        var jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256),claims);
+        jwt.sign(new MACSigner(key));
+        return jwt.serialize();
+    }
     @Test void failsClosedWithoutStrongConfiguredKey() {
         assertThatThrownBy(() -> new JwtTokens("")).isInstanceOf(IllegalStateException.class);
         assertThatThrownBy(() -> new JwtTokens("short")).isInstanceOf(IllegalStateException.class);
@@ -29,6 +35,7 @@ class JwtTokensTest {
                 signed(JWSAlgorithm.HS256,now.plusSeconds(100),now.plusSeconds(100),key),
                 signed(JWSAlgorithm.HS256,now.plusSeconds(100),now.minusSeconds(5),UUID.randomUUID().toString()+UUID.randomUUID()),
                 signed(JWSAlgorithm.HS512,now.plusSeconds(100),now.minusSeconds(5),key),
+                signedWithoutExpiry(),
                 "eyJhbGciOiJub25lIn0.eyJ1c2VySUQiOjF9."))
             assertThatThrownBy(() -> tokens.verify(bad)).isInstanceOf(IllegalArgumentException.class);
     }

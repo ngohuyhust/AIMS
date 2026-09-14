@@ -6,6 +6,24 @@ recorded before any Java business module. It is NOT a claim of parity with the P
 No source application was started: its startup synchronizes schema and resets seeded users.
 Runtime snapshots against an isolated legacy database must be added in the relevant checkpoints.
 
+## Spring Security request boundary
+
+The final security refactor preserves every HTTP contract below while replacing the hand-written
+JWT servlet filter with Spring Boot's OAuth2 Resource Server support. `BearerTokenAuthenticationFilter`
+now delegates HS256 validation to a Spring `JwtDecoder`; `JwtAuthenticationConverter` maps the exact
+`roles` claim without a prefix, and controllers receive the authenticated Spring `Jwt` principal.
+Role checks for user/product/order management, PayPal refund and the optional VietQR test trigger
+use Spring request or method authorization. JWT creation after successful username/password login
+uses Spring `JwtEncoder`. VietQR merchant JWTs use a separate Spring encoder/decoder and retain their
+domain-separated key, issuer, audience and five-minute lifetime.
+
+The scoped bearer resolver is intentional compatibility code: protected user/manager routes reject
+missing, malformed and expired access tokens with their existing 401 envelopes, while public catalog,
+login and order-capability routes continue to ignore an unrelated stale Bearer header. Unknown routes
+remain 403. Customer `x-order-token`/query capabilities and VietQR merchant Basic credentials remain
+their existing non-user API contracts; they are not replaced by browser sessions, form login or an
+authorization server. Since URLs, headers and JSON did not change, no Angular edit was required.
+
 ## MODULE 1 implementation evidence
 
 The three public catalog GET routes are now migrated. Source TypeScript catalog entities/repository/
@@ -418,7 +436,9 @@ request/response JSON, JWT claims/lifetime, status codes and error messages rema
 Login returns `{token,user:{userID,email,fullName,roles:string[]}}`. HS256 token has the same user
 claims plus iat/exp with24h lifetime. UTF-8 signing secret comes exclusively from JWT_SECRET
 (minimum32 bytes). Missing/short secret prevents startup; local setup generates a random ignored key.
-Nimbus is supplied through Spring Security's managed oauth2-jose dependency; no custom JWT crypto.
+JWT issuance and validation use Spring Security's `JwtEncoder`/`JwtDecoder` through the Spring Boot
+OAuth2 Resource Server starter; there is no application-owned JWT crypto or servlet authentication
+filter.
 
 Login errors retain the source401 messages for incorrect credentials and deactivated accounts.
 Missing users and missing/nonstring credentials are hidden behind the same incorrect-credentials
@@ -430,7 +450,7 @@ cost10, and commits the credential and CHANGE_PASSWORD audit in one transaction.
 `{success:true,message:"Đổi mật khẩu thành công"}`; short new password/wrong old password return400,
 absent user404. Existing source bcryptjs hashes and UTF-8 72-byte truncation remain supported.
 JWT errors distinguish missing/wrong-case Bearer prefix from invalid/expired token with source401
-envelopes. Exact role authorities support hasAnyAuthority; ADMIN does not imply PRODUCT_MANAGER.
+envelopes. Spring maps the exact role values as authorities; ADMIN does not imply PRODUCT_MANAGER.
 Role-protected business endpoints and reset-password routes remain closed until MODULE4/5.
 
 CORS now applies globally with the original localhost/Vercel/ALLOWED_ORIGINS allow rules,

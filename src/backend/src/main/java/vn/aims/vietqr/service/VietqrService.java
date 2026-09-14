@@ -6,11 +6,12 @@ import java.security.MessageDigest;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.transaction.support.TransactionTemplate;
-import vn.aims.auth.security.JwtTokens;
 import vn.aims.payment.dto.*;
 import vn.aims.payment.event.*;
 import vn.aims.payment.exception.*;
@@ -24,10 +25,10 @@ import vn.aims.vietqr.repository.*;
 @Service @Transactional(propagation=Propagation.NEVER)
 public class VietqrService {
     private final VietqrStore store;private final VietqrGateway gateway;private final PaymentService payments;
-    private final VietqrMerchantTokens merchant;private final JwtTokens jwt;private final boolean testEnabled;private final TransactionTemplate tx;
-    public VietqrService(VietqrStore store,VietqrGateway gateway,PaymentService payments,VietqrMerchantTokens merchant,JwtTokens jwt,
+    private final VietqrMerchantTokens merchant;private final boolean testEnabled;private final TransactionTemplate tx;
+    public VietqrService(VietqrStore store,VietqrGateway gateway,PaymentService payments,VietqrMerchantTokens merchant,
         @Value("${VIETQR_ENABLE_TEST_CALLBACK:false}") boolean testEnabled,PlatformTransactionManager manager) {
-        this.store=store;this.gateway=gateway;this.payments=payments;this.merchant=merchant;this.jwt=jwt;this.testEnabled=testEnabled;tx=new TransactionTemplate(manager);
+        this.store=store;this.gateway=gateway;this.payments=payments;this.merchant=merchant;this.testEnabled=testEnabled;tx=new TransactionTemplate(manager);
     }
     private <T> T transaction(Supplier<T> action) {return tx.execute(s->action.get());}
     public JsonNode create(JsonNode dto,String token) {
@@ -56,12 +57,12 @@ public class VietqrService {
             return Map.of("status","SUCCESS","message",result.message(),"paymentId",result.confirmation().paymentTransactionId());
         });
     }
-    public Map<String,String> trigger(int id,String authorization) {
+    public Map<String,String> trigger(int id,Authentication authentication) {
         if(!testEnabled) throw new PaymentException(403,"VietQR test callback is disabled");
-        try {
-            if(authorization==null || !authorization.startsWith("Bearer ")) throw new IllegalArgumentException();
-            if(!jwt.verify(authorization.substring(7)).getStringListClaim("roles").contains("PRODUCT_MANAGER")) throw new PaymentException(403,"Product manager role is required");
-        } catch(PaymentException e) {throw e;} catch(Exception e) {throw new PaymentException(401,"Invalid manager access token");}
+        if(authentication==null || authentication instanceof AnonymousAuthenticationToken || !authentication.isAuthenticated())
+            throw new PaymentException(401,"Invalid manager access token");
+        if(authentication.getAuthorities().stream().noneMatch(role->role.getAuthority().equals("PRODUCT_MANAGER")))
+            throw new PaymentException(403,"Product manager role is required");
         gateway.trigger(id);return Map.of("status","SUCCESS");
     }
     private void missingToken(String token) {if(token==null || token.isBlank()) throw new PaymentException(401,"Missing customer order access token");}

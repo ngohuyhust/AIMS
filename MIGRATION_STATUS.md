@@ -2,11 +2,33 @@
 
 ## Current checkpoint
 
-- Authorized scope: **refactor authentication to Spring Security's standard authentication chain**.
-- Status: **implementation and documentation complete; 662/662 backend tests pass**.
-- Next checkpoint: no authentication refactor remains; Java 25/toolchain migration and production
-  cutover are separate checkpoints requiring explicit authorization.
+- Authorized scope: **finish the Spring Security refactor across the backend; change Angular only if
+  its wire contract requires it**.
+- Status: **implementation, documentation and verification complete; 663/663 backend tests pass**.
+- Next checkpoint: no further Spring Security conversion is planned; Java 25/toolchain migration and
+  production cutover remain separate checkpoints requiring explicit authorization.
 - Current branch: `main`, preserving consolidated ISD history.
+
+## SPRING SECURITY REQUEST-BOUNDARY REFACTOR result
+
+- Replaced the custom JWT servlet filter with Spring Boot OAuth2 Resource Server,
+  `BearerTokenAuthenticationFilter`, Spring `JwtDecoder`, `JwtAuthenticationConverter` and
+  `@AuthenticationPrincipal Jwt`. Application and VietQR merchant token signing now use Spring
+  `JwtEncoder`; direct application Nimbus signing/verifying calls were removed.
+- Product/user/order management, PayPal refunds and the optional VietQR test trigger now consume the
+  Spring authentication principal/authorities and use request or method authorization instead of
+  reparsing the manager token in business services. Login remains the standard
+  `AuthenticationManager`/`DaoAuthenticationProvider` chain completed in the prior checkpoint.
+- Preserved exact URLs, headers, JSON, JWT claims/lifetimes, 401/403 behavior, public stale-token
+  tolerance, order capabilities and merchant-token isolation. No schema/Flyway or Angular change.
+- Authentication/JWT tests pass15/15, affected-module tests pass80/80, and full `test` plus Maven
+  `verify` each pass663/663 with zero failures, errors or skips on Java21 and PostgreSQL17.6
+  Testcontainers; executable JAR built. Frontend verification passes all70 source files and approved
+  overlay hashes. Read-only source remains at `c7c022e33f100937cd0f072c3666fd0e26754d8e`.
+- No test contacted PayPal, VietQR, SendGrid, Supabase or another production service. No JDK was
+  downloaded; the existing Java21 container image was used. Git publication is recorded after the
+  implementation and completion commits are pushed.
+- [Validation](docs/spring-security-boundary-validation.md).
 
 ## SPRING SECURITY AUTHENTICATION REFACTOR result
 

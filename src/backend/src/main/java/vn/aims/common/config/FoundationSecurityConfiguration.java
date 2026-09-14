@@ -2,7 +2,6 @@ package vn.aims.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -11,8 +10,10 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import vn.aims.auth.security.AccessTokenErrors;
+import vn.aims.auth.security.AimsBearerTokenResolver;
 
 /** Open only authorized routes; shared method security uses exact role authorities. */
 @org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
@@ -29,16 +30,21 @@ public class FoundationSecurityConfiguration {
         return new ProviderManager(provider);
     }
     @Bean
-    SecurityFilterChain foundationSecurity(HttpSecurity http, vn.aims.auth.security.JwtTokens tokens,
+    SecurityFilterChain foundationSecurity(HttpSecurity http, AimsBearerTokenResolver bearerTokens,
+            JwtAuthenticationConverter jwtAuthenticationConverter,
             com.fasterxml.jackson.databind.ObjectMapper json) throws Exception {
         return http
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/api/orders/*/approve", "/api/orders/*/approve/", "/api/orders/*/cancel", "/api/orders/*/cancel/", "/api/orders/*/reject", "/api/orders/*/reject/", "/api/orders/*/confirm-vietqr-refund", "/api/orders/*/confirm-vietqr-refund/", "/api/customer/orders/*/cancel", "/api/customer/orders/*/cancel/", "/api/vietqr/payments", "/api/vietqr/payments/", "/api/vietqr/payments/callback", "/api/vietqr/payments/callback/", "/api/vietqr/payments/*/trigger-callback", "/api/vietqr/payments/*/trigger-callback/", "/vqr/api/token_generate", "/vqr/api/token_generate/", "/vqr/bank/api/transaction-callback", "/vqr/bank/api/transaction-callback/", "/vqr/bank/api/transaction-sync", "/vqr/bank/api/transaction-sync/", "/api/paypal/order/create", "/api/paypal/order/create/", "/api/paypal/order/capture", "/api/paypal/order/capture/", "/api/paypal/order/refund", "/api/paypal/order/refund/", "/api/orders", "/api/orders/", "/api/orders/*/delivery-info", "/api/orders/*/delivery-info/", "/api/orders/cart/check-stock", "/api/orders/cart/check-stock/", "/api/orders/shipping-fee", "/api/orders/shipping-fee/", "/api/auth/login", "/api/auth/login/", "/api/auth/change-password", "/api/auth/change-password/", "/api/users", "/api/users/**", "/api/auth/reset-password/**", "/api/products", "/api/products/**"))
-                .addFilterBefore(new vn.aims.auth.security.JwtAuthenticationFilter(tokens,json), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
+                .oauth2ResourceServer(resource -> resource
+                        .bearerTokenResolver(bearerTokens)
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))
+                        .authenticationEntryPoint((request,response,error) -> reject(request,response,json,bearerTokens,true)))
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(HttpMethod.POST, "/api/vietqr/payments", "/api/vietqr/payments/", "/api/vietqr/payments/callback", "/api/vietqr/payments/callback/", "/api/vietqr/payments/*/trigger-callback", "/api/vietqr/payments/*/trigger-callback/", "/vqr/api/token_generate", "/vqr/api/token_generate/", "/vqr/bank/api/transaction-callback", "/vqr/bank/api/transaction-callback/", "/vqr/bank/api/transaction-sync", "/vqr/bank/api/transaction-sync/").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/vietqr/payments/*/status", "/api/vietqr/payments/*/status/", "/api/vietqr/payments/by-ref/*/status", "/api/vietqr/payments/by-ref/*/status/").permitAll()
                         .requestMatchers(HttpMethod.HEAD, "/api/vietqr/payments/*/status", "/api/vietqr/payments/*/status/", "/api/vietqr/payments/by-ref/*/status", "/api/vietqr/payments/by-ref/*/status/").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/paypal/order/create", "/api/paypal/order/create/", "/api/paypal/order/capture", "/api/paypal/order/capture/", "/api/paypal/order/refund", "/api/paypal/order/refund/").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/paypal/order/refund", "/api/paypal/order/refund/").hasAuthority("PRODUCT_MANAGER")
+                        .requestMatchers(HttpMethod.POST, "/api/paypal/order/create", "/api/paypal/order/create/", "/api/paypal/order/capture", "/api/paypal/order/capture/").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/users","/api/users/","/api/users/logs","/api/users/logs/").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.HEAD,"/api/users","/api/users/","/api/users/logs","/api/users/logs/").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST,"/api/users","/api/users/","/api/users/*/reset-password","/api/users/*/reset-password/","/api/auth/reset-password/*","/api/auth/reset-password/*/").hasAuthority("ADMIN")
@@ -64,11 +70,25 @@ public class FoundationSecurityConfiguration {
                         .anyRequest().denyAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(errors -> errors
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.FORBIDDEN))
+                        .authenticationEntryPoint((request,response,error) -> reject(request,response,json,bearerTokens,false))
                         .accessDeniedHandler((request,response,error) -> {
                             response.setStatus(403); response.setContentType("application/json"); response.setCharacterEncoding("UTF-8");
                             json.writeValue(response.getWriter(),vn.aims.auth.controller.AuthErrorHandler.body(403,"Bạn không có quyền truy cập chức năng này"));
                         }))
                 .build();
+    }
+    private static void reject(jakarta.servlet.http.HttpServletRequest request,
+            jakarta.servlet.http.HttpServletResponse response,com.fasterxml.jackson.databind.ObjectMapper json,
+            AimsBearerTokenResolver bearerTokens,
+            boolean invalid) throws java.io.IOException {
+        if(!invalid && !bearerTokens.supports(request)) {
+            response.setStatus(403);
+            return;
+        }
+        boolean paypal=request.getRequestURI().matches("/api/paypal/order/refund/?");
+        String message=paypal ? (invalid?"Invalid manager access token":"Missing manager access token")
+                : (invalid?AccessTokenErrors.INVALID:AccessTokenErrors.MISSING);
+        response.setStatus(401);response.setContentType("application/json");response.setCharacterEncoding("UTF-8");
+        json.writeValue(response.getWriter(),vn.aims.auth.controller.AuthErrorHandler.body(401,message));
     }
 }

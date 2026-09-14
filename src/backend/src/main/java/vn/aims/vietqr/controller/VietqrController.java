@@ -2,6 +2,7 @@ package vn.aims.vietqr.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import vn.aims.vietqr.dto.*;
 import vn.aims.vietqr.service.*;
@@ -24,11 +25,11 @@ public class VietqrController {
         return service.status(null,reference,token);
     }
     @PostMapping({"/{paymentId}/trigger-callback","/{paymentId}/trigger-callback/"}) @ResponseStatus(HttpStatus.CREATED)
-    public Object trigger(@PathVariable String paymentId,@RequestHeader(value="Authorization",required=false) String authorization) {
-        return service.trigger(VietqrInput.pathId(paymentId),authorization);
+    public Object trigger(@PathVariable String paymentId,Authentication authentication) {
+        return service.trigger(VietqrInput.pathId(paymentId),authentication);
     }
     @PostMapping({"/callback","/callback/"}) @ResponseStatus(HttpStatus.CREATED)
     public Object callback(@RequestBody JsonNode body,@RequestHeader(value="Authorization",required=false) String authorization) {
-        merchant.verify(authorization);return service.callback(VietqrInput.parse(body,false),authorization);
+        return service.callback(VietqrInput.parse(body,false),authorization);
     }
 }

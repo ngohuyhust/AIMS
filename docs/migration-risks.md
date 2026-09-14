@@ -1,6 +1,6 @@
 # Migration risks and decisions
 
-## Spring Security authentication refactor
+## Spring Security authentication and request-boundary refactor
 
 - Username/password login now uses Spring Security's `AuthenticationManager`,
   `DaoAuthenticationProvider` and `UserDetailsService`; the custom BCrypt encoder remains required
@@ -8,9 +8,20 @@
 - Non-ACTIVE accounts map through Spring's disabled-account check and keep the existing source401
   message. Unknown user, wrong password and malformed/missing credentials share the existing generic
   source401 message; successful credentials and the principal hash are erased after authentication.
-- JWT issue/verification, stateless request authentication and exact authorities are unchanged.
-  This checkpoint does not introduce sessions, form login, token revocation or Spring Authorization
-  Server. Database failures remain server errors rather than being misclassified as bad credentials.
+- User access-token issue/verification now uses Spring Security `JwtEncoder`/`JwtDecoder`; stateless
+  request authentication uses OAuth2 Resource Server's `BearerTokenAuthenticationFilter`, Spring
+  `Jwt` principals and exact authorities from the `roles` claim. The custom JWT servlet filter and
+  direct Nimbus signing/verifying calls were removed. VietQR merchant tokens use separate Spring JWT
+  codecs with the existing domain-separated key and validators.
+- A scoped `BearerTokenResolver` preserves the deliberate legacy contract that stale Bearer values
+  are ignored on public/capability routes. Expanding it globally would turn otherwise valid public
+  and customer-capability calls into401 responses; any newly protected route must be added to both
+  authorization rules and this resolver, with integration coverage.
+- Customer order capabilities and merchant Basic credentials are separate API authentication
+  schemes, not user JWT implementations. This checkpoint does not introduce sessions, form login,
+  token revocation or Spring Authorization Server. Database failures remain server errors rather
+  than being misclassified as bad credentials. No Angular change is needed because the wire contract
+  is unchanged.
 
 ## MODULE 11 update
 

@@ -7,10 +7,10 @@ import java.time.*;
 import java.util.*;
 import java.util.function.Supplier;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.transaction.support.TransactionTemplate;
-import vn.aims.auth.security.JwtTokens;
 import vn.aims.payment.dto.*;
 import vn.aims.payment.event.*;
 import vn.aims.payment.exception.*;
@@ -29,15 +29,18 @@ public class PaypalService {
     private final PaymentService payments;
     private final CreditCardGateway gateway;
     private final PaypalApiClient client;
-    private final JwtTokens jwt;
     private final TransactionTemplate tx;
-    public PaypalService(PaypalStore store,PaymentService payments,CreditCardGateway gateway,PaypalApiClient client,JwtTokens jwt,PlatformTransactionManager manager) {
-        this.store=store;this.payments=payments;this.gateway=gateway;this.client=client;this.jwt=jwt;tx=new TransactionTemplate(manager);
+    public PaypalService(PaypalStore store,PaymentService payments,CreditCardGateway gateway,PaypalApiClient client,PlatformTransactionManager manager) {
+        this.store=store;this.payments=payments;this.gateway=gateway;this.client=client;tx=new TransactionTemplate(manager);
     }
     private <T> T transaction(Supplier<T> action) { return tx.execute(status->action.get()); }
-    public JsonNode execute(String operation,int orderId,String submittedGatewayId,String token,String authorization) {
+    public JsonNode create(int orderId,String token) {return execute("CREATE",orderId,null,token);}
+    public JsonNode capture(int orderId,String submittedGatewayId,String token) {return execute("CAPTURE",orderId,submittedGatewayId,token);}
+    @PreAuthorize("hasAuthority('PRODUCT_MANAGER')")
+    public JsonNode refund(int orderId) {return execute("REFUND",orderId,null,null);}
+    private JsonNode execute(String operation,int orderId,String submittedGatewayId,String token) {
         Prepared prepared=transaction(()->{
-            var order=store.order(orderId);authorize(order,token,authorization,operation.equals("REFUND"));client.configured();
+            var order=store.order(orderId);authorize(order,token,operation.equals("REFUND"));client.configured();
             if(operation.equals("CREATE")) {
                 var payment=payments.begin(orderId,"PAYPAL",PaymentService.wholeVnd(order.total()),"PAYPAL payment for order "+orderId);
                 if(new java.math.BigDecimal(PaypalChecks.usd(payment.amount())).signum()<=0) throw new PaymentException(400,"PayPal amount is below one USD cent");
@@ -106,12 +109,8 @@ public class PaypalService {
         }
         return result;
     }
-    private void authorize(PaypalStore.OrderRow order,String token,String authorization,boolean refund) {
+    private void authorize(PaypalStore.OrderRow order,String token,boolean refund) {
         if(refund) {
-            if(authorization==null || !authorization.startsWith("Bearer ")) throw new PaymentException(401,"Missing manager access token");
-            List<String> roles;
-            try {roles=jwt.verify(authorization.substring(7)).getStringListClaim("roles");} catch(Exception error) {throw new PaymentException(401,"Invalid manager access token");}
-            if(roles==null || !roles.contains("PRODUCT_MANAGER")) throw new PaymentException(403,"Bạn không có quyền truy cập chức năng này");
             if(order==null) throw new PaymentException(404,"Order not found");
         } else {
             if(token==null || token.isBlank()) throw new PaymentException(401,"Missing customer order access token");

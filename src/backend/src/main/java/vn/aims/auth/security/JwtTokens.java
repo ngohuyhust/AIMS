@@ -1,45 +1,38 @@
 package vn.aims.auth.security;
 
-import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.*;
-import com.nimbusds.jwt.*;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.stereotype.Component;
 
 @Component
 public class JwtTokens {
-    private final byte[] secret;
-    public JwtTokens(@Value("${JWT_SECRET:}") String secret) {
-        this.secret = secret.getBytes(StandardCharsets.UTF_8);
-        if (this.secret.length < 32) throw new IllegalStateException("JWT_SECRET must contain at least 32 UTF-8 bytes");
+    private final JwtEncoder encoder;
+    private final JwtDecoder decoder;
+    @Autowired
+    public JwtTokens(JwtEncoder encoder, JwtDecoder decoder) { this.encoder=encoder;this.decoder=decoder; }
+    public JwtTokens(String secret) {
+        var key=JwtConfiguration.key(secret);this.encoder=JwtConfiguration.encoder(key);this.decoder=JwtConfiguration.decoder(key);
     }
     public String issue(int userID, String email, String fullName, List<String> roles) {
         var now = Instant.now();
-        var claims = new JWTClaimsSet.Builder().claim("userID",userID).claim("email",email)
-                .claim("fullName",fullName).claim("roles",roles).issueTime(Date.from(now))
-                .expirationTime(Date.from(now.plusSeconds(86400))).build();
+        var claims = JwtClaimsSet.builder().claim("userID",userID).claim("email",email)
+                .claim("fullName",fullName).claim("roles",roles).issuedAt(now)
+                .expiresAt(now.plusSeconds(86400)).build();
         try {
-            var jwt = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.HS256).type(JOSEObjectType.JWT).build(),claims);
-            jwt.sign(new MACSigner(secret));
-            return jwt.serialize();
-        } catch (JOSEException error) { throw new IllegalStateException("JWT signing failed"); }
+            var headers=JwsHeader.with(MacAlgorithm.HS256).type("JWT").build();
+            return encoder.encode(JwtEncoderParameters.from(headers,claims)).getTokenValue();
+        } catch (RuntimeException error) { throw new IllegalStateException("JWT signing failed",error); }
     }
-    public JWTClaimsSet verify(String token) {
-        try {
-            var jwt = SignedJWT.parse(token);
-            if (!JWSAlgorithm.HS256.equals(jwt.getHeader().getAlgorithm()) || !jwt.verify(new MACVerifier(secret)))
-                throw new IllegalArgumentException();
-            var claims = jwt.getJWTClaimsSet();
-            var now = new Date();
-            if (claims.getExpirationTime() == null || !now.before(claims.getExpirationTime())
-                    || (claims.getNotBeforeTime() != null && now.before(claims.getNotBeforeTime()))
-                    || claims.getIntegerClaim("userID") == null || claims.getIntegerClaim("userID") <= 0
-                    || claims.getStringListClaim("roles") == null) throw new IllegalArgumentException();
-            return claims;
-        } catch (Exception error) { throw new IllegalArgumentException("Invalid access token"); }
+    public Jwt verify(String token) {
+        try { return decoder.decode(token); }
+        catch (RuntimeException error) { throw new IllegalArgumentException("Invalid access token",error); }
     }
 }

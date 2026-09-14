@@ -13,6 +13,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
+import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -42,6 +44,7 @@ class AuthIntegrationTest {
     @Autowired JdbcTemplate jdbc;
     @Autowired PasswordEncoder passwords;
     @Autowired AuthenticationManager authenticationManager;
+    @Autowired FilterChainProxy springSecurityFilterChain;
     @Autowired ObjectMapper json;
     @Autowired JwtTokens tokens;
     @Autowired RoleProbe probe;
@@ -65,9 +68,9 @@ class AuthIntegrationTest {
     }
     @Test void loginClaimsAndBcryptAreCompatible() throws Exception {
         var jwt = tokens.verify(login());
-        assertThat(jwt.getIntegerClaim("userID")).isEqualTo(id);
-        assertThat(jwt.getStringListClaim("roles")).containsExactlyInAnyOrder("ADMIN","STAFF");
-        assertThat(jwt.getExpirationTime().getTime()-jwt.getIssueTime().getTime()).isEqualTo(86400000);
+        assertThat(((Number)jwt.getClaim("userID")).intValue()).isEqualTo(id);
+        assertThat(jwt.getClaimAsStringList("roles")).containsExactlyInAnyOrder("ADMIN","STAFF");
+        assertThat(jwt.getExpiresAt().toEpochMilli()-jwt.getIssuedAt().toEpochMilli()).isEqualTo(86400000);
         assertThat(passwords.matches("old-password",jdbc.queryForObject("SELECT password_hash FROM users WHERE user_id=?",String.class,id))).isTrue();
     }
     @Test void springAuthenticationManagerAuthenticatesCredentialsAndAccountStatus() {
@@ -89,6 +92,14 @@ class AuthIntegrationTest {
         assertThatThrownBy(() -> authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken.unauthenticated("auth@example.test", "old-password")))
                 .isInstanceOf(DisabledException.class);
+    }
+    @Test void protectedRequestsUseSpringResourceServerInsteadOfCustomJwtFilter() {
+        var filters = springSecurityFilterChain.getFilterChains().stream()
+                .flatMap(chain -> chain.getFilters().stream())
+                .toList();
+        assertThat(filters).anyMatch(BearerTokenAuthenticationFilter.class::isInstance);
+        assertThat(filters).noneMatch(filter -> filter.getClass().getName()
+                .equals("vn.aims.auth.security.JwtAuthenticationFilter"));
     }
     @Test void loginFailureAndDeactivatedAccount() throws Exception {
         mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"auth@example.test\",\"password\":\"wrong\"}"))
@@ -118,11 +129,11 @@ class AuthIntegrationTest {
     }
     @Test void guardDistinguishesMissingMalformedAndExpiredTokens() throws Exception {
         mvc.perform(post("/api/auth/change-password")).andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value(JwtAuthenticationFilter.MISSING));
+                .andExpect(jsonPath("$.message").value(AccessTokenErrors.MISSING));
         mvc.perform(post("/api/auth/change-password").header("Authorization","bearer bad")).andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value(JwtAuthenticationFilter.MISSING));
+                .andExpect(jsonPath("$.message").value(AccessTokenErrors.MISSING));
         mvc.perform(post("/api/auth/change-password").header("Authorization","Bearer bad")).andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value(JwtAuthenticationFilter.INVALID));
+                .andExpect(jsonPath("$.message").value(AccessTokenErrors.INVALID));
     }
     @Test void corsPreflightAndStaleTokenOnPublicCatalog() throws Exception {
         mvc.perform(options("/api/auth/change-password").header("Origin","http://localhost:4200")
