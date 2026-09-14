@@ -2,10 +2,30 @@
 
 ## Current checkpoint
 
-- Authorized scope: **replace the layered package names with conventional Spring package names**.
-- Status: **implementation and documentation complete; 661/661 backend tests pass**.
-- Next checkpoint: no package refactor remains; production cutover remains a separate operational step.
+- Authorized scope: **refactor authentication to Spring Security's standard authentication chain**.
+- Status: **implementation and documentation complete; 662/662 backend tests pass**.
+- Next checkpoint: no authentication refactor remains; Java 25/toolchain migration and production
+  cutover are separate checkpoints requiring explicit authorization.
 - Current branch: `main`, preserving consolidated ISD history.
+
+## SPRING SECURITY AUTHENTICATION REFACTOR result
+
+- Replaced manual login user lookup/status/password checks with `AuthenticationManager`,
+  `DaoAuthenticationProvider`, `AimsUserDetailsService` and the existing bcryptjs-compatible
+  `LegacyBcryptPasswordEncoder`. Successful Spring credentials and principal hashes are erased.
+- Preserved POST `/api/auth/login` status, JSON, JWT claims/lifetime, role authorities and exact
+  wrong-credentials/disabled-account messages. Database failures remain500; JWT request filtering,
+  change-password behavior, sessions/form login and token revocation are unchanged.
+- Authentication integration tests pass11/11. Full `test` and `verify` each pass662/662 with zero
+  failures, errors or skips on Java21 and PostgreSQL17.6 Testcontainers; executable JAR built.
+  Java21 Maven Enforcer passes using the existing `eclipse-temurin:21-jdk` Docker image.
+- No Flyway migration or database schema change. Frontend verification passes all70 source files
+  and approved overlay hashes. No external payment/email/database service was contacted.
+- Implementation `03846c8fd373f9c3d1c7f418189d91188963c9c2`; exact remote verification is reported in the
+  checkpoint response after this completion record is pushed.
+- Read-only source remains at `c7c022e33f100937cd0f072c3666fd0e26754d8e` with its pre-existing
+  `.DS_Store` changes and untracked activity-diagram directory preserved.
+- [Validation](docs/authentication-spring-refactor-validation.md).
 
 ## CONVENTIONAL SPRING PACKAGE REFACTOR result
 
