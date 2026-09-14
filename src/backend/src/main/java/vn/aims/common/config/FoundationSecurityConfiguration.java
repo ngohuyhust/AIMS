@@ -6,6 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
@@ -14,8 +19,14 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 @Configuration(proxyBeanMethods = false)
 public class FoundationSecurityConfiguration {
     @Bean
-    org.springframework.security.crypto.password.PasswordEncoder passwordEncoder() {
+    PasswordEncoder passwordEncoder() {
         return new vn.aims.auth.security.LegacyBcryptPasswordEncoder();
+    }
+    @Bean
+    AuthenticationManager authenticationManager(UserDetailsService users, PasswordEncoder passwords) {
+        var provider = new DaoAuthenticationProvider(users);
+        provider.setPasswordEncoder(passwords);
+        return new ProviderManager(provider);
     }
     @Bean
     SecurityFilterChain foundationSecurity(HttpSecurity http, vn.aims.auth.security.JwtTokens tokens,

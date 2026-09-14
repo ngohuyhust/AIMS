@@ -16,6 +16,11 @@ Các tích hợp kỹ thuật có package mang đúng tên chức năng: `auth/s
 `paypal/gateway`, `vietqr/client`, `vietqr/gateway`, `notification/provider` và
 `payment/gateway`. Cấu hình Spring dùng chung nằm ở `common/config`.
 
+Đăng nhập username/password đi qua chuỗi Spring Security chuẩn
+`AuthenticationManager` → `DaoAuthenticationProvider` → `AimsUserDetailsService` →
+`LegacyBcryptPasswordEncoder`. JWT stateless vẫn được phát sau khi xác thực thành công và được
+kiểm tra bởi security filter riêng cho các request được bảo vệ.
+
 Quy ước áp dụng cho `auth`, `cart`, `notification`, `order`, `payment`, `paypal`, `product`, `user`
 và `vietqr`. Mỗi feature chỉ tạo những package có lớp tương ứng; ví dụ `notification` không có HTTP
 controller hoặc JPA entity riêng. Spring quét toàn bộ cây package từ `vn.aims.AimsApplication`.

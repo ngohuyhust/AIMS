@@ -8,6 +8,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +41,7 @@ class AuthIntegrationTest {
     @Autowired MockMvc mvc;
     @Autowired JdbcTemplate jdbc;
     @Autowired PasswordEncoder passwords;
+    @Autowired AuthenticationManager authenticationManager;
     @Autowired ObjectMapper json;
     @Autowired JwtTokens tokens;
     @Autowired RoleProbe probe;
@@ -65,12 +70,36 @@ class AuthIntegrationTest {
         assertThat(jwt.getExpirationTime().getTime()-jwt.getIssueTime().getTime()).isEqualTo(86400000);
         assertThat(passwords.matches("old-password",jdbc.queryForObject("SELECT password_hash FROM users WHERE user_id=?",String.class,id))).isTrue();
     }
+    @Test void springAuthenticationManagerAuthenticatesCredentialsAndAccountStatus() {
+        var authenticated = authenticationManager.authenticate(
+                UsernamePasswordAuthenticationToken.unauthenticated("auth@example.test", "old-password"));
+        assertThat(authenticated.isAuthenticated()).isTrue();
+        assertThat(authenticated.getName()).isEqualTo("auth@example.test");
+        assertThat(authenticated.getCredentials()).isNull();
+        assertThat(((AimsUserPrincipal) authenticated.getPrincipal()).getPassword()).isNull();
+        assertThat(authenticated.getAuthorities()).extracting("authority")
+                .containsExactlyInAnyOrder("ADMIN", "STAFF");
+
+        assertThatThrownBy(() -> authenticationManager.authenticate(
+                UsernamePasswordAuthenticationToken.unauthenticated("auth@example.test", "wrong")))
+                .isInstanceOf(BadCredentialsException.class);
+
+        jdbc.update("UPDATE users SET status='DEACTIVATED' WHERE user_id=?",id);
+        em.clear();
+        assertThatThrownBy(() -> authenticationManager.authenticate(
+                UsernamePasswordAuthenticationToken.unauthenticated("auth@example.test", "old-password")))
+                .isInstanceOf(DisabledException.class);
+    }
     @Test void loginFailureAndDeactivatedAccount() throws Exception {
         mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"auth@example.test\",\"password\":\"wrong\"}"))
                 .andExpect(status().isUnauthorized()).andExpect(jsonPath("$.message").value("Tài khoản hoặc mật khẩu không chính xác"));
+        mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"missing@example.test\",\"password\":\"wrong\"}"))
+                .andExpect(status().isUnauthorized()).andExpect(jsonPath("$.message").value("Tài khoản hoặc mật khẩu không chính xác"));
+        mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isUnauthorized()).andExpect(jsonPath("$.message").value("Tài khoản hoặc mật khẩu không chính xác"));
         jdbc.update("UPDATE users SET status='DEACTIVATED' WHERE user_id=?",id);
         em.clear();
-        mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"auth@example.test\",\"password\":\"old-password\"}"))
+        mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"auth@example.test\",\"password\":\"wrong\"}"))
                 .andExpect(status().isUnauthorized()).andExpect(jsonPath("$.message").value("Tài khoản đã bị vô hiệu hóa hoặc khóa"));
     }
     @Test void changePasswordWritesHashAndAuditTogether() throws Exception {

@@ -411,12 +411,20 @@ equivalence is not claimed. Existing-token revocation/self-admin protection are 
 
 Implemented POST `/api/auth/login` (public, `{email,password}`) and POST
 `/api/auth/change-password` (Bearer JWT, `{oldPassword,newPassword}`); success status201 as in Nest.
+The later Spring Security refactor routes login credentials through an explicit
+`AuthenticationManager` backed by `DaoAuthenticationProvider`, `UserDetailsService` and the
+legacy-compatible `PasswordEncoder`. This is an internal implementation change only: paths,
+request/response JSON, JWT claims/lifetime, status codes and error messages remain unchanged.
 Login returns `{token,user:{userID,email,fullName,roles:string[]}}`. HS256 token has the same user
 claims plus iat/exp with24h lifetime. UTF-8 signing secret comes exclusively from JWT_SECRET
 (minimum32 bytes). Missing/short secret prevents startup; local setup generates a random ignored key.
 Nimbus is supplied through Spring Security's managed oauth2-jose dependency; no custom JWT crypto.
 
 Login errors retain the source401 messages for incorrect credentials and deactivated accounts.
+Missing users and missing/nonstring credentials are hidden behind the same incorrect-credentials
+message. Spring account status checks still occur before password comparison, preserving the
+distinct disabled-account response. Authentication credentials and the principal's password hash
+are erased from the successful Spring authentication result before the JWT response is assembled.
 Change-password validates trimmed UTF-16 length>=6, hashes the original untrimmed value with BCrypt
 cost10, and commits the credential and CHANGE_PASSWORD audit in one transaction. Returns
 `{success:true,message:"Đổi mật khẩu thành công"}`; short new password/wrong old password return400,

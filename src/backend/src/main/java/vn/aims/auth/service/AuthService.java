@@ -3,10 +3,16 @@ package vn.aims.auth.service;
 import vn.aims.auth.exception.AuthError;
 
 import java.util.Map;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.aims.auth.security.JwtTokens;
+import vn.aims.auth.security.AimsUserPrincipal;
 import vn.aims.user.entity.*;
 import vn.aims.user.repository.*;
 
@@ -16,19 +22,29 @@ public class AuthService {
     private final UserAuditLogRepository logs;
     private final PasswordEncoder passwords;
     private final JwtTokens tokens;
-    public AuthService(UserRepository users, UserAuditLogRepository logs, PasswordEncoder passwords, JwtTokens tokens) {
-        this.users=users; this.logs=logs; this.passwords=passwords; this.tokens=tokens;
+    private final AuthenticationManager authentication;
+    public AuthService(UserRepository users, UserAuditLogRepository logs, PasswordEncoder passwords,
+            JwtTokens tokens, AuthenticationManager authentication) {
+        this.users=users; this.logs=logs; this.passwords=passwords; this.tokens=tokens; this.authentication=authentication;
     }
-    @Transactional(readOnly = true)
     public Map<String,Object> login(String email, String password) {
-        var user = users.findByEmail(email == null ? "" : email)
-                .orElseThrow(() -> new AuthError(401,"Tài khoản hoặc mật khẩu không chính xác"));
-        if (!"ACTIVE".equals(user.getStatus())) throw new AuthError(401,"Tài khoản đã bị vô hiệu hóa hoặc khóa");
-        if (password == null || !passwords.matches(password,user.getPasswordHash()))
+        AimsUserPrincipal principal;
+        try {
+            var result = authentication.authenticate(
+                    UsernamePasswordAuthenticationToken.unauthenticated(email == null ? "" : email, password));
+            principal = (AimsUserPrincipal) result.getPrincipal();
+        } catch (InternalAuthenticationServiceException error) {
+            if (error.getCause() instanceof org.springframework.dao.DataAccessException databaseFailure)
+                throw databaseFailure;
+            throw error;
+        } catch (DisabledException error) {
+            throw new AuthError(401,"Tài khoản đã bị vô hiệu hóa hoặc khóa");
+        } catch (AuthenticationException error) {
             throw new AuthError(401,"Tài khoản hoặc mật khẩu không chính xác");
-        var roles = user.getRoles().stream().map(Role::getName).toList();
-        return Map.of("token",tokens.issue(user.getUserID(),user.getEmail(),user.getFullName(),roles),
-                "user",Map.of("userID",user.getUserID(),"email",user.getEmail(),"fullName",user.getFullName(),"roles",roles));
+        }
+        var roles = principal.getAuthorities().stream().map(authority -> authority.getAuthority()).toList();
+        return Map.of("token",tokens.issue(principal.userID(),principal.email(),principal.fullName(),roles),
+                "user",Map.of("userID",principal.userID(),"email",principal.email(),"fullName",principal.fullName(),"roles",roles));
     }
     @Transactional
     public Map<String,Object> changePassword(int userID, String oldPassword, String newPassword) {

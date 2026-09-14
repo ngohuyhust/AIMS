@@ -1,5 +1,17 @@
 # Migration risks and decisions
 
+## Spring Security authentication refactor
+
+- Username/password login now uses Spring Security's `AuthenticationManager`,
+  `DaoAuthenticationProvider` and `UserDetailsService`; the custom BCrypt encoder remains required
+  for bcryptjs-compatible UTF-8 72-byte truncation and cost10 hashes.
+- Non-ACTIVE accounts map through Spring's disabled-account check and keep the existing source401
+  message. Unknown user, wrong password and malformed/missing credentials share the existing generic
+  source401 message; successful credentials and the principal hash are erased after authentication.
+- JWT issue/verification, stateless request authentication and exact authorities are unchanged.
+  This checkpoint does not introduce sessions, form login, token revocation or Spring Authorization
+  Server. Database failures remain server errors rather than being misclassified as bad credentials.
+
 ## MODULE 11 update
 
 - User chose paid-order cancellation only by PM. Customer token grants unpaid cancellation only;
