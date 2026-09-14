@@ -28,6 +28,8 @@
 - No test contacted PayPal, VietQR, SendGrid, Supabase or another production service. No JDK was
   downloaded; the existing Java21 container image was used. Git publication is recorded after the
   implementation and completion commits are pushed.
+- Implementation `f2c07a8f7b5ec4beb22d9f278d856d06fc31a885`; exact remote verification is
+  reported in the checkpoint response after this completion record is pushed.
 - [Validation](docs/spring-security-boundary-validation.md).
 
 ## SPRING SECURITY AUTHENTICATION REFACTOR result
