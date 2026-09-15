@@ -2,12 +2,29 @@
 
 ## Current checkpoint
 
-- Authorized scope: **finish the Spring Security refactor across the backend; change Angular only if
-  its wire contract requires it**.
-- Status: **implementation, documentation and verification complete; 663/663 backend tests pass**.
-- Next checkpoint: no further Spring Security conversion is planned; Java 25/toolchain migration and
-  production cutover remain separate checkpoints requiring explicit authorization.
+- Authorized scope: **make the default Docker Compose command build and start PostgreSQL plus the
+  Spring Boot backend without a host JDK/Maven or optional profile**.
+- Status: **implementation, documentation and verification complete; Git publication in progress**.
+- Next checkpoint: Java 25/toolchain migration and production cutover remain separate checkpoints
+  requiring explicit authorization.
 - Current branch: `main`, preserving consolidated ISD history.
+
+## DEFAULT COMPOSE SELF-BUILD result
+
+- Backend Dockerfile is a digest-pinned multi-stage build: official Maven3.9.16/Temurin21 builder
+  runs `./mvnw`, BuildKit caches dependencies, and the existing digest-pinned JRE21 runtime receives
+  only the executable JAR. Host JDK/Maven and a prebuilt `target` directory are no longer required.
+- Removed the optional `application` profile, so default Compose includes both PostgreSQL and backend.
+  After the one-time secure `python3 tools/init-local-env.py`, the normal command is
+  `docker compose up --build` (or `-d --wait`). No fixed database/JWT credential was introduced.
+- Tests-first Compose verifier initially failed because only PostgreSQL was a default service, then
+  passed after the change. Actual `docker compose up -d --build --wait` built the JAR in Docker and
+  made both services healthy; health returned `UP`, catalog returned an empty list, and runtime
+  remained UID10001/read-only. A second image build used all relevant cache layers.
+- Full Maven `verify` passes663/663 with zero failures/errors/skips on Java21 and PostgreSQL17.6
+  Testcontainers; executable JAR built. Frontend verification passes all70 source files and approved
+  overlays. No schema/Flyway, application API, Angular or read-only source change.
+- [Validation](docs/compose-self-build-validation.md).
 
 ## SPRING SECURITY REQUEST-BOUNDARY REFACTOR result
 

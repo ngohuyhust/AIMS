@@ -9,20 +9,18 @@ Các feature được chia trực tiếp thành `controller`, `service`, `reposi
 tìm lớp theo tên quen thuộc của Spring. Các tích hợp đặc thù dùng package như `security`, `client`,
 `gateway` và `provider`; xem [cấu trúc backend](docs/backend-structure.md).
 
-## Chạy local
+## Chạy local bằng Docker
 
-Cần JDK21, Docker, Python3; frontend dùng Node24 và lockfile hiện tại.
-Maven Wrapper cố định Maven3.9.16; không cần cài Maven toàn máy.
+Chỉ cần Docker và Python3 để tạo secret local lần đầu. Không cần cài JDK hoặc Maven trên máy host;
+Dockerfile tự build Spring Boot bằng JDK21 và Maven Wrapper rồi tạo runtime image JRE21.
 
 ```sh
 python3 tools/init-local-env.py
-docker compose up -d --wait postgres
-set -a
-. ./.env
-set +a
-cd src/backend
-./mvnw spring-boot:run
+docker compose up --build
 ```
+
+Sau lần tạo `.env` đầu tiên, chỉ cần chạy `docker compose up --build`. Muốn chạy nền và chờ cả
+PostgreSQL/backend healthy: `docker compose up -d --build --wait`.
 
 Backend mặc định bind `127.0.0.1:3000`; PostgreSQL riêng tại `127.0.0.1:55432/aims_local`.
 Công cụ init sinh password/JWT ngẫu nhiên, giữ cấu hình có sẵn; `.env` không được commit.
@@ -51,13 +49,15 @@ cd src/backend
 ./mvnw -B verify
 cd ../..
 python3 tools/verify-frontend.py
-docker compose --profile application up -d --build --wait
+python3 tools/verify-compose.py
+docker compose up -d --build --wait
 ```
 
-Image runtime lấy JAR **đã verify**, chạy JRE21 với UID10001, healthcheck, filesystem read-only và
-`/tmp` tạm trong Compose. Build lại JAR trước mỗi image build. Compose mặc định chỉ bật PostgreSQL;
-profile `application` thêm backend tại port3000 (dừng backend chạy bằng Maven trước để tránh trùng port).
-`docker compose --profile application stop` giữ dữ liệu; không dùng `down -v` với dữ liệu cần giữ.
+Dockerfile multi-stage tự build JAR trong builder JDK21; image runtime chỉ chứa JRE21 và JAR, chạy
+UID10001, healthcheck, filesystem read-only và `/tmp` tạm. Compose mặc định khởi động PostgreSQL và
+backend tại port3000. `docker compose stop` giữ dữ liệu; không dùng `down -v` với dữ liệu cần giữ.
+`mvnw test/verify` vẫn là bước kiểm thử bắt buộc trước phát hành; image build chỉ package với test
+được bỏ qua vì suite Testcontainers đã chạy riêng.
 
 Kiểm tra image độc lập, không đụng database Compose:
 

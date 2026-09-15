@@ -1,3 +1,9 @@
 **
-!target/
-!target/aims-backend-0.0.1-SNAPSHOT.jar
+!.mvn/
+!.mvn/wrapper/
+!.mvn/wrapper/maven-wrapper.properties
+!mvnw
+!pom.xml
+!src/
+!src/main/
+!src/main/**

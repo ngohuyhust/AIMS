@@ -12,12 +12,18 @@ to Render, change DNS, contact a production database or enable real payments/ema
   no VietQR sandbox-trigger flag, graceful shutdown20s, INFO logs and generic error responses.
   Choose one profile; do not combine local with production. Health exposes status only.
 
-Build with Java21 `./mvnw -B verify` in src/backend, then `docker build -t aims-backend:<revision>
-src/backend` from root. Runtime Dockerfile copies the verified executable JAR only, excludes source,
-.env, Maven cache and tests. Base JRE21 Alpine manifest is digest-pinned; UID10001:10001.
+Run `./mvnw -B verify` with Java21 before release. The multi-stage Dockerfile then runs the Maven
+Wrapper in its own JDK21 builder, packages with tests skipped, and copies only the executable JAR to
+the runtime stage; the host does not need Java or Maven. Build with `docker build -t
+aims-backend:<revision> src/backend` from root. The build context excludes tests, target, .env and
+Maven cache. Base runtime JRE21 Alpine manifest is digest-pinned; UID10001:10001.
 Run with read-only root, writable temporary /tmp, dropped capabilities and no-new-privileges as in
 Compose. Set PORT for platform binding; health path `/actuator/health`. Terminate gracefully with
 at least30s allowance. Retain previous image revision for application rollback.
+
+For local use, generate ignored secrets once with `python3 tools/init-local-env.py`, then
+`docker compose up --build` builds and starts both PostgreSQL and backend without a Compose profile.
+The one-time secret step is intentionally not replaced by committed/fixed development credentials.
 
 ## Environment variables
 

@@ -24,6 +24,8 @@ jobs:
       - name: PostgreSQL Testcontainers and executable JAR
         working-directory: src/backend
         run: ./mvnw -B verify
+      - name: Verify default Compose topology
+        run: python3 tools/verify-compose.py
       - name: Build runtime image
         run: docker build -t aims-backend:ci src/backend
       - name: Test production image on disposable PostgreSQL

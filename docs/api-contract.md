@@ -6,6 +6,13 @@ recorded before any Java business module. It is NOT a claim of parity with the P
 No source application was started: its startup synchronizes schema and resets seeded users.
 Runtime snapshots against an isolated legacy database must be added in the relevant checkpoints.
 
+## Default Compose self-build checkpoint
+
+The backend Dockerfile is now a self-contained JDK21/Maven Wrapper multi-stage build and the backend
+is a default Compose service. This changes only local build/start ergonomics: all HTTP methods,
+paths, headers, authentication rules, request/response bodies, statuses and errors remain unchanged.
+No Angular request contract or production provider setting changes.
+
 ## Spring Security request boundary
 
 The final security refactor preserves every HTTP contract below while replacing the hand-written

@@ -19,7 +19,6 @@ services:
     restart: unless-stopped
 
   backend:
-    profiles: [application]
     build: ./src/backend
     image: aims-backend:local
     environment:

@@ -1,5 +1,18 @@
 # Migration risks and decisions
 
+## Default Compose self-build
+
+- `docker compose up --build` now builds the Spring Boot JAR inside a JDK21 builder and starts both
+  PostgreSQL and backend; no host JDK/Maven or optional Compose profile is required.
+- Local database/JWT secrets are still generated once in ignored `.env` by
+  `python3 tools/init-local-env.py`. A fixed fallback was deliberately not added. Losing or rotating
+  that file changes the database credential or invalidates outstanding JWTs.
+- The image build packages with tests skipped; release confidence still comes from the separate
+  mandatory Maven `verify`/PostgreSQL Testcontainers run. First build requires network access for
+  the builder image and dependencies; later builds can reuse BuildKit cache.
+- Compose retains its named PostgreSQL volume. `docker compose stop` is recoverable; `down -v`
+  deletes local database data and remains inappropriate when that data must be retained.
+
 ## Spring Security authentication and request-boundary refactor
 
 - Username/password login now uses Spring Security's `AuthenticationManager`,
