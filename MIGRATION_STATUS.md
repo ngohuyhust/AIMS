@@ -27,8 +27,8 @@
   (3 low,11 moderate,18 high,1 critical); dependency upgrades are not silently included because
   they would change the preserved frontend and require a separate reviewed checkpoint.
 - Already-pushed commits remain intact; repository policy prohibits deleting/replacing them or
-  force-pushing. Implementation hash is recorded by the following completion commit; exact remote
-  verification is reported after push.
+  force-pushing. Implementation `69009a8df0c23847706d6bcb260095ae6102a29a`; exact remote
+  verification is reported after the completion commit is pushed.
 - [Validation](docs/frontend-compose-validation.md).
 
 ## DEFAULT COMPOSE SELF-BUILD result
