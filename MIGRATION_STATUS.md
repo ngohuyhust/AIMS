@@ -27,8 +27,8 @@
   PayPal/VietQR remain sandbox/development, test callback is false, while enabled SendGrid can send
   real email for newly generated eligible events.
 - No Java/Angular/API/schema/Flyway change and no secret committed. CI validates this topology with
-  a temporary fake environment file. Implementation hash is recorded by the completion commit;
-  exact remote verification follows push.
+  a temporary empty environment file. Implementation
+  `1d2158b23017d705b7402e61e64065c103374cbc`; exact remote verification follows the completion push.
 - [Validation](docs/supabase-compose-validation.md).
 
 ## FRONTEND COMPOSE RUNTIME result
