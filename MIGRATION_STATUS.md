@@ -24,6 +24,8 @@
 - Full Maven `verify` passes663/663 with zero failures/errors/skips on Java21 and PostgreSQL17.6
   Testcontainers; executable JAR built. Frontend verification passes all70 source files and approved
   overlays. No schema/Flyway, application API, Angular or read-only source change.
+- Implementation `0059ad542d724825d65dcdf177d100c2ebed102e`; exact remote verification is
+  reported in the checkpoint response after this completion record is pushed.
 - [Validation](docs/compose-self-build-validation.md).
 
 ## SPRING SECURITY REQUEST-BOUNDARY REFACTOR result
