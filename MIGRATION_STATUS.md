@@ -2,12 +2,34 @@
 
 ## Current checkpoint
 
-- Authorized scope: **make the default Docker Compose command build and start PostgreSQL plus the
-  Spring Boot backend without a host JDK/Maven or optional profile**.
+- Authorized scope: **complete the default Docker Compose stack with the preserved Angular
+  frontend, commit it on top of the already-pushed history, and keep one-command local startup**.
 - Status: **implementation, documentation and verification complete; Git publication in progress**.
 - Next checkpoint: Java 25/toolchain migration and production cutover remain separate checkpoints
   requiring explicit authorization.
 - Current branch: `main`, preserving consolidated ISD history.
+
+## FRONTEND COMPOSE RUNTIME result
+
+- Replaced the legacy Angular development Dockerfile with a digest-pinned multi-stage build:
+  Node24.16.0 runs reproducible `npm ci` and the production build; unprivileged Nginx receives only
+  `dist/frontend/browser`, exposes `/health` and supports Angular SPA fallback.
+- Default `docker compose up --build` now builds/starts PostgreSQL, Spring backend and frontend.
+  The frontend binds localhost4200, waits for backend health, runs UID101:101 with a read-only root,
+  ephemeral `/tmp`, all capabilities dropped and `no-new-privileges`.
+- Actual `docker compose up -d --build --wait` made all three services healthy. `/`, `/login`, FE
+  `/health` and backend actuator health passed; a second frontend build reused every build layer.
+- Angular tests pass7/7 and production build passes on Node24.16.0. Maven `verify` passes663/663 with
+  zero failures/errors/skips on Java21 and PostgreSQL17.6 Testcontainers; executable JAR built.
+  Compose and frontend/source-hash verifiers pass, including the read-only source-ref comparison.
+- No Angular application/API behavior, Java, schema or Flyway change. The three frontend container
+  files are recorded as an explicit approved overlay. `npm ci` reports33 dependency advisories
+  (3 low,11 moderate,18 high,1 critical); dependency upgrades are not silently included because
+  they would change the preserved frontend and require a separate reviewed checkpoint.
+- Already-pushed commits remain intact; repository policy prohibits deleting/replacing them or
+  force-pushing. Implementation hash is recorded by the following completion commit; exact remote
+  verification is reported after push.
+- [Validation](docs/frontend-compose-validation.md).
 
 ## DEFAULT COMPOSE SELF-BUILD result
 

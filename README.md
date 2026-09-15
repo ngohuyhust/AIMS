@@ -20,16 +20,18 @@ docker compose up --build
 ```
 
 Sau lần tạo `.env` đầu tiên, chỉ cần chạy `docker compose up --build`. Muốn chạy nền và chờ cả
-PostgreSQL/backend healthy: `docker compose up -d --build --wait`.
+PostgreSQL/backend/frontend healthy: `docker compose up -d --build --wait`.
 
 Backend mặc định bind `127.0.0.1:3000`; PostgreSQL riêng tại `127.0.0.1:55432/aims_local`.
+Cùng lệnh đó build Angular bằng Node24 rồi phục vụ static bằng Nginx unprivileged tại
+`http://localhost:4200`; route Angular được fallback về `index.html`.
 Công cụ init sinh password/JWT ngẫu nhiên, giữ cấu hình có sẵn; `.env` không được commit.
 Không đọc `.env` của ISD, không tự kết nối database cũ. Không seed/reset tài khoản mặc định.
 Health: `curl --fail http://localhost:3000/actuator/health` trả `{"status":"UP"}`.
 Database mới có role, chưa có user/sản phẩm; initial ADMIN cần được cấp qua quy trình trong
 [tài liệu triển khai](docs/deployment.md), không dùng tài khoản mặc định cũ.
 
-Frontend, chạy từ root ở terminal khác:
+Nếu cần Angular dev server/hot reload thay vì container static, chạy riêng:
 
 ```sh
 cd src/frontend
@@ -37,7 +39,8 @@ npm ci
 npm start
 ```
 
-Mở `http://localhost:4200`. Không chạy build/install trong project ISD nguồn.
+Khi dùng Compose không cần chạy các lệnh frontend riêng. Không chạy build/install trong project ISD
+nguồn.
 Frontend trên host khác localhost vẫn gọi `https://isd-20252-25.onrender.com`; muốn đổi sang domain
 backend khác cần người dùng cho phép sửa cấu hình frontend. Không tự thay URL hoặc chuyển traffic.
 
@@ -53,9 +56,11 @@ python3 tools/verify-compose.py
 docker compose up -d --build --wait
 ```
 
-Dockerfile multi-stage tự build JAR trong builder JDK21; image runtime chỉ chứa JRE21 và JAR, chạy
-UID10001, healthcheck, filesystem read-only và `/tmp` tạm. Compose mặc định khởi động PostgreSQL và
-backend tại port3000. `docker compose stop` giữ dữ liệu; không dùng `down -v` với dữ liệu cần giữ.
+Dockerfile backend multi-stage tự build JAR trong builder JDK21; image runtime chỉ chứa JRE21 và
+JAR. Dockerfile frontend build Angular trong Node24 rồi chỉ chép `dist` vào Nginx unprivileged.
+Hai runtime đều có healthcheck, filesystem read-only, `/tmp` tạm và dropped capabilities. Compose
+mặc định khởi động PostgreSQL, backend port3000 và frontend port4200. `docker compose stop` giữ dữ
+liệu; không dùng `down -v` với dữ liệu cần giữ.
 `mvnw test/verify` vẫn là bước kiểm thử bắt buộc trước phát hành; image build chỉ package với test
 được bỏ qua vì suite Testcontainers đã chạy riêng.
 

@@ -1,9 +1,21 @@
 # Migration risks and decisions
 
+## Frontend Compose runtime
+
+- Default `docker compose up --build` now starts Angular/Nginx in addition to PostgreSQL and backend.
+  The first build requires access to the pinned Node/Nginx images and npm registry; later builds can
+  reuse BuildKit cache.
+- The static runtime is unprivileged and read-only, with ephemeral `/tmp`, dropped capabilities and
+  localhost-only port binding. TLS termination and production static-cache headers remain outside
+  this local Compose checkpoint.
+- Angular application code is unchanged. Therefore localhost calls the local Spring backend, but a
+  non-localhost deployment still calls the legacy Render API hostname. Changing that production
+  hostname remains a separately authorized frontend/API-cutover decision.
+
 ## Default Compose self-build
 
-- `docker compose up --build` now builds the Spring Boot JAR inside a JDK21 builder and starts both
-  PostgreSQL and backend; no host JDK/Maven or optional Compose profile is required.
+- The backend self-build uses a JDK21 builder and requires no host JDK/Maven or optional Compose
+  profile; the later frontend runtime checkpoint extends the same default command to all services.
 - Local database/JWT secrets are still generated once in ignored `.env` by
   `python3 tools/init-local-env.py`. A fixed fallback was deliberately not added. Losing or rotating
   that file changes the database credential or invalidates outstanding JWTs.

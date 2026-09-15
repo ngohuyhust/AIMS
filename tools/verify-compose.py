@@ -22,8 +22,10 @@ result = subprocess.run(
     text=True,
 )
 services = result.stdout.split()
-if services != ["postgres", "backend"]:
-    raise SystemExit(f"FAIL: default Compose services are {services}, expected postgres and backend")
+if services != ["postgres", "backend", "frontend"]:
+    raise SystemExit(
+        f"FAIL: default Compose services are {services}, expected postgres, backend and frontend"
+    )
 
 dockerfile = (ROOT / "src/backend/Dockerfile").read_text()
 required = (
@@ -40,4 +42,16 @@ wrapper = (ROOT / "src/backend/.mvn/wrapper/maven-wrapper.properties").read_text
 if "apache-maven/3.9.16/apache-maven-3.9.16-bin.zip" not in wrapper:
     raise SystemExit("FAIL: Docker builder and Maven Wrapper versions are no longer aligned")
 
-print("PASS: default Compose includes postgres and a self-building Spring backend image.")
+frontend = (ROOT / "src/frontend/Dockerfile").read_text()
+frontend_required = (
+    "node:24.16.0-slim@sha256:",
+    "npm ci",
+    "npm run build",
+    "nginxinc/nginx-unprivileged:1.29.1-alpine@sha256:",
+    "COPY --from=build",
+)
+frontend_missing = [marker for marker in frontend_required if marker not in frontend]
+if frontend_missing:
+    raise SystemExit(f"FAIL: frontend production image is incomplete: {frontend_missing}")
+
+print("PASS: default Compose self-builds postgres, Spring backend and Angular frontend.")

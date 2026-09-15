@@ -6,6 +6,14 @@ recorded before any Java business module. It is NOT a claim of parity with the P
 No source application was started: its startup synchronizes schema and resets seeded users.
 Runtime snapshots against an isolated legacy database must be added in the relevant checkpoints.
 
+## Frontend Compose checkpoint
+
+The default Compose topology now also builds and serves the preserved Angular application at
+localhost4200. This is a packaging/runtime change only: Angular routes, URL selection, HTTP methods,
+headers, authentication, query parameters, payloads, response expectations and backend endpoints
+below are unchanged. Nginx provides static delivery, `/health` and SPA fallback to `index.html`;
+it is not an API reverse proxy.
+
 ## Default Compose self-build checkpoint
 
 The backend Dockerfile is now a self-contained JDK21/Maven Wrapper multi-stage build and the backend

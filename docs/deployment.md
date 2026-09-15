@@ -22,8 +22,12 @@ Compose. Set PORT for platform binding; health path `/actuator/health`. Terminat
 at least30s allowance. Retain previous image revision for application rollback.
 
 For local use, generate ignored secrets once with `python3 tools/init-local-env.py`, then
-`docker compose up --build` builds and starts both PostgreSQL and backend without a Compose profile.
-The one-time secret step is intentionally not replaced by committed/fixed development credentials.
+`docker compose up --build` builds and starts PostgreSQL, backend and frontend without a Compose
+profile or host Java/Node installation. The frontend multi-stage image builds with digest-pinned
+Node24 and serves only `dist/frontend/browser` from digest-pinned unprivileged Nginx on localhost
+port4200. Its root filesystem is read-only, `/tmp` is ephemeral, Linux capabilities are dropped and
+the health endpoint is `/health`. The one-time secret step is intentionally not replaced by
+committed/fixed development credentials.
 
 ## Environment variables
 
@@ -86,11 +90,13 @@ Notify/reconcile providers as part of a separately approved operational rollback
 
 ## Frontend and operational limits
 
-Frontend source/hash is preserved including approved token adaptations. Production API_BASE_URL
-is still the existing Render hostname; a cutover there requires access/approval to that service.
-A new backend hostname requires a separately approved minimal frontend configuration change.
-The preserved frontend Dockerfile is the old development image; deployment should publish the
-verified Angular `dist/frontend/browser` static output with SPA fallback to index.html.
+Angular application source/hash is preserved including approved token adaptations. The authorized
+container-only overlay replaces the old development image with a production static image and Nginx
+SPA fallback; it does not change routes, requests, authentication or API selection. On localhost the
+existing application configuration calls the Compose backend at localhost3000. On any non-localhost
+hostname, production `API_BASE_URL` is still the existing Render hostname; a cutover there requires
+access/approval to that service. A new backend hostname requires a separately approved minimal
+frontend configuration change. TLS termination and cache policy remain deployment-platform duties.
 
 No live provider authentication, sender verification, TLS termination or production traffic has been
 checked. CORS retains broad legacy Vercel allowance. Notification outbox carries PII

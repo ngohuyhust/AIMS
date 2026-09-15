@@ -42,5 +42,20 @@ services:
     stop_grace_period: 30s
     restart: unless-stopped
 
+  frontend:
+    build: ./src/frontend
+    image: aims-frontend:local
+    ports:
+      - "127.0.0.1:4200:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+
 volumes:
   aims-postgres-data:
