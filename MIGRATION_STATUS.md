@@ -2,12 +2,34 @@
 
 ## Current checkpoint
 
-- Authorized scope: **complete the default Docker Compose stack with the preserved Angular
-  frontend, commit it on top of the already-pushed history, and keep one-command local startup**.
+- Authorized scope: **connect the Spring backend directly to the Supabase database/configuration
+  used by NestJS while keeping secrets out of Git and preserving a safe local rollback path**.
 - Status: **implementation, documentation and verification complete; Git publication in progress**.
-- Next checkpoint: Java 25/toolchain migration and production cutover remain separate checkpoints
-  requiring explicit authorization.
+- Next checkpoint: live `public`→`aims_java` delta/cutover, Java25/toolchain migration and provider
+  production activation remain separate checkpoints requiring explicit authorization.
 - Current branch: `main`, preserving consolidated ISD history.
+
+## CONNECTED SUPABASE COMPOSE result
+
+- Added `compose.supabase.yml`: it builds/runs only Spring backend and Angular/Nginx, reads the
+  existing mode0600 Git-ignored `.env.supabase`, forces production with `AIMS_DB_SCHEMA=aims_java`,
+  and forces the VietQR test callback off. Default isolated Compose remains the rollback path.
+- NestJS uses PostgreSQL/TypeORM rather than Supabase REST. Spring connects directly to that same
+  Supabase database through the transaction pooler, but not the unsafe legacy `public` schema:
+  `public` has no Flyway history and repository policy forbids auto-baselining/parallel writers.
+- Fresh external rehearsal was forced read-only and copied1.521 rows/19 tables from `public` to a
+  disposable PostgreSQL17.6 Flyway V1–V10 clone. All counts matched; catalog/relational/password
+  quality checks and production-profile health passed; all temporary resources were removed.
+- Actual Supabase Compose backend/frontend are healthy. Backend is UID10001/read-only/hardened,
+  actuator returns `UP`, catalog returns182 ACTIVE products, and frontend health returns `ok`.
+  DB/JWT/PayPal/VietQR/SendGrid variables were presence-checked without displaying values.
+- Provider configuration is loaded as authorized, but validation made no provider request.
+  PayPal/VietQR remain sandbox/development, test callback is false, while enabled SendGrid can send
+  real email for newly generated eligible events.
+- No Java/Angular/API/schema/Flyway change and no secret committed. CI validates this topology with
+  a temporary fake environment file. Implementation hash is recorded by the completion commit;
+  exact remote verification follows push.
+- [Validation](docs/supabase-compose-validation.md).
 
 ## FRONTEND COMPOSE RUNTIME result
 

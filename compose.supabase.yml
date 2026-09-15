@@ -1,0 +1,36 @@
+name: aims-supabase
+
+services:
+  backend:
+    build: ./src/backend
+    image: aims-backend:local
+    env_file:
+      - ${AIMS_SUPABASE_ENV_FILE:-.env.supabase}
+    environment:
+      SPRING_PROFILES_ACTIVE: production
+      AIMS_DB_SCHEMA: aims_java
+      VIETQR_ENABLE_TEST_CALLBACK: "false"
+    ports:
+      - "127.0.0.1:3000:3000"
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 30s
+    restart: unless-stopped
+
+  frontend:
+    build: ./src/frontend
+    image: aims-frontend:local
+    ports:
+      - "127.0.0.1:4200:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped

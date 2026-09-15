@@ -1,5 +1,20 @@
 # Migration risks and decisions
 
+## Connected Supabase Compose runtime
+
+- `compose.supabase.yml` connects Spring directly to the Supabase database through the existing
+  ignored `.env.supabase`, but uses the migrated `aims_java` schema. It intentionally does not use
+  legacy `public`, which has no Flyway history and cannot safely support two independent writers.
+- `aims_java` is a point-in-time copy, not CDC/replication. The current read-only rehearsal found the
+  same1.521 per-table row-count total as the migration record, but future NestJS writes to `public`
+  will not appear automatically. A write freeze plus reviewed delta copy is still required for final
+  production cutover.
+- Provider settings are also loaded as explicitly requested. PayPal/VietQR remain non-live and the
+  VietQR test callback is forced off, but `NOTIFICATIONS_ENABLED=true` means new eligible events can
+  send real SendGrid mail. Validation checked only variable presence and did not call any provider.
+- Credentials remain only in mode0600 ignored files. CI validates topology with a temporary fake env
+  file and cannot access Supabase or provider secrets.
+
 ## Frontend Compose runtime
 
 - Default `docker compose up --build` now starts Angular/Nginx in addition to PostgreSQL and backend.

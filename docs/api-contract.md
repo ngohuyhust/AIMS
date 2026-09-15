@@ -805,5 +805,8 @@ See [validation](module-13-validation.md) and [deployment/URL constraints](deplo
 ## Legacy Supabase isolated schema
 
 No HTTP contract changed. The same Java API was started against `AIMS_DB_SCHEMA=aims_java`; health
-and catalog succeeded using copied legacy data. The NestJS `public` schema and production traffic
-were not switched. Provider credentials remain disabled in the local connected instance.
+and catalog succeeded using copied legacy data. The authorized `compose.supabase.yml` runtime loads
+the existing Git-ignored DB/provider environment, serves the Angular app at localhost4200 and the
+Spring API at localhost3000. The catalog returns182 ACTIVE products. The NestJS `public` schema and
+production traffic are not switched, and no endpoint/header/JSON contract changed. Provider keys
+were presence-checked without disclosure; no provider request was made during validation.

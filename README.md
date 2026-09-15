@@ -44,6 +44,27 @@ nguồn.
 Frontend trên host khác localhost vẫn gọi `https://isd-20252-25.onrender.com`; muốn đổi sang domain
 backend khác cần người dùng cho phép sửa cấu hình frontend. Không tự thay URL hoặc chuyển traffic.
 
+### Chạy với dữ liệu Supabase của NestJS
+
+Workspace đã có file `.env.supabase` quyền0600, bị Git-ignore, ánh xạ kết nối PostgreSQL và cấu hình
+PayPal/VietQR/SendGrid cũ sang Spring. Dừng stack local rồi chạy stack Supabase:
+
+```sh
+docker compose stop
+docker compose -f compose.supabase.yml up --build
+```
+
+Stack này chỉ chạy Spring backend và Angular frontend; không khởi động PostgreSQL local. Backend kết
+nối trực tiếp cùng database Supabase nhưng dùng schema Flyway `aims_java`, vì schema `public` của
+NestJS không có Flyway history và không được cho phép auto-baseline. Snapshot hiện có1.521 dòng/19
+bảng; API catalog trả182 sản phẩm ACTIVE từ tổng204 sản phẩm. Frontend vẫn mở tại
+`http://localhost:4200` và gọi Spring tại localhost3000.
+
+`NOTIFICATIONS_ENABLED=true` trong file local hiện tại nên thao tác nghiệp vụ mới có thể gửi email
+thật qua SendGrid; PayPal/VietQR vẫn là sandbox/development và VietQR test callback bị ép tắt.
+Không commit hoặc in nội dung `.env.supabase`. Stack `aims_java` là snapshot, không tự đồng bộ các
+ghi mới về sau từ NestJS `public`.
+
 ## Kiểm thử và Docker
 
 ```sh
@@ -53,6 +74,7 @@ cd src/backend
 cd ../..
 python3 tools/verify-frontend.py
 python3 tools/verify-compose.py
+python3 tools/verify-supabase-compose.py
 docker compose up -d --build --wait
 ```
 

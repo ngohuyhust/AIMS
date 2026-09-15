@@ -29,6 +29,14 @@ port4200. Its root filesystem is read-only, `/tmp` is ephemeral, Linux capabilit
 the health endpoint is `/health`. The one-time secret step is intentionally not replaced by
 committed/fixed development credentials.
 
+For the authorized legacy-data runtime, `.env.supabase` remains mode0600 and Git-ignored. Run
+`docker compose -f compose.supabase.yml up --build`; this topology contains only backend/frontend,
+loads the existing database and provider settings without copying them into Compose, forces the
+production profile, `AIMS_DB_SCHEMA=aims_java`, and disables the VietQR test callback. It connects
+directly to the same Supabase database as NestJS but deliberately does not attach Spring to legacy
+`public`: that schema has no Flyway history and parallel NestJS/Spring writers are unsafe. The
+default `docker-compose.yml` remains the isolated local rollback path.
+
 ## Environment variables
 
 Inject secrets from the deployment platform/secret store at runtime; never use image build args,

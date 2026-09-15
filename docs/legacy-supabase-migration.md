@@ -45,6 +45,13 @@ unchanged. The running container name is `aims-supabase-api`; it binds only `127
 UID 10001 with a read-only root, and can be stopped/restarted with `docker stop` / `docker start`
 without changing `public`.
 
+On 2026-09-15 the user authorized the connected Compose runtime. `compose.supabase.yml` loads that
+file directly and runs only Spring plus Angular/Nginx; it forces production, `aims_java` and the
+disabled VietQR test callback. A fresh read-only rehearsal again copied1.521 rows/19 tables from
+`public`; Spring/Flyway health passed and the connected catalog returned182 ACTIVE products. Database
+and provider secrets were not printed or committed. The provider variables are loaded, but no
+PayPal, VietQR or SendGrid request was sent as part of this check.
+
 Migration completed on 2026-09-08: `aims_java` has Flyway V1-V10 and an exactly compared snapshot
 of 1,521 rows across all 19 legacy tables. A production-profile Java container passed health and
 catalog checks against that schema. The legacy `public` table set and row counts remained unchanged.
