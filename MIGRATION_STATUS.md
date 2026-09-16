@@ -26,8 +26,8 @@
   edits, three approved additions and one approved deletion.
 - Angular tests pass 7/7 and production build passes. Java 21/Maven 3.9.16 `verify` passes 663/663
   with zero failures/errors/skips using PostgreSQL 17.6 Testcontainers; executable JAR builds.
-  Compose, source-ref frontend and diff checks pass. Implementation hash will be recorded by the
-  completion status commit; exact remote verification follows push.
+  Compose, source-ref frontend and diff checks pass. Implementation
+  `f82e67cec146caab316ace0e711d1f142c66f48c`; exact remote verification follows push.
 - [Validation](docs/code-cleanup-validation.md).
 
 ## SUPABASE-ONLY RUNTIME SIMPLIFICATION result
