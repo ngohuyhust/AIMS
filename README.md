@@ -1,36 +1,173 @@
-# AIMS
+# AIMS — Internet Media Store
 
-Backend NestJS đã chuyển sang Java21 / Spring Boot3.5.16, modular monolith theo feature.
-Angular giữ nguyên nguồn và các sửa đổi token đã được duyệt ở Module7/9/10.
-Catalog, user/auth/admin, product/audit, cart/shipping, order, PayPal, VietQR, refunds và notifications
-đã được triển khai. [Tiến độ/kiểm thử](MIGRATION_STATUS.md), [API contract](docs/api-contract.md).
+AIMS là hệ thống thương mại điện tử dành cho các sản phẩm media vật lý như sách, CD, DVD và báo.
+Ứng dụng cung cấp đầy đủ luồng mua hàng cho khách, quản trị người dùng, quản lý sản phẩm và xử lý
+đơn hàng trên một giao diện web thống nhất.
 
-Các feature được chia trực tiếp thành `controller`, `service`, `repository`, `entity` và `dto` để
-tìm lớp theo tên quen thuộc của Spring. Các tích hợp đặc thù dùng package như `security`, `client`,
-`gateway` và `provider`; xem [cấu trúc backend](docs/backend-structure.md).
+Backend được xây dựng bằng Spring Boot theo kiến trúc modular monolith. Frontend là ứng dụng Angular
+độc lập, giao tiếp với backend qua REST API. Dữ liệu được lưu trên PostgreSQL/Supabase và quản lý
+schema bằng Flyway.
 
-## Chạy bằng Docker
+## Chức năng chính
 
-Runtime chỉ dùng Supabase; PostgreSQL local, local profile và script tạo local DB đã được bỏ. File
-`.env.supabase` quyền 0600, bị Git-ignore, chứa kết nối PostgreSQL cùng cấu hình
-JWT/PayPal/VietQR/SendGrid. Không cần JDK, Maven, Node hoặc database trên host:
+### Khách hàng
 
-```sh
-docker compose up --build
+- Xem, tìm kiếm và lọc sản phẩm theo loại, danh mục và khoảng giá.
+- Xem chi tiết sách, CD, DVD và báo đang kinh doanh.
+- Quản lý giỏ hàng, kiểm tra tồn kho và tính phí vận chuyển.
+- Đặt hàng không cần tài khoản; mỗi đơn được bảo vệ bằng access token riêng.
+- Thanh toán qua PayPal hoặc VietQR.
+- Xem trạng thái, hóa đơn và hủy đơn theo quy tắc nghiệp vụ.
+
+### Quản trị viên
+
+- Đăng nhập bằng email và mật khẩu.
+- Tạo tài khoản nội bộ, khóa/mở khóa tài khoản và đặt lại mật khẩu.
+- Gán vai trò và theo dõi nhật ký thay đổi người dùng.
+
+### Product Manager
+
+- Tạo, cập nhật, điều chỉnh tồn kho và ngừng kinh doanh sản phẩm.
+- Theo dõi lịch sử thay đổi sản phẩm.
+- Duyệt, từ chối hoặc hủy đơn hàng.
+- Xử lý hoàn tiền PayPal và xác nhận hoàn tiền VietQR.
+
+### Nền tảng
+
+- Xác thực stateless bằng Spring Security và JWT.
+- Phân quyền theo vai trò `ADMIN` và `PRODUCT_MANAGER`.
+- Gửi email qua SendGrid bằng transactional outbox.
+- Health check phục vụ giám sát container.
+- Kiểm thử tích hợp với PostgreSQL thật thông qua Testcontainers.
+
+## Kiến trúc
+
+```text
+┌──────────────────┐       REST/JSON       ┌───────────────────────────┐
+│ Angular frontend │ ────────────────────▶ │ Spring Boot backend       │
+│ Nginx :4200      │                       │ Modular monolith :3000    │
+└──────────────────┘                       └─────────────┬─────────────┘
+                                                      │
+                          ┌───────────────────────────┼───────────────────┐
+                          ▼                           ▼                   ▼
+                 PostgreSQL/Supabase          PayPal & VietQR         SendGrid
 ```
 
-Muốn chạy nền và chờ cả backend/frontend healthy: `docker compose up -d --build --wait`.
-Backend Spring production tại `http://localhost:3000`; Angular/Nginx tại
-`http://localhost:4200`. Backend kết nối trực tiếp database Supabase với schema Flyway `aims_java`;
-API catalog hiện trả 182 sản phẩm ACTIVE từ tổng 204 sản phẩm đã migrate. Compose không tạo service,
-port hay volume database local.
+Backend được chia theo feature dưới package `vn.aims`:
 
-Schema NestJS `public` không có Flyway history nên không được auto-baseline hoặc dùng đồng thời như
-một writer thứ hai. `aims_java` là snapshot; ghi mới về sau từ NestJS không tự đồng bộ. File cấu hình
-hiện bật SendGrid thật; PayPal/VietQR vẫn sandbox/development và VietQR test callback bị ép tắt.
-Không commit hoặc in nội dung `.env.supabase`.
+- `auth`: đăng nhập, đổi mật khẩu và JWT.
+- `user`: tài khoản, vai trò và nhật ký quản trị.
+- `product`: catalog, tồn kho và audit sản phẩm.
+- `cart`: kiểm tra giỏ hàng và tính phí vận chuyển.
+- `order`: đặt hàng, theo dõi và quản lý vòng đời đơn.
+- `payment`, `paypal`, `vietqr`: giao dịch và tích hợp cổng thanh toán.
+- `notification`: outbox, mẫu email và SendGrid.
+- `common`: cấu hình và thành phần dùng chung.
 
-Nếu cần Angular dev server/hot reload thay vì container static, chạy riêng:
+Mỗi feature sử dụng các package Spring quen thuộc như `controller`, `service`, `repository`,
+`entity`, `dto` và `exception`. Xem thêm [cấu trúc backend](docs/backend-structure.md).
+
+## Công nghệ sử dụng
+
+| Thành phần | Công nghệ |
+| --- | --- |
+| Backend | Java 21, Spring Boot 3.5.16, Spring MVC, Spring Security, Spring Data JPA |
+| Frontend | Angular 21, TypeScript 5.9, RxJS, Tailwind CSS 4 |
+| Database | PostgreSQL/Supabase, Flyway |
+| Thanh toán | PayPal REST API, VietQR API |
+| Email | SendGrid |
+| Kiểm thử | JUnit 5, Spring Boot Test, Testcontainers, Vitest |
+| Đóng gói | Maven Wrapper, npm, Docker Compose, Nginx |
+
+## Cấu trúc repository
+
+```text
+AIMS/
+├── src/
+│   ├── backend/                 # Spring Boot REST API
+│   │   ├── src/main/java/vn/aims
+│   │   ├── src/main/resources/db/migration
+│   │   └── src/test
+│   └── frontend/                # Angular SPA
+│       └── src/app
+├── docs/                        # API, kiến trúc và hướng dẫn triển khai
+├── tools/                       # Công cụ kiểm tra và vận hành
+├── docker-compose.yml
+└── README.md
+```
+
+## Chạy dự án bằng Docker Compose
+
+### Yêu cầu
+
+- Docker Desktop hoặc Docker Engine có Docker Compose.
+- Một PostgreSQL/Supabase instance mà máy chạy Docker có thể truy cập.
+- File `.env.supabase` ở thư mục gốc dự án.
+
+Tối thiểu, `.env.supabase` cần các biến sau:
+
+```dotenv
+AIMS_DB_URL=jdbc:postgresql://<host>:<port>/<database>?sslmode=require
+AIMS_DB_USERNAME=<database-user>
+AIMS_DB_PASSWORD=<database-password>
+JWT_SECRET=<random-secret-at-least-32-bytes>
+APP_PUBLIC_URL=https://<frontend-public-host>
+NOTIFICATIONS_ENABLED=false
+```
+
+Không commit file môi trường hoặc khóa bí mật. Compose sử dụng schema `aims_java`; Flyway tự tạo và
+kiểm tra schema khi backend khởi động.
+
+Khởi động toàn bộ ứng dụng:
+
+```sh
+docker compose up -d --build --wait
+```
+
+Sau khi các container healthy:
+
+- Frontend: <http://localhost:4200>
+- Backend API: <http://localhost:3000>
+- Health check: <http://localhost:3000/actuator/health>
+
+Theo dõi log hoặc dừng hệ thống:
+
+```sh
+docker compose logs -f
+docker compose down
+```
+
+Database nằm ngoài Compose nên `docker compose down` không xóa dữ liệu.
+
+## Cấu hình tích hợp
+
+Các tích hợp bên ngoài được cấu hình qua biến môi trường:
+
+| Nhóm | Biến chính |
+| --- | --- |
+| Database | `AIMS_DB_URL`, `AIMS_DB_USERNAME`, `AIMS_DB_PASSWORD`, `AIMS_DB_SCHEMA` |
+| JWT | `JWT_SECRET` |
+| Ứng dụng | `APP_PUBLIC_URL`, `ALLOWED_ORIGINS`, `PORT` |
+| PayPal | `PAYPAL_API_BASE_URL`, `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` |
+| VietQR | `VIETQR_API_BASE_URL`, `VIETQR_USERNAME`, `VIETQR_PASSWORD`, thông tin tài khoản ngân hàng |
+| VietQR callback | `VIETQR_MERCHANT_USERNAME`, `VIETQR_MERCHANT_PASSWORD` |
+| Email | `NOTIFICATIONS_ENABLED`, `SENDGRID_API_KEY`, `SENDGRID_FROM_EMAIL` |
+
+PayPal và VietQR mặc định sử dụng môi trường sandbox/development. Email mặc định không gửi cho đến
+khi `NOTIFICATIONS_ENABLED=true`. Danh sách biến đầy đủ và lưu ý production nằm trong
+[hướng dẫn deployment](docs/deployment.md).
+
+## Chạy ở chế độ phát triển
+
+Backend yêu cầu Java 21, Docker và một PostgreSQL có thể truy cập. Cấu hình các biến database/JWT
+trong môi trường chạy hoặc IDE, sau đó:
+
+```sh
+cd src/backend
+SPRING_PROFILES_ACTIVE=container ./mvnw spring-boot:run
+```
+
+Frontend yêu cầu Node.js tương thích Angular 21 và npm:
 
 ```sh
 cd src/frontend
@@ -38,61 +175,70 @@ npm ci
 npm start
 ```
 
-Khi dùng Compose không cần chạy các lệnh frontend riêng. Không chạy build/install trong project ISD
-nguồn.
-Frontend trên host khác localhost vẫn gọi `https://isd-20252-25.onrender.com`; muốn đổi sang domain
-backend khác cần người dùng cho phép sửa cấu hình frontend. Không tự thay URL hoặc chuyển traffic.
+Frontend development chạy tại `http://localhost:4200` và gọi backend tại
+`http://localhost:3000`.
 
-## Kiểm thử và Docker
+## Xác thực và phân quyền
+
+Spring Security xử lý đăng nhập qua `AuthenticationManager` và phát JWT cho tài khoản nội bộ.
+Các request cần xác thực gửi token theo chuẩn:
+
+```http
+Authorization: Bearer <access-token>
+```
+
+| Vai trò | Phạm vi chính |
+| --- | --- |
+| `ADMIN` | Quản trị người dùng, vai trò, trạng thái và audit log |
+| `PRODUCT_MANAGER` | Quản lý sản phẩm, đơn hàng, hoàn tiền và audit log |
+
+Khách mua hàng không cần tài khoản. Quyền truy cập một đơn cụ thể được kiểm tra bằng order access
+token do backend cấp khi tạo đơn. Dự án không tạo sẵn tài khoản hoặc mật khẩu mặc định.
+
+## API chính
+
+| Nhóm | Endpoint gốc | Quyền truy cập |
+| --- | --- | --- |
+| Catalog | `/api/products` | Công khai khi đọc; Product Manager khi ghi |
+| Authentication | `/api/auth` | Đăng nhập công khai; đổi mật khẩu cần JWT |
+| Cart và đơn hàng | `/api/orders` | Khách hàng hoặc Product Manager tùy thao tác |
+| Quản trị người dùng | `/api/users` | Admin |
+| PayPal | `/api/paypal/order` | Order token hoặc Product Manager tùy thao tác |
+| VietQR | `/api/vietqr/payments` | Order token, merchant callback hoặc Product Manager |
+| Health | `/actuator/health` | Công khai |
+
+Chi tiết method, header, payload và response được mô tả tại [API contract](docs/api-contract.md).
+
+## Kiểm thử
+
+Backend integration test sử dụng PostgreSQL thật qua Testcontainers, vì vậy Docker phải đang chạy:
 
 ```sh
 cd src/backend
-./mvnw -B test
 ./mvnw -B verify
-cd ../..
-python3 tools/verify-frontend.py
-python3 tools/verify-compose.py
-docker compose up -d --build --wait
 ```
 
-Dockerfile backend multi-stage tự build JAR trong builder JDK21; image runtime chỉ chứa JRE21 và
-JAR. Dockerfile frontend build Angular trong Node24 rồi chỉ chép `dist` vào Nginx unprivileged.
-Hai runtime đều có healthcheck, filesystem read-only, `/tmp` tạm và dropped capabilities. Compose
-chỉ khởi động backend port3000 và frontend port4200; database nằm ngoài Docker tại Supabase.
-`mvnw test/verify` vẫn là bước kiểm thử bắt buộc trước phát hành; image build chỉ package với test
-được bỏ qua vì suite Testcontainers đã chạy riêng.
-
-Kiểm tra image độc lập, không đụng database Compose:
+Kiểm thử và build frontend:
 
 ```sh
-python3 tools/smoke-container.py --image aims-backend:local
+cd src/frontend
+npm ci
+npm test -- --watch=false
+npm run build
 ```
 
-Script tạo database/network ngẫu nhiên rồi tự dọn tài nguyên của chính nó. Testcontainers bắt buộc
-PostgreSQL thật qua Docker, không skip khi thiếu Docker, không H2, không gọi gateway/email thật.
-Frontend: `npm test -- --watch=false` và `npm run build` trong `src/frontend`.
+Kiểm tra cấu hình Compose:
 
-CI `.github/workflows/ci.yml` chạy Maven verify/Testcontainers, Docker smoke và Angular test/build;
-đối chiếu cả70 file nguồn từ commit ISD được bảo tồn trong Git bằng `verify-frontend.py --source-ref`.
-CI chỉ kiểm tra/build, không tự deploy hoặc publish image. [Biến môi trường và rollout](docs/deployment.md).
+```sh
+python3 tools/verify-compose.py
+docker compose config --quiet
+```
 
-Database Supabase cũ có thể được diễn tập không ghi bằng `python3 tools/rehearse-legacy-data.py`.
-Migration có kiểm soát dùng schema riêng `aims_java`; xem
-[hướng dẫn Supabase](docs/legacy-supabase-migration.md). Không khởi động NestJS chỉ để kiểm tra DB
-vì cấu hình TypeORM cũ bật `synchronize: true`.
+CI thực hiện Maven verify, Angular test/build và kiểm tra Docker image trước khi tích hợp.
 
-`.env.supabase` cũng ánh xạ cấu hình PayPal sandbox, VietQR development và SendGrid từ backend cũ.
-Theo xác nhận của người dùng, workspace hiện đặt `NOTIFICATIONS_ENABLED=true`: các sự kiện đơn hàng
-mới sẽ gửi email thật qua SendGrid như NestJS. Callback thử VietQR vẫn tắt.
-SendGrid không tham gia đăng nhập; contract gốc không có đăng ký công khai hoặc xác minh email.
+## Tài liệu
 
-## Quy tắc nghiệp vụ đã chốt
-
-- Quota/audit PM dùng email JWT, vẫn yêu cầu `x-manager-id`; tiền dùng BigDecimal/HALF_UP.
-- Order detail/delivery và tạo/xác nhận thanh toán yêu cầu capability của đơn.
-- Đang/đã thanh toán khóa sửa giao hàng; kiểm tra số tiền, callback lặp không cập nhật lần nữa.
-- Refund và hủy đơn đã thanh toán chỉ PRODUCT_MANAGER; hoàn VietQR là xác nhận chuyển khoản thủ công.
-- Email lưu outbox trong transaction; gửi riêng, mặc định tắt. Bật gửi sẽ xử lý cả backlog.
-
-Source `../ISD.20252-25` chỉ đọc, commit `c7c022e33f100937cd0f072c3666fd0e26754d8e`.
-[AGENTS.md](AGENTS.md) quy định checkpoint; [rủi ro](docs/migration-risks.md) ghi các giới hạn còn lại.
+- [Cấu trúc backend](docs/backend-structure.md)
+- [API contract](docs/api-contract.md)
+- [Cấu hình và deployment](docs/deployment.md)
+- [Rủi ro và quyết định kỹ thuật](docs/migration-risks.md)
