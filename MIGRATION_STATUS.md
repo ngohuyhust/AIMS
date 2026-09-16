@@ -28,8 +28,8 @@
   a fresh clone requires an operator-provided `.env.supabase` with no fallback credentials.
 - Angular tests pass 7/7 and production build passes. Java 21 Maven `verify` passes 663/663 with zero
   failures/errors/skips using PostgreSQL 17.6 Testcontainers; executable JAR builds. Compose and
-  source-ref frontend verifiers plus diff checks pass. Implementation hash is recorded by the
-  completion commit; exact remote verification follows push.
+  source-ref frontend verifiers plus diff checks pass. Implementation
+  `b4ff249dad657c4b3ec6916779acd1585ac23481`; exact remote verification follows the completion push.
 - [Validation](docs/supabase-only-runtime-validation.md).
 
 ## CONNECTED SUPABASE COMPOSE result
