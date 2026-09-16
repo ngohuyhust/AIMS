@@ -235,21 +235,16 @@ export class ProductsComponent implements OnInit {
 
   fetchProducts() {
     this.isLoading = true;
-    console.log('[ProductsComponent] fetchProducts() fetching products...');
-    
+
     const params: ProductSearchParams = {
       keyword: this.keyword,
       category: this.category,
       mediaTypes: this.mediaTypesFilter ? [this.mediaTypesFilter] : undefined,
       status: 'ALL'
     };
-    
-    console.log('[ProductsComponent] fetchProducts() params:', params);
-    console.log('[ProductsComponent] Token trong localStorage:', localStorage.getItem('aims_token'));
 
     this.productService.searchProducts(params).subscribe({
       next: (data) => {
-        console.log('[ProductsComponent] fetchProducts() received data:', data);
         // Enforce frontend status filter client-side if selected
         if (this.statusFilter) {
           this.products = data.filter(p => p.status === this.statusFilter);

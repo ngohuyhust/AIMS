@@ -1,5 +1,24 @@
 # Migration risks and decisions
 
+## Code and repository cleanup
+
+- `spring-boot-starter-oauth2-resource-server` already supplies the Spring Security configuration,
+  core, web, resource-server and JOSE modules used by the application. The separate generic security
+  starter was redundant; Java 21 integration tests confirm the explicit `AuthenticationManager`,
+  filter chain and JWT resource server still load.
+- `flyway-database-postgresql` depends on `flyway-core`; keeping both direct declarations added no
+  capability. Flyway V1–V10 validation, fresh migration and upgrade tests still pass on PostgreSQL.
+- SendGrid's Apache HttpClient chain pulled the legacy `commons-logging` implementation alongside
+  Spring's compatible `spring-jcl` bridge. The legacy artifact is excluded to prevent duplicate
+  discovery; notification provider tests still exercise SendGrid request construction/error mapping.
+- Four PayPal/VietQR capture scripts had no consumer in code, CI or documentation and were removed.
+  This does not remove the committed validation records or active legacy migration/rehearsal tools.
+- The explicitly authorized Angular cleanup changes only debug/unused material. The sensitive JWT
+  is no longer written to the browser console. Frontend hash verification now models approved file
+  deletion explicitly; the original source manifest remains immutable.
+- The large product-management component and dense security matcher configuration remain maintainability
+  candidates. Refactoring them would be behavioral-risk work and was deliberately excluded here.
+
 ## Supabase-only default runtime
 
 - Default `docker-compose.yml` connects Spring directly to the Supabase database through the

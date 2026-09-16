@@ -2,12 +2,33 @@
 
 ## Current checkpoint
 
-- Authorized scope: **remove the persistent local application database path and make the existing
-  Supabase Spring/frontend topology the sole/default Compose runtime**.
+- Authorized scope: **remove the concrete dead/redundant files, dependencies and frontend debug
+  output identified by the user-requested clean-code audit, without changing contracts**.
 - Status: **implementation, documentation and verification complete; Git publication in progress**.
 - Next checkpoint: live `public`→`aims_java` delta/cutover, Java25/toolchain migration and provider
   production activation remain separate checkpoints requiring explicit authorization.
 - Current branch: `main`, preserving consolidated ISD history.
+
+## CODE AND REPOSITORY CLEANUP result
+
+- Removed redundant direct declarations of `spring-boot-starter-security` and `flyway-core`;
+  OAuth2 Resource Server and the PostgreSQL Flyway module retain the same transitive runtime
+  components. The full Java suite proves Spring Security, Flyway V1–V10 and packaging still work.
+- Excluded SendGrid's legacy `commons-logging` transitively because Spring uses its compatible
+  `spring-jcl` bridge; this removes the duplicate-facade warning without changing SendGrid behavior.
+- Removed four orphaned PayPal/VietQR capture scripts that were not referenced by code, CI or
+  validation documentation. Historical migration evidence and active rehearsal tools remain.
+- Removed the Angular root's unused signal, startup log and empty stylesheet. Removed product-admin
+  debug logs, including the line that printed the JWT from local storage. UI, routes, requests,
+  responses and token handling are unchanged.
+- Extended the frontend integrity verifier to record explicit approved deletions. The immutable
+  source baseline still verifies 70/70 files; the target now reports 62 unchanged, seven approved
+  edits, three approved additions and one approved deletion.
+- Angular tests pass 7/7 and production build passes. Java 21/Maven 3.9.16 `verify` passes 663/663
+  with zero failures/errors/skips using PostgreSQL 17.6 Testcontainers; executable JAR builds.
+  Compose, source-ref frontend and diff checks pass. Implementation hash will be recorded by the
+  completion status commit; exact remote verification follows push.
+- [Validation](docs/code-cleanup-validation.md).
 
 ## SUPABASE-ONLY RUNTIME SIMPLIFICATION result
 

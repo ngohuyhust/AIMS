@@ -6,6 +6,14 @@ recorded before any Java business module. It is NOT a claim of parity with the P
 No source application was started: its startup synchronizes schema and resets seeded users.
 Runtime snapshots against an isolated legacy database must be added in the relevant checkpoints.
 
+## Code and repository cleanup
+
+The cleanup removes redundant dependency declarations, orphaned offline capture scripts, unused
+Angular root state/empty styling and frontend debug logging. It does not change an HTTP method,
+path, header, authentication rule, request or response payload, status, error envelope, route or
+rendered UI. Removing the product-admin console statement prevents access-token disclosure without
+changing token storage or transmission.
+
 ## Supabase-only runtime simplification
 
 Default Compose now runs only Angular/Nginx and Spring production against the migrated Supabase

@@ -1,5 +1,5 @@
 {
-  "authorization": "MODULE 7: user explicitly chose token protection and minimal frontend changes. Three original-file edits (two services and obsolete shell test) plus capability service/test additions; original source baseline remains unchanged. MODULE 9: user approved PayPal create/capture order-token headers and PRODUCT_MANAGER-only refunds; related service test extended. MODULE 10: user approved proposed policy and minimal QR create/status token headers with payment-to-order mapping; related test extended. FRONTEND COMPOSE: user explicitly authorized completing frontend containerization after the backend self-build checkpoint; only Docker build/runtime files were changed or added, with Angular application source unchanged.",
+  "authorization": "MODULE 7: user explicitly chose token protection and minimal frontend changes. Three original-file edits (two services and obsolete shell test) plus capability service/test additions; original source baseline remains unchanged. MODULE 9: user approved PayPal create/capture order-token headers and PRODUCT_MANAGER-only refunds; related service test extended. MODULE 10: user approved proposed policy and minimal QR create/status token headers with payment-to-order mapping; related test extended. FRONTEND COMPOSE: user explicitly authorized completing frontend containerization after the backend self-build checkpoint; only Docker build/runtime files were changed or added, with Angular application source unchanged. CLEANUP: after a read-only audit identified concrete cleanup candidates, the user explicitly authorized cleaning them; debug/JWT console logging, unused root state and the empty root stylesheet were removed without changing UI, routes or API contracts.",
   "files": {
     ".dockerignore": "54acf6c61adac919ae02556e3c156c9a34c67916b0135b30c294ae76793f43a1",
     "Dockerfile": "9ceec2b65cc8c58e301c90ab2b1ba332eff0a9c428a02699b2ae955f40eae9f0",
@@ -8,6 +8,11 @@
     "src/app/services/payment.service.ts": "656f7010379d771b187dff8be3fb5a1f948b3f9773d6532d3d13f61984633325",
     "src/app/services/order-access.service.ts": "c6c27bc77e5d128653cc73ce8b223d870336c036f69b151d3eb4196c632ad8f6",
     "src/app/services/order-access.service.spec.ts": "fcd53dfec9127920aa4fdf6b3562546b5e1c6b6dba726f48f769e04fd3416af0",
-    "src/app/app.spec.ts": "18ef7306eababef14e7d590dcb110090b4ba9d9820f510a0ac9b9988e87b26f7"
-  }
+    "src/app/app.spec.ts": "18ef7306eababef14e7d590dcb110090b4ba9d9820f510a0ac9b9988e87b26f7",
+    "src/app/app.ts": "431c6095e5ebbdb5911f7378ef84176dc0136ab7cdcc9feecfbb5b41f09e4f1b",
+    "src/app/pages/pm/products/products.component.ts": "636f433cfa80b89961bd4c68279a4a942eb4ae3cb2e7a390bcf594ca6bdcf2b6"
+  },
+  "deleted": [
+    "src/app/app.css"
+  ]
 }

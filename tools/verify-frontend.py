@@ -13,7 +13,9 @@ parser.add_argument("--source-ref", action="store_true", help="Verify baseline f
 args = parser.parse_args()
 manifest = json.loads((root / "docs/frontend-manifest.json").read_text())
 approval_path = root / "docs/frontend-approved-changes.json"
-approved = json.loads(approval_path.read_text())["files"] if approval_path.exists() else {}
+approval = json.loads(approval_path.read_text()) if approval_path.exists() else {}
+approved = approval.get("files", {})
+deleted = set(approval.get("deleted", []))
 excluded = {"node_modules", "dist", ".angular", "target", ".DS_Store", "__pycache__"}
 
 
@@ -33,10 +35,18 @@ actual_paths = {
     if p.is_file() and included(p.relative_to(root / "src/frontend"))
 }
 errors = []
-if source_paths != set(expected) or actual_paths != set(expected) | set(approved):
+if deleted - set(expected):
+    errors.append("Approved deletions are not present in the source manifest")
+if deleted & set(approved):
+    errors.append("Frontend paths cannot be both approved content and approved deletions")
+if source_paths != set(expected) or actual_paths != (set(expected) - deleted) | set(approved):
     errors.append("Frontend file sets differ from the recorded source manifest")
 for relative, digest in expected.items():
     for label, base in (("source", args.source), ("target", root)):
+        if label == "target" and relative in deleted:
+            if (root / "src/frontend" / relative).exists():
+                errors.append(f"Approved deletion still exists: target/src/frontend/{relative}")
+            continue
         path = base / "src/frontend" / relative
         required = approved.get(relative, digest) if label == "target" else digest
         if label == "source" and args.source_ref:
@@ -51,7 +61,7 @@ for relative, digest in approved.items():
         errors.append(f"Approved content mismatch: target/src/frontend/{relative}")
 if errors:
     raise SystemExit("\n".join(errors))
-if approved:
-    print(f"PASS: source {len(expected)}/{len(expected)} matches original baseline; target {len(set(expected)-set(approved))} unchanged, {len(set(expected)&set(approved))} approved edits, {len(set(approved)-set(expected))} approved additions; all SHA-256 verified.")
+if approved or deleted:
+    print(f"PASS: source {len(expected)}/{len(expected)} matches original baseline; target {len(set(expected)-set(approved)-deleted)} unchanged, {len(set(expected)&set(approved))} approved edits, {len(set(approved)-set(expected))} approved additions, {len(deleted)} approved deletions; all SHA-256 verified.")
 else:
     print(f"PASS: {len(expected)} frontend files match source and baseline SHA-256; no added source files.")
