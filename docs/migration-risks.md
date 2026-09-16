@@ -1,10 +1,13 @@
 # Migration risks and decisions
 
-## Connected Supabase Compose runtime
+## Supabase-only default runtime
 
-- `compose.supabase.yml` connects Spring directly to the Supabase database through the existing
-  ignored `.env.supabase`, but uses the migrated `aims_java` schema. It intentionally does not use
-  legacy `public`, which has no Flyway history and cannot safely support two independent writers.
+- Default `docker-compose.yml` connects Spring directly to the Supabase database through the
+  existing ignored `.env.supabase`, but uses the migrated `aims_java` schema. The persistent local
+  PostgreSQL service/volume/profile and generated local credentials were removed by explicit user
+  request. PostgreSQL containers remain only as disposable mandatory test/rehearsal infrastructure.
+- The runtime intentionally does not use legacy `public`, which has no Flyway history and cannot
+  safely support two independent writers.
 - `aims_java` is a point-in-time copy, not CDC/replication. The current read-only rehearsal found the
   same1.521 per-table row-count total as the migration record, but future NestJS writes to `public`
   will not appear automatically. A write freeze plus reviewed delta copy is still required for final
@@ -12,33 +15,20 @@
 - Provider settings are also loaded as explicitly requested. PayPal/VietQR remain non-live and the
   VietQR test callback is forced off, but `NOTIFICATIONS_ENABLED=true` means new eligible events can
   send real SendGrid mail. Validation checked only variable presence and did not call any provider.
-- Credentials remain only in mode0600 ignored files. CI validates topology with a temporary fake env
-  file and cannot access Supabase or provider secrets.
-
-## Frontend Compose runtime
-
-- Default `docker compose up --build` now starts Angular/Nginx in addition to PostgreSQL and backend.
-  The first build requires access to the pinned Node/Nginx images and npm registry; later builds can
-  reuse BuildKit cache.
+- Credentials remain only in the mode 0600 ignored file. CI validates topology with an empty temporary
+  env file and cannot access Supabase or provider secrets. A fresh clone needs an operator-provided
+  `.env.supabase`; there is no insecure fallback.
+- Default `docker compose up --build` starts only Angular/Nginx and Spring. The first build requires
+  access to pinned builder/runtime images and package repositories; later builds reuse BuildKit cache.
 - The static runtime is unprivileged and read-only, with ephemeral `/tmp`, dropped capabilities and
-  localhost-only port binding. TLS termination and production static-cache headers remain outside
-  this local Compose checkpoint.
+  localhost-only port binding. Spring has the same hardening. TLS termination and production
+  static-cache headers remain deployment-platform duties.
 - Angular application code is unchanged. Therefore localhost calls the local Spring backend, but a
   non-localhost deployment still calls the legacy Render API hostname. Changing that production
   hostname remains a separately authorized frontend/API-cutover decision.
-
-## Default Compose self-build
-
-- The backend self-build uses a JDK21 builder and requires no host JDK/Maven or optional Compose
-  profile; the later frontend runtime checkpoint extends the same default command to all services.
-- Local database/JWT secrets are still generated once in ignored `.env` by
-  `python3 tools/init-local-env.py`. A fixed fallback was deliberately not added. Losing or rotating
-  that file changes the database credential or invalidates outstanding JWTs.
 - The image build packages with tests skipped; release confidence still comes from the separate
   mandatory Maven `verify`/PostgreSQL Testcontainers run. First build requires network access for
   the builder image and dependencies; later builds can reuse BuildKit cache.
-- Compose retains its named PostgreSQL volume. `docker compose stop` is recoverable; `down -v`
-  deletes local database data and remains inappropriate when that data must be retained.
 
 ## Spring Security authentication and request-boundary refactor
 

@@ -5,7 +5,8 @@
 The user authorized Spring Boot to connect to the Supabase database used by NestJS and to load the
 existing provider configuration. Source remains read-only and secrets remain in `.env.supabase`.
 Spring uses the already migrated `aims_java` schema rather than unsafe auto-baselining of legacy
-`public`; the isolated local Compose stack remains available as rollback.
+`public`. This records the initial dedicated Compose path; the later runtime-simplification
+checkpoint promoted it to the sole/default `docker-compose.yml` and removed the local DB path.
 
 ## Evidence
 
@@ -24,8 +25,8 @@ Spring uses the already migrated `aims_java` schema rather than unsafe auto-base
 - No PayPal, VietQR or SendGrid request was made. No database/provider secret was written to Git.
 - Angular tests pass7/7 and its production build passes on Node24.16.0. Maven `verify` passes663/663
   with zero failures/errors/skips on Java21 and PostgreSQL17.6 Testcontainers; executable JAR built.
-- Default Compose verifier, Supabase Compose verifier, source-ref frontend hash verification and
-  `git diff --check` pass.
+- The then-current default/Supabase Compose verifiers, source-ref frontend hash verification and
+  `git diff --check` passed.
 
 Final suite results and commit hashes are recorded in `MIGRATION_STATUS.md` and the checkpoint
 report.

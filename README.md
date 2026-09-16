@@ -9,27 +9,26 @@ Các feature được chia trực tiếp thành `controller`, `service`, `reposi
 tìm lớp theo tên quen thuộc của Spring. Các tích hợp đặc thù dùng package như `security`, `client`,
 `gateway` và `provider`; xem [cấu trúc backend](docs/backend-structure.md).
 
-## Chạy local bằng Docker
+## Chạy bằng Docker
 
-Chỉ cần Docker và Python3 để tạo secret local lần đầu. Không cần cài JDK hoặc Maven trên máy host;
-Dockerfile tự build Spring Boot bằng JDK21 và Maven Wrapper rồi tạo runtime image JRE21.
+Runtime chỉ dùng Supabase; PostgreSQL local, local profile và script tạo local DB đã được bỏ. File
+`.env.supabase` quyền 0600, bị Git-ignore, chứa kết nối PostgreSQL cùng cấu hình
+JWT/PayPal/VietQR/SendGrid. Không cần JDK, Maven, Node hoặc database trên host:
 
 ```sh
-python3 tools/init-local-env.py
 docker compose up --build
 ```
 
-Sau lần tạo `.env` đầu tiên, chỉ cần chạy `docker compose up --build`. Muốn chạy nền và chờ cả
-PostgreSQL/backend/frontend healthy: `docker compose up -d --build --wait`.
+Muốn chạy nền và chờ cả backend/frontend healthy: `docker compose up -d --build --wait`.
+Backend Spring production tại `http://localhost:3000`; Angular/Nginx tại
+`http://localhost:4200`. Backend kết nối trực tiếp database Supabase với schema Flyway `aims_java`;
+API catalog hiện trả 182 sản phẩm ACTIVE từ tổng 204 sản phẩm đã migrate. Compose không tạo service,
+port hay volume database local.
 
-Backend mặc định bind `127.0.0.1:3000`; PostgreSQL riêng tại `127.0.0.1:55432/aims_local`.
-Cùng lệnh đó build Angular bằng Node24 rồi phục vụ static bằng Nginx unprivileged tại
-`http://localhost:4200`; route Angular được fallback về `index.html`.
-Công cụ init sinh password/JWT ngẫu nhiên, giữ cấu hình có sẵn; `.env` không được commit.
-Không đọc `.env` của ISD, không tự kết nối database cũ. Không seed/reset tài khoản mặc định.
-Health: `curl --fail http://localhost:3000/actuator/health` trả `{"status":"UP"}`.
-Database mới có role, chưa có user/sản phẩm; initial ADMIN cần được cấp qua quy trình trong
-[tài liệu triển khai](docs/deployment.md), không dùng tài khoản mặc định cũ.
+Schema NestJS `public` không có Flyway history nên không được auto-baseline hoặc dùng đồng thời như
+một writer thứ hai. `aims_java` là snapshot; ghi mới về sau từ NestJS không tự đồng bộ. File cấu hình
+hiện bật SendGrid thật; PayPal/VietQR vẫn sandbox/development và VietQR test callback bị ép tắt.
+Không commit hoặc in nội dung `.env.supabase`.
 
 Nếu cần Angular dev server/hot reload thay vì container static, chạy riêng:
 
@@ -44,27 +43,6 @@ nguồn.
 Frontend trên host khác localhost vẫn gọi `https://isd-20252-25.onrender.com`; muốn đổi sang domain
 backend khác cần người dùng cho phép sửa cấu hình frontend. Không tự thay URL hoặc chuyển traffic.
 
-### Chạy với dữ liệu Supabase của NestJS
-
-Workspace đã có file `.env.supabase` quyền0600, bị Git-ignore, ánh xạ kết nối PostgreSQL và cấu hình
-PayPal/VietQR/SendGrid cũ sang Spring. Dừng stack local rồi chạy stack Supabase:
-
-```sh
-docker compose stop
-docker compose -f compose.supabase.yml up --build
-```
-
-Stack này chỉ chạy Spring backend và Angular frontend; không khởi động PostgreSQL local. Backend kết
-nối trực tiếp cùng database Supabase nhưng dùng schema Flyway `aims_java`, vì schema `public` của
-NestJS không có Flyway history và không được cho phép auto-baseline. Snapshot hiện có1.521 dòng/19
-bảng; API catalog trả182 sản phẩm ACTIVE từ tổng204 sản phẩm. Frontend vẫn mở tại
-`http://localhost:4200` và gọi Spring tại localhost3000.
-
-`NOTIFICATIONS_ENABLED=true` trong file local hiện tại nên thao tác nghiệp vụ mới có thể gửi email
-thật qua SendGrid; PayPal/VietQR vẫn là sandbox/development và VietQR test callback bị ép tắt.
-Không commit hoặc in nội dung `.env.supabase`. Stack `aims_java` là snapshot, không tự đồng bộ các
-ghi mới về sau từ NestJS `public`.
-
 ## Kiểm thử và Docker
 
 ```sh
@@ -74,15 +52,13 @@ cd src/backend
 cd ../..
 python3 tools/verify-frontend.py
 python3 tools/verify-compose.py
-python3 tools/verify-supabase-compose.py
 docker compose up -d --build --wait
 ```
 
 Dockerfile backend multi-stage tự build JAR trong builder JDK21; image runtime chỉ chứa JRE21 và
 JAR. Dockerfile frontend build Angular trong Node24 rồi chỉ chép `dist` vào Nginx unprivileged.
 Hai runtime đều có healthcheck, filesystem read-only, `/tmp` tạm và dropped capabilities. Compose
-mặc định khởi động PostgreSQL, backend port3000 và frontend port4200. `docker compose stop` giữ dữ
-liệu; không dùng `down -v` với dữ liệu cần giữ.
+chỉ khởi động backend port3000 và frontend port4200; database nằm ngoài Docker tại Supabase.
 `mvnw test/verify` vẫn là bước kiểm thử bắt buộc trước phát hành; image build chỉ package với test
 được bỏ qua vì suite Testcontainers đã chạy riêng.
 
@@ -105,17 +81,7 @@ Migration có kiểm soát dùng schema riêng `aims_java`; xem
 [hướng dẫn Supabase](docs/legacy-supabase-migration.md). Không khởi động NestJS chỉ để kiểm tra DB
 vì cấu hình TypeORM cũ bật `synchronize: true`.
 
-Trên workspace đã migration, backend snapshot có thể chạy bằng file local ignored quyền 0600:
-
-```sh
-docker run -d --name aims-supabase-api --env-file .env.supabase \
-  -p 127.0.0.1:3000:3000 --read-only --tmpfs /tmp --cap-drop ALL \
-  --security-opt no-new-privileges aims-backend:local
-docker stop aims-supabase-api
-docker start aims-supabase-api
-```
-
-File này cũng ánh xạ cấu hình PayPal sandbox, VietQR development và SendGrid từ backend cũ.
+`.env.supabase` cũng ánh xạ cấu hình PayPal sandbox, VietQR development và SendGrid từ backend cũ.
 Theo xác nhận của người dùng, workspace hiện đặt `NOTIFICATIONS_ENABLED=true`: các sự kiện đơn hàng
 mới sẽ gửi email thật qua SendGrid như NestJS. Callback thử VietQR vẫn tắt.
 SendGrid không tham gia đăng nhập; contract gốc không có đăng ký công khai hoặc xác minh email.

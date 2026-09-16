@@ -1,16 +1,17 @@
 # Deployment and environment
 
-This module supplies deployable artifacts and validates them locally/through CI. It does not deploy
-to Render, change DNS, contact a production database or enable real payments/email.
+This module supplies deployable artifacts and validates them locally/through CI. The authorized
+workspace runtime contacts the migrated Supabase schema; CI does not receive its credentials. This
+does not deploy to Render, change DNS or enable live payment endpoints.
 
 ## Profiles and artifact
 
-- `local` (default): localhost3000, isolated localhost55432 PostgreSQL. Only AIMS_LOCAL_DB_PASSWORD
-  and JWT_SECRET needed. Never interprets legacy DB_HOST/DB_DATABASE variables.
-- `container`: bind0.0.0.0 and explicit AIMS_DB_* values; Compose uses its own PostgreSQL service.
+- `container`: bind0.0.0.0 and explicit external AIMS_DB_* values.
 - `production`: container configuration plus required DB settings, explicit HTTPS APP_PUBLIC_URL,
   no VietQR sandbox-trigger flag, graceful shutdown20s, INFO logs and generic error responses.
-  Choose one profile; do not combine local with production. Health exposes status only.
+  Default Compose selects this profile. Health exposes status only.
+- No implicit/default Spring profile supplies a database. Running outside Compose requires an
+  explicit profile and external database settings.
 
 Run `./mvnw -B verify` with Java21 before release. The multi-stage Dockerfile then runs the Maven
 Wrapper in its own JDK21 builder, packages with tests skipped, and copies only the executable JAR to
@@ -21,21 +22,18 @@ Run with read-only root, writable temporary /tmp, dropped capabilities and no-ne
 Compose. Set PORT for platform binding; health path `/actuator/health`. Terminate gracefully with
 at least30s allowance. Retain previous image revision for application rollback.
 
-For local use, generate ignored secrets once with `python3 tools/init-local-env.py`, then
-`docker compose up --build` builds and starts PostgreSQL, backend and frontend without a Compose
-profile or host Java/Node installation. The frontend multi-stage image builds with digest-pinned
-Node24 and serves only `dist/frontend/browser` from digest-pinned unprivileged Nginx on localhost
-port4200. Its root filesystem is read-only, `/tmp` is ephemeral, Linux capabilities are dropped and
-the health endpoint is `/health`. The one-time secret step is intentionally not replaced by
-committed/fixed development credentials.
+`.env.supabase` remains mode 0600 and Git-ignored. `docker compose up --build` builds and starts only
+backend/frontend, loads database/provider settings without copying them into Compose, forces the
+production profile, `AIMS_DB_SCHEMA=aims_java`, and disables the VietQR test callback. There is no
+local PostgreSQL service, port, volume, password generator or local Spring profile. The frontend
+multi-stage image builds with digest-pinned Node24 and serves only `dist/frontend/browser` from
+digest-pinned unprivileged Nginx on localhost4200. Both containers use read-only roots, ephemeral
+`/tmp`, dropped capabilities and health checks.
 
-For the authorized legacy-data runtime, `.env.supabase` remains mode0600 and Git-ignored. Run
-`docker compose -f compose.supabase.yml up --build`; this topology contains only backend/frontend,
-loads the existing database and provider settings without copying them into Compose, forces the
-production profile, `AIMS_DB_SCHEMA=aims_java`, and disables the VietQR test callback. It connects
-directly to the same Supabase database as NestJS but deliberately does not attach Spring to legacy
-`public`: that schema has no Flyway history and parallel NestJS/Spring writers are unsafe. The
-default `docker-compose.yml` remains the isolated local rollback path.
+The runtime connects directly to the same Supabase database as NestJS but deliberately does not
+attach Spring to legacy `public`: that schema has no Flyway history and parallel NestJS/Spring
+writers are unsafe. Rollback means stopping this stack or deploying the previous verified revision;
+it no longer means switching to a local persistent database.
 
 ## Environment variables
 
@@ -44,9 +42,8 @@ committed env files or CLI command literals containing credentials. Spring does 
 
 | Variable | Meaning/default |
 | --- | --- |
-| SPRING_PROFILES_ACTIVE | production for deployment; Compose explicitly uses container |
+| SPRING_PROFILES_ACTIVE | production for deployment; default Compose explicitly uses production |
 | PORT | 3000; server binds all interfaces in container/production |
-| AIMS_LOCAL_DB_PASSWORD | Generated local Compose password, local profile only |
 | AIMS_DB_URL | Required JDBC PostgreSQL URL; Supabase transaction pooler also needs `prepareThreshold=0`; external DB should use certificate verification where supported |
 | AIMS_DB_USERNAME / AIMS_DB_PASSWORD | Required container/production credentials |
 | AIMS_DB_SCHEMA | PostgreSQL schema, default `public`; use `aims_java` for the isolated legacy snapshot |

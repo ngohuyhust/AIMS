@@ -1,39 +1,17 @@
-name: aims-local
+name: aims-supabase
 
 services:
-  postgres:
-    image: postgres:17.6-alpine
-    environment:
-      POSTGRES_DB: aims_local
-      POSTGRES_USER: aims_local
-      POSTGRES_PASSWORD: ${AIMS_LOCAL_DB_PASSWORD:?Run python3 tools/init-local-env.py first}
-    ports:
-      - "127.0.0.1:55432:5432"
-    volumes:
-      - aims-postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U aims_local -d aims_local"]
-      interval: 5s
-      timeout: 5s
-      retries: 12
-    restart: unless-stopped
-
   backend:
     build: ./src/backend
     image: aims-backend:local
+    env_file:
+      - ${AIMS_ENV_FILE:-.env.supabase}
     environment:
-      SPRING_PROFILES_ACTIVE: container
-      AIMS_DB_URL: jdbc:postgresql://postgres:5432/aims_local
-      AIMS_DB_USERNAME: aims_local
-      AIMS_DB_PASSWORD: ${AIMS_LOCAL_DB_PASSWORD:?Run python3 tools/init-local-env.py first}
-      JWT_SECRET: ${JWT_SECRET:?Run python3 tools/init-local-env.py first}
-      NOTIFICATIONS_ENABLED: "false"
+      SPRING_PROFILES_ACTIVE: production
+      AIMS_DB_SCHEMA: aims_java
       VIETQR_ENABLE_TEST_CALLBACK: "false"
     ports:
       - "127.0.0.1:3000:3000"
-    depends_on:
-      postgres:
-        condition: service_healthy
     read_only: true
     tmpfs:
       - /tmp
@@ -56,6 +34,3 @@ services:
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     restart: unless-stopped
-
-volumes:
-  aims-postgres-data:

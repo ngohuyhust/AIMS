@@ -1,5 +1,9 @@
 # Default Compose self-build validation
 
+Historical note: this checkpoint introduced the now-retired persistent local PostgreSQL runtime.
+The later Supabase-only simplification retained the self-building backend image and removed the
+local database service/profile/tooling.
+
 ## Scope
 
 This checkpoint makes `docker compose up --build` the normal local backend startup path. Compose now

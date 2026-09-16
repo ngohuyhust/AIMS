@@ -1,4 +1,4 @@
-# Isolated Compose or explicitly configured container database; never read legacy DB_* variables.
+# Explicitly configured external database; never read legacy DB_* variables.
 server:
   address: 0.0.0.0
   shutdown: graceful

@@ -6,6 +6,13 @@ recorded before any Java business module. It is NOT a claim of parity with the P
 No source application was started: its startup synchronizes schema and resets seeded users.
 Runtime snapshots against an isolated legacy database must be added in the relevant checkpoints.
 
+## Supabase-only runtime simplification
+
+Default Compose now runs only Angular/Nginx and Spring production against the migrated Supabase
+`aims_java` schema. The removed local PostgreSQL service/profile/tooling never defined an HTTP
+contract, so all methods, paths, headers, authentication, query/body fields, responses, statuses and
+errors remain unchanged. PostgreSQL Testcontainers remain test-only.
+
 ## Frontend Compose checkpoint
 
 The default Compose topology now also builds and serves the preserved Angular application at
@@ -805,8 +812,8 @@ See [validation](module-13-validation.md) and [deployment/URL constraints](deplo
 ## Legacy Supabase isolated schema
 
 No HTTP contract changed. The same Java API was started against `AIMS_DB_SCHEMA=aims_java`; health
-and catalog succeeded using copied legacy data. The authorized `compose.supabase.yml` runtime loads
+and catalog succeeded using copied legacy data. The default `docker-compose.yml` runtime loads
 the existing Git-ignored DB/provider environment, serves the Angular app at localhost4200 and the
-Spring API at localhost3000. The catalog returns182 ACTIVE products. The NestJS `public` schema and
+Spring API at localhost3000. The catalog returns 182 ACTIVE products. The NestJS `public` schema and
 production traffic are not switched, and no endpoint/header/JSON contract changed. Provider keys
 were presence-checked without disclosure; no provider request was made during validation.

@@ -1,5 +1,8 @@
 # Frontend Compose validation
 
+Historical note: this checkpoint initially included a local PostgreSQL service. The later
+Supabase-only runtime checkpoint retained the frontend image but removed that database path.
+
 ## Authorized scope
 
 The user authorized completing the default Docker Compose stack with the existing Angular frontend.

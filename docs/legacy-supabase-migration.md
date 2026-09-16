@@ -45,8 +45,9 @@ unchanged. The running container name is `aims-supabase-api`; it binds only `127
 UID 10001 with a read-only root, and can be stopped/restarted with `docker stop` / `docker start`
 without changing `public`.
 
-On 2026-09-15 the user authorized the connected Compose runtime. `compose.supabase.yml` loads that
-file directly and runs only Spring plus Angular/Nginx; it forces production, `aims_java` and the
+On 2026-09-15 the user authorized the connected Compose runtime. On 2026-09-16 that topology became
+the sole/default `docker-compose.yml`; it loads the ignored file directly and runs only Spring plus
+Angular/Nginx, forcing production, `aims_java` and the
 disabled VietQR test callback. A fresh read-only rehearsal again copied1.521 rows/19 tables from
 `public`; Spring/Flyway health passed and the connected catalog returned182 ACTIVE products. Database
 and provider secrets were not printed or committed. The provider variables are loaded, but no

@@ -2,12 +2,35 @@
 
 ## Current checkpoint
 
-- Authorized scope: **connect the Spring backend directly to the Supabase database/configuration
-  used by NestJS while keeping secrets out of Git and preserving a safe local rollback path**.
+- Authorized scope: **remove the persistent local application database path and make the existing
+  Supabase Spring/frontend topology the sole/default Compose runtime**.
 - Status: **implementation, documentation and verification complete; Git publication in progress**.
 - Next checkpoint: live `public`→`aims_java` delta/cutover, Java25/toolchain migration and provider
   production activation remain separate checkpoints requiring explicit authorization.
 - Current branch: `main`, preserving consolidated ISD history.
+
+## SUPABASE-ONLY RUNTIME SIMPLIFICATION result
+
+- Promoted the two-service Supabase topology to default `docker-compose.yml`. The normal command is
+  now `docker compose up --build`; it starts only Spring production and Angular/Nginx against the
+  Git-ignored `.env.supabase` and `aims_java` schema.
+- Removed the persistent PostgreSQL Compose service, localhost55432 port, named volume, generated
+  local database password workflow, `application-local.yml`, implicit local Spring profile, duplicate
+  `compose.supabase.yml` and duplicate verifier. The obsolete ignored `.env`, exact three stopped
+  `aims-local` containers and `aims-local_aims-postgres-data` volume were deleted from this workspace.
+- PostgreSQL remains only in mandatory disposable Testcontainers, image smoke and migration
+  rehearsal tooling. These isolated resources test Flyway/schema behavior and are automatically
+  removed; they are not an alternative application runtime or persistent local database.
+- Actual default `docker compose up -d --build --wait` rebuilt Spring with the simplified resources
+  and made backend/frontend healthy. Actuator returns `UP`, catalog returns 182 ACTIVE products,
+  frontend health returns `ok`, and backend remains UID 10001/read-only with capabilities dropped.
+- No HTTP/JSON/authentication, Angular, database schema or Flyway change. Secrets remain outside Git;
+  a fresh clone requires an operator-provided `.env.supabase` with no fallback credentials.
+- Angular tests pass 7/7 and production build passes. Java 21 Maven `verify` passes 663/663 with zero
+  failures/errors/skips using PostgreSQL 17.6 Testcontainers; executable JAR builds. Compose and
+  source-ref frontend verifiers plus diff checks pass. Implementation hash is recorded by the
+  completion commit; exact remote verification follows push.
+- [Validation](docs/supabase-only-runtime-validation.md).
 
 ## CONNECTED SUPABASE COMPOSE result
 

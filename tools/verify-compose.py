@@ -1,31 +1,56 @@
 #!/usr/bin/env python3
-"""Fail if the default Compose path cannot build and start the Spring backend."""
+"""Fail if default Compose is not the secret-free Supabase Spring/frontend path."""
 
 from pathlib import Path
 import os
 import subprocess
+import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-environment = os.environ.copy()
-environment.update(
-    AIMS_LOCAL_DB_PASSWORD="compose-check-database-password",
-    JWT_SECRET="compose-check-jwt-secret-at-least-32-bytes",
-)
-
-result = subprocess.run(
-    ["docker", "compose", "config", "--services"],
-    cwd=ROOT,
-    env=environment,
-    check=True,
-    capture_output=True,
-    text=True,
-)
-services = result.stdout.split()
-if services != ["postgres", "backend", "frontend"]:
-    raise SystemExit(
-        f"FAIL: default Compose services are {services}, expected postgres, backend and frontend"
+with tempfile.NamedTemporaryFile(mode="w", suffix=".env") as env_file:
+    env_file.write("# Empty CI placeholder; runtime secrets are not needed for topology checks.\n")
+    env_file.flush()
+    environment = dict(os.environ, AIMS_ENV_FILE=env_file.name)
+    result = subprocess.run(
+        ["docker", "compose", "config", "--services"],
+        cwd=ROOT,
+        env=environment,
+        check=True,
+        capture_output=True,
+        text=True,
     )
+services = result.stdout.split()
+if services != ["backend", "frontend"]:
+    raise SystemExit(
+        f"FAIL: default Compose services are {services}, expected backend and frontend"
+    )
+
+compose = (ROOT / "docker-compose.yml").read_text()
+compose_required = (
+    "${AIMS_ENV_FILE:-.env.supabase}",
+    "SPRING_PROFILES_ACTIVE: production",
+    "AIMS_DB_SCHEMA: aims_java",
+    "VIETQR_ENABLE_TEST_CALLBACK: \"false\"",
+    "read_only: true",
+    "no-new-privileges:true",
+)
+compose_missing = [marker for marker in compose_required if marker not in compose]
+if compose_missing:
+    raise SystemExit(f"FAIL: default Supabase Compose markers are missing: {compose_missing}")
+for forbidden in ("postgres:", "AIMS_LOCAL_DB_PASSWORD", "aims_local"):
+    if forbidden in compose:
+        raise SystemExit(f"FAIL: retired local database marker remains in Compose: {forbidden}")
+
+retired = (
+    ROOT / "compose.supabase.yml",
+    ROOT / "src/backend/src/main/resources/application-local.yml",
+    ROOT / "tools/init-local-env.py",
+    ROOT / "tools/verify-supabase-compose.py",
+)
+remaining = [str(path.relative_to(ROOT)) for path in retired if path.exists()]
+if remaining:
+    raise SystemExit(f"FAIL: duplicate local/Supabase runtime files remain: {remaining}")
 
 dockerfile = (ROOT / "src/backend/Dockerfile").read_text()
 required = (
@@ -54,4 +79,4 @@ frontend_missing = [marker for marker in frontend_required if marker not in fron
 if frontend_missing:
     raise SystemExit(f"FAIL: frontend production image is incomplete: {frontend_missing}")
 
-print("PASS: default Compose self-builds postgres, Spring backend and Angular frontend.")
+print("PASS: default Compose self-builds Spring/frontend against the external Supabase environment.")
