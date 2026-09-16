@@ -4,7 +4,7 @@
 
 - Authorized scope: **remove the concrete dead/redundant files, dependencies and frontend debug
   output identified by the user-requested clean-code audit, without changing contracts**.
-- Status: **implementation, documentation and verification complete; Git publication in progress**.
+- Status: **implementation, documentation, verification and Git publication complete**.
 - Next checkpoint: live `public`→`aims_java` delta/cutover, Java25/toolchain migration and provider
   production activation remain separate checkpoints requiring explicit authorization.
 - Current branch: `main`, preserving consolidated ISD history.
@@ -27,7 +27,9 @@
 - Angular tests pass 7/7 and production build passes. Java 21/Maven 3.9.16 `verify` passes 663/663
   with zero failures/errors/skips using PostgreSQL 17.6 Testcontainers; executable JAR builds.
   Compose, source-ref frontend and diff checks pass. Implementation
-  `f82e67cec146caab316ace0e711d1f142c66f48c`; exact remote verification follows push.
+  `f82e67cec146caab316ace0e711d1f142c66f48c` was pushed to `origin/main`; its exact remote hash and
+  clean working tree were verified before this completion record. The final status hash is reported
+  in the user checkpoint.
 - [Validation](docs/code-cleanup-validation.md).
 
 ## SUPABASE-ONLY RUNTIME SIMPLIFICATION result
