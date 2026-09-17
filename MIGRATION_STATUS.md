@@ -21,9 +21,10 @@
 - Java 21 Maven `verify` passes 663/663 tests with zero failures, errors or skips using PostgreSQL
   17.6 Testcontainers; Flyway V1–V10, Spring context and executable JAR pass. Frontend source-ref,
   Compose and diff checks pass. No external database/provider was contacted.
-- No Angular, schema or Flyway change. Implementation hash will be recorded before the completion
-  push. The user-owned formatting change in `AuthController.java` is preserved and excluded from
-  this checkpoint.
+- No Angular, schema or Flyway change. Implementation
+  `caa619311ac14d712608d72881669f0a7a435022`; exact remote verification follows push. The
+  user-owned formatting change in `AuthController.java` is preserved and excluded from this
+  checkpoint.
 
 ## CODE AND REPOSITORY CLEANUP result
 
