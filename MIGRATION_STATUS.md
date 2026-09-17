@@ -2,12 +2,28 @@
 
 ## Current checkpoint
 
-- Authorized scope: **remove the concrete dead/redundant files, dependencies and frontend debug
-  output identified by the user-requested clean-code audit, without changing contracts**.
-- Status: **implementation, documentation, verification and Git publication complete**.
+- Authorized scope: **replace the application-specific bcryptjs-compatible password encoder with
+  Spring Security's standard `BCryptPasswordEncoder` and remove the obsolete class**.
+- Status: **implementation, documentation and verification complete; Git publication in progress**.
 - Next checkpoint: live `public`→`aims_java` delta/cutover, Java25/toolchain migration and provider
   production activation remain separate checkpoints requiring explicit authorization.
 - Current branch: `main`, preserving consolidated ISD history.
+
+## STANDARD SPRING BCRYPT result
+
+- `FoundationSecurityConfiguration` now exposes Spring Security's `BCryptPasswordEncoder` directly
+  as the application `PasswordEncoder`; login, password change and administrator password creation/
+  reset continue to use the same injected interface and `DaoAuthenticationProvider` chain.
+- Removed `LegacyBcryptPasswordEncoder` and its bcryptjs-specific 72-byte truncation/`$2b$` test.
+  New tests exercise Spring's encoder. Existing HTTP, JWT, role, audit and database contracts are
+  unchanged; unusual imported passwords that depended on the removed custom truncation may require
+  reset, as explicitly accepted by the user.
+- Java 21 Maven `verify` passes 663/663 tests with zero failures, errors or skips using PostgreSQL
+  17.6 Testcontainers; Flyway V1–V10, Spring context and executable JAR pass. Frontend source-ref,
+  Compose and diff checks pass. No external database/provider was contacted.
+- No Angular, schema or Flyway change. Implementation hash will be recorded before the completion
+  push. The user-owned formatting change in `AuthController.java` is preserved and excluded from
+  this checkpoint.
 
 ## CODE AND REPOSITORY CLEANUP result
 

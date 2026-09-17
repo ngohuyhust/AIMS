@@ -1,5 +1,8 @@
 # Spring Security authentication refactor validation
 
+> Historical checkpoint record. The later standard Spring BCrypt checkpoint replaces the custom
+> bcryptjs-compatible encoder with Spring Security's `BCryptPasswordEncoder`.
+
 ## Scope
 
 This checkpoint replaces manual username/password lookup and comparison in `AuthService` with

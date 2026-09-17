@@ -52,8 +52,9 @@
 ## Spring Security authentication and request-boundary refactor
 
 - Username/password login now uses Spring Security's `AuthenticationManager`,
-  `DaoAuthenticationProvider` and `UserDetailsService`; the custom BCrypt encoder remains required
-  for bcryptjs-compatible UTF-8 72-byte truncation and cost10 hashes.
+  `DaoAuthenticationProvider`, `UserDetailsService` and standard `BCryptPasswordEncoder`. The user
+  explicitly removed the prior bcryptjs-specific UTF-8 truncation and `$2b$` generation guarantee;
+  imported accounts with unusual over-72-byte passwords may require an administrator reset.
 - Non-ACTIVE accounts map through Spring's disabled-account check and keep the existing source401
   message. Unknown user, wrong password and malformed/missing credentials share the existing generic
   source401 message; successful credentials and the principal hash are erased after authentication.
@@ -245,8 +246,9 @@
 - Login/change-password and global CORS implemented; R15 remains only for unimplemented routes.
 - Original stateless token lifetime is retained: password/status/role changes do not revoke tokens.
   Role enforcement uses exact token authorities, any requested role suffices; no ADMIN inheritance.
-- BCrypt retains cost10 and the legacy 72-byte UTF-8 truncation, including long Unicode inputs.
-  Future changes to password policy/token revocation require explicit compatibility decisions.
+- MODULE3 originally retained cost10 and legacy 72-byte UTF-8 truncation. The later standard Spring
+  BCrypt checkpoint intentionally supersedes that compatibility guarantee; token revocation remains
+  unchanged.
 - Invalid nonstring/missing credential inputs now have controlled401/400; malformed claim sets,
   missing expiry and non-HS256 tokens are rejected instead of reproducing permissive legacy behavior.
 - R10 and admin reset-password remain for MODULE4. No privileged account is bootstrapped.

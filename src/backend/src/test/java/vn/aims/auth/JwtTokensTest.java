@@ -4,6 +4,7 @@ import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.*;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.util.*;
 import java.time.Instant;
 import static org.assertj.core.api.Assertions.*;
@@ -39,12 +40,10 @@ class JwtTokensTest {
                 "eyJhbGciOiJub25lIn0.eyJ1c2VySUQiOjF9."))
             assertThatThrownBy(() -> tokens.verify(bad)).isInstanceOf(IllegalArgumentException.class);
     }
-    @Test void bcryptAcceptsOriginalBcryptjsHashAndRetainsByteLimit() {
-        var bcrypt = new LegacyBcryptPasswordEncoder();
-        // Synthetic oracle produced by the original bcryptjs package, never an account credential.
-        assertThat(bcrypt.matches("legacy-password","$2b$10$KSr.MT0G6elLNH3QkIufpujxTCDnPwM/9rZ/GriH8Y7LX2fT9lrZi")).isTrue();
-        String prefix="x".repeat(71)+"ế";
-        assertThat(bcrypt.matches(prefix+"b",bcrypt.encode(prefix+"a"))).isTrue();
-        assertThat(bcrypt.matches("wrong",bcrypt.encode("correct"))).isFalse();
+    @Test void springBcryptEncodesAndMatchesPasswords() {
+        var bcrypt = new BCryptPasswordEncoder();
+        var encoded = bcrypt.encode("correct");
+        assertThat(bcrypt.matches("correct",encoded)).isTrue();
+        assertThat(bcrypt.matches("wrong",encoded)).isFalse();
     }
 }

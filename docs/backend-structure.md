@@ -18,7 +18,7 @@ Các tích hợp kỹ thuật có package mang đúng tên chức năng: `auth/s
 
 Đăng nhập username/password đi qua chuỗi Spring Security chuẩn
 `AuthenticationManager` → `DaoAuthenticationProvider` → `AimsUserDetailsService` →
-`LegacyBcryptPasswordEncoder`. JWT stateless được phát bằng Spring `JwtEncoder`; Spring Boot OAuth2
+`BCryptPasswordEncoder`. JWT stateless được phát bằng Spring `JwtEncoder`; Spring Boot OAuth2
 Resource Server kiểm tra bằng `JwtDecoder`/`BearerTokenAuthenticationFilter`, chuyển claim `roles`
 thành authority và cung cấp `Jwt` principal cho controller. Không còn servlet JWT filter tự viết hay
 thao tác trực tiếp với `SecurityContextHolder`.

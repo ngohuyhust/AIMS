@@ -461,7 +461,7 @@ Implemented POST `/api/auth/login` (public, `{email,password}`) and POST
 `/api/auth/change-password` (Bearer JWT, `{oldPassword,newPassword}`); success status201 as in Nest.
 The later Spring Security refactor routes login credentials through an explicit
 `AuthenticationManager` backed by `DaoAuthenticationProvider`, `UserDetailsService` and the
-legacy-compatible `PasswordEncoder`. This is an internal implementation change only: paths,
+standard Spring Security `BCryptPasswordEncoder`. This is an internal implementation change only: paths,
 request/response JSON, JWT claims/lifetime, status codes and error messages remain unchanged.
 Login returns `{token,user:{userID,email,fullName,roles:string[]}}`. HS256 token has the same user
 claims plus iat/exp with24h lifetime. UTF-8 signing secret comes exclusively from JWT_SECRET
@@ -478,7 +478,9 @@ are erased from the successful Spring authentication result before the JWT respo
 Change-password validates trimmed UTF-16 length>=6, hashes the original untrimmed value with BCrypt
 cost10, and commits the credential and CHANGE_PASSWORD audit in one transaction. Returns
 `{success:true,message:"Đổi mật khẩu thành công"}`; short new password/wrong old password return400,
-absent user404. Existing source bcryptjs hashes and UTF-8 72-byte truncation remain supported.
+absent user404. Newly created and changed passwords use Spring Security's BCrypt defaults. The
+previous application-specific UTF-8 truncation and `$2b$` generation behavior is no longer a
+compatibility guarantee.
 JWT errors distinguish missing/wrong-case Bearer prefix from invalid/expired token with source401
 envelopes. Spring maps the exact role values as authorities; ADMIN does not imply PRODUCT_MANAGER.
 Role-protected business endpoints and reset-password routes remain closed until MODULE4/5.

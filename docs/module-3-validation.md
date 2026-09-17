@@ -1,5 +1,8 @@
 # MODULE 3 validation — 2026-09-07
 
+> Historical checkpoint record. The later standard Spring BCrypt checkpoint removes the custom
+> bcryptjs compatibility behavior documented below.
+
 Source read-only commit: c7c022e33f100937cd0f072c3666fd0e26754d8e.
 Read auth controller/service/JWT and roles guards, bootstrap CORS, Angular AuthService and existing
 contract. Scope: login, JWT claims/verification, BCrypt, change-password with audit transaction,
