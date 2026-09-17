@@ -4,7 +4,7 @@
 
 - Authorized scope: **replace the application-specific bcryptjs-compatible password encoder with
   Spring Security's standard `BCryptPasswordEncoder` and remove the obsolete class**.
-- Status: **implementation, documentation and verification complete; Git publication in progress**.
+- Status: **implementation, documentation, verification and Git publication complete**.
 - Next checkpoint: live `public`→`aims_java` delta/cutover, Java25/toolchain migration and provider
   production activation remain separate checkpoints requiring explicit authorization.
 - Current branch: `main`, preserving consolidated ISD history.
@@ -22,9 +22,9 @@
   17.6 Testcontainers; Flyway V1–V10, Spring context and executable JAR pass. Frontend source-ref,
   Compose and diff checks pass. No external database/provider was contacted.
 - No Angular, schema or Flyway change. Implementation
-  `caa619311ac14d712608d72881669f0a7a435022`; exact remote verification follows push. The
-  user-owned formatting change in `AuthController.java` is preserved and excluded from this
-  checkpoint.
+  `caa619311ac14d712608d72881669f0a7a435022` was pushed to `origin/main`; its presence on the
+  verified remote branch was confirmed before this completion record. The user-owned formatting
+  change in `AuthController.java` remains uncommitted and excluded from this checkpoint.
 
 ## CODE AND REPOSITORY CLEANUP result
 
